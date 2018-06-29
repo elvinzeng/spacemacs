@@ -42,22 +42,22 @@ values."
      helm
      emoji
      chinese
-     c-c++
-     csv
-     html
-     java
-     javascript
-     plantuml
-     python
-     lua
-     shell-scripts
-     sql
-     yaml
-     windows-scripts
-     typescript
+     ;; c-c++
+     ;; csv
+     ;; html
+     ;; java
+     ;; javascript
+     ;; plantuml
+     ;; python
+     ;; lua
+     ;; shell-scripts
+     ;; sql
+     ;; yaml
+     ;; windows-scripts
+     ;;  typescript
      ;; pandoc
-     pdf-tools
-     shell
+     ;; pdf-tools
+     ;; shell
      auto-completion
      better-defaults
      emacs-lisp
@@ -87,7 +87,7 @@ values."
    ;; `used-but-keep-unused' installs only the used packages but won't uninstall
    ;; them if they become unused. `all' installs *all* packages supported by
    ;; Spacemacs and never uninstall them. (default is `used-only')
-   dotspacemacs-install-packages 'used-only))
+   dotspacemacsee0eeac9c766258c37da4ac8528cfe17fb85b39e-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
   "Initialization function.
@@ -356,7 +356,7 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yaml-mode xterm-color web-mode web-beautify tide typescript-mode tagedit slim-mode shell-pop scss-mode sass-mode pyim pyim-basedict pug-mode powershell plantuml-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub with-editor flyspell-correct-helm flyspell-correct auto-dictionary org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot pyenv-mode company-anaconda anaconda-mode pythonic yapfify ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org sql-indent spaceline restart-emacs request rainbow-delimiters pyvenv pytest py-isort popwin pip-requirements persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree mwim move-text mmm-mode markdown-toc macrostep lorem-ipsum live-py-mode linum-relative link-hint indent-guide idea-darkula-theme hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gh-md fuzzy flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word cython-mode company-statistics column-enforce-mode clean-aindent-mode bracketed-paste auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+    (pangu-spacing find-by-pinyin-dired ace-pinyin pinyinlib yaml-mode xterm-color web-mode web-beautify tide typescript-mode tagedit slim-mode shell-pop scss-mode sass-mode pyim pyim-basedict pug-mode powershell plantuml-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub with-editor flyspell-correct-helm flyspell-correct auto-dictionary org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot pyenv-mode company-anaconda anaconda-mode pythonic yapfify ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org sql-indent spaceline restart-emacs request rainbow-delimiters pyvenv pytest py-isort popwin pip-requirements persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree mwim move-text mmm-mode markdown-toc macrostep lorem-ipsum live-py-mode linum-relative link-hint indent-guide idea-darkula-theme hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gh-md fuzzy flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word cython-mode company-statistics column-enforce-mode clean-aindent-mode bracketed-paste auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
