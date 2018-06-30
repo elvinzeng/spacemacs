@@ -345,6 +345,8 @@ you should place your code here."
   ;; Set escape keybinding to "jk"
   (setq-default evil-escape-key-sequence "jk")
   (setq-default evil-escape-delay 0.2)
+  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
+                                          (set (make-local-variable 'mouse-1-click-follows-link) nil)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
