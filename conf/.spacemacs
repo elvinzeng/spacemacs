@@ -462,6 +462,16 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
         '(("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
           ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
           ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+
+
+    (setq-default dotspacemacs-default-font '("Source Code Pro"
+                                              :size 16
+                                              :weight normal
+                                              :width normal
+                                              :powerline-scale 1.3))
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font (frame-parameter nil 'font)
+                        charset (font-spec :family "微软雅黑" :size 20)))
   )
 
 (defun dotspacemacs/user-load ()
@@ -482,6 +492,18 @@ before packages are loaded."
     (setq-default evil-escape-delay 0.2)
     (add-hook 'spacemacs-buffer-mode-hook (lambda ()
                                         (set (make-local-variable 'mouse-1-click-follows-link) nil)))
+    ;;(spacemacs//set-monospaced-font   "微软雅黑" "Source Code Pro" 20 14)
+    ;;(spacemacs//set-monospaced-font   "微软雅黑 Regular" "Hiragino Sans GB" 20 14)
+    ;; (spacemacs//set-monospaced-font "Droid Sans Mono Dotted for Powerline Regular" "Hiragino Sans GB" 20 16)
+
+    (setq-default dotspacemacs-default-font '("Source Code Pro"
+                                              :size 16
+                                              :weight normal
+                                              :width normal
+                                              :powerline-scale 1.3))
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font (frame-parameter nil 'font)
+                        charset (font-spec :family "微软雅黑" :size 20)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
