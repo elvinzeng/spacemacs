@@ -492,9 +492,6 @@ before packages are loaded."
     (setq-default evil-escape-delay 0.2)
     (add-hook 'spacemacs-buffer-mode-hook (lambda ()
                                         (set (make-local-variable 'mouse-1-click-follows-link) nil)))
-    ;;(spacemacs//set-monospaced-font   "微软雅黑" "Source Code Pro" 20 14)
-    ;;(spacemacs//set-monospaced-font   "微软雅黑 Regular" "Hiragino Sans GB" 20 14)
-    ;; (spacemacs//set-monospaced-font "Droid Sans Mono Dotted for Powerline Regular" "Hiragino Sans GB" 20 16)
 
     (setq-default dotspacemacs-default-font '("Source Code Pro"
                                               :size 16
