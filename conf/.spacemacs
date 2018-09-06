@@ -501,6 +501,8 @@ before packages are loaded."
     (dolist (charset '(kana han symbol cjk-misc bopomofo))
       (set-fontset-font (frame-parameter nil 'font)
                         charset (font-spec :family "微软雅黑" :size 20)))
+
+    (setq org-html-validation-link nil)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
