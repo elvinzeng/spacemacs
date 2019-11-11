@@ -497,15 +497,18 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
       ;;(set-fontset-font (frame-parameter nil 'font)
                         ;;charset (font-spec :family "华文仿宋" :size 16)))
 
+    (if (display-graphic-p)
+        (progn
+          (setq-default dotspacemacs-default-font '("Source Code Pro"
+                                                    :size 16
+                                                    :weight normal
+                                                    :width normal
+                                                    :powerline-scale 1.3))
+          (dolist (charset '(kana han symbol cjk-misc bopomofo))
+            (set-fontset-font (frame-parameter nil 'font)
+                              charset (font-spec :family "思源黑体" :size 20)))
+          ))
 
-    (setq-default dotspacemacs-default-font '("Source Code Pro"
-                                              :size 16
-                                              :weight normal
-                                              :width normal
-                                              :powerline-scale 1.3))
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset (font-spec :family "思源黑体" :size 20)))
 
 
     (setq package-check-signature nil)
@@ -549,18 +552,26 @@ before packages are loaded."
       ;;(set-fontset-font (frame-parameter nil 'font)
                         ;;charset (font-spec :family "华文仿宋" :size 16)))
 
-    (setq-default dotspacemacs-default-font '("Source Code Pro"
-                                              :size 16
-                                              :weight normal
-                                              :width normal
-                                              :powerline-scale 1.3))
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset (font-spec :family "思源黑体" :size 20)))
+    (if (display-graphic-p)
+        (progn
+          (setq-default dotspacemacs-default-font '("Source Code Pro"
+                                                    :size 16
+                                                    :weight normal
+                                                    :width normal
+                                                    :powerline-scale 1.3))
+          (dolist (charset '(kana han symbol cjk-misc bopomofo))
+            (set-fontset-font (frame-parameter nil 'font)
+                              charset (font-spec :family "思源黑体" :size 20)))
+          ))
 
     (setq org-html-validation-link nil)
     (setq plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
     (setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
+
+    ;; FIXME: workaround
+    ;; https://github.com/syl20bnr/spacemacs/issues/11798
+    (when (version<= "9.2" (org-version))
+      (require 'org-tempo))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
