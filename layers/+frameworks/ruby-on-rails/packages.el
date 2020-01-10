@@ -10,11 +10,11 @@
 ;;; License: GPLv3
 
 (setq ruby-on-rails-packages
-  '(
-    feature-mode
-    projectile-rails
-    which-key
-    ))
+      '(
+        feature-mode
+        projectile-rails
+        which-key
+        ))
 
 (defun ruby-on-rails/init-projectile-rails ()
   (use-package projectile-rails
@@ -26,6 +26,7 @@
       ;; Find files
       (spacemacs/set-leader-keys-for-minor-mode 'projectile-rails-mode
         "ffa" 'projectile-rails-find-locale
+        "ffb" 'projectile-rails-find-job
         "ffc" 'projectile-rails-find-controller
         "ffe" 'projectile-rails-find-environment
         "fff" 'projectile-rails-find-feature
@@ -42,6 +43,7 @@
         "fft" 'projectile-rails-find-test
         "ffu" 'projectile-rails-find-fixture
         "ffv" 'projectile-rails-find-view
+        "ffw" 'projectile-rails-find-webpack
         "ffy" 'projectile-rails-find-layout
         "ff@" 'projectile-rails-find-mailer
         ;f Goto file
@@ -64,13 +66,17 @@
         ;; Rails external commands
         "f:" 'projectile-rails-rake
         "fcc" 'projectile-rails-generate
+        "fcd" 'projectile-rails-destroy
         "fi" 'projectile-rails-console
         "fxs" 'projectile-rails-server
         ;; Refactoring 'projectile-rails-mode
         "fRx" 'projectile-rails-extract-region)
 
       (dolist (mode '(ruby-mode enh-ruby-mode))
-        (spacemacs/declare-prefix-for-mode mode "mf" "rails/rubocop")
+        (spacemacs/declare-prefix-for-mode mode "mf" "rails")
+        (spacemacs/declare-prefix-for-mode mode "mfc" "generate/destroy")
+        (spacemacs/declare-prefix-for-mode mode "mfR" "extract")
+        (spacemacs/declare-prefix-for-mode mode "mfx" "server")
         (spacemacs/declare-prefix-for-mode mode "mff" "file")
         (spacemacs/declare-prefix-for-mode mode "mfg" "goto"))
 

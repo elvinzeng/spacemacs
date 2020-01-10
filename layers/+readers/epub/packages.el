@@ -1,6 +1,6 @@
 ;;; packages.el --- epub layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Jeremy Dormitzer <jeremy.dormitzer@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -23,6 +23,8 @@
       (kbd "L") 'nov-next-document
       (kbd "[") 'nov-previous-document
       (kbd "]") 'nov-next-document
+      (kbd "d") 'nov-scroll-up
+      (kbd "u") 'nov-scroll-down
       (kbd "gm") 'nov-display-metadata
       (kbd "gr") 'nov-render-document
       (kbd "gt") 'nov-goto-toc

@@ -23,22 +23,26 @@
     (`tern (spacemacs/tern-setup-tern-company 'rjsx-mode))
     (`lsp (spacemacs//react-setup-lsp-company))))
 
+(defun spacemacs//react-setup-next-error-fn ()
+  "If the `syntax-checking' layer is enabled, disable `rjsx-mode''s
+`next-error-function', and let `flycheck' handle any errors."
+  (when (configuration-layer/layer-used-p 'syntax-checking)
+    (setq-local next-error-function nil)))
 
 ;; LSP
 (defun spacemacs//react-setup-lsp ()
   "Setup lsp backend."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (lsp-javascript-typescript-enable)
-        (lsp-javascript-flow-enable)
-        (spacemacs//setup-lsp-jump-handler 'rjsx-mode))
+        (when (not javascript-lsp-linter)
+          (setq-local lsp-prefer-flymake :none))
+        (lsp))
     (message "`lsp' layer is not installed, please add `lsp' layer to your dotfile.")))
 
 (defun spacemacs//react-setup-lsp-company ()
   "Setup lsp auto-completion."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (fix-lsp-company-prefix)
         (spacemacs|add-company-backends
           :backends company-lsp
           :modes rjsx-mode
@@ -77,3 +81,7 @@ If optional argument P is present, test this instead of point."
 
 (defun spacemacs//react-setup-yasnippet ()
   (yas-activate-extra-mode 'js-mode))
+
+;; Format
+(defun spacemacs//react-fmt-before-save-hook ()
+  (add-hook 'before-save-hook 'spacemacs/javascript-format t t))

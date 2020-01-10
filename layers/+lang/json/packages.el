@@ -9,7 +9,6 @@
 ;;
 ;;; License: GPLv3
 
-
 (setq json-packages
       '(
         add-node-modules-path
@@ -18,6 +17,7 @@
         json-navigator
         json-reformat
         json-snatcher
+        prettier-js
         web-beautify
         ))
 
@@ -46,7 +46,7 @@
     :defer t
     :init
     (spacemacs/set-leader-keys-for-major-mode 'json-mode
-      "=" 'spacemacs/json-reformat-dwim)))
+      "==" 'spacemacs/json-reformat-dwim)))
 
 (defun json/init-json-snatcher ()
   (use-package json-snatcher
@@ -55,5 +55,18 @@
     (spacemacs/set-leader-keys-for-major-mode 'json-mode
       "hp" 'jsons-print-path)))
 
+(defun json/pre-init-prettier-js ()
+  (when (eq json-fmt-tool 'prettier)
+    (add-to-list 'spacemacs--prettier-modes 'json-mode)
+    (add-hook 'json-mode-hook #'spacemacs/json-setup-prettier)
+    (when (eq json-fmt-on-save t)
+      (add-hook 'json-mode-hook 'prettier-js-mode))))
+
 (defun json/pre-init-web-beautify ()
-  (add-to-list 'spacemacs--web-beautify-modes (cons 'json-mode 'web-beautify-js)))
+  (when (eq json-fmt-tool 'web-beautify)
+    (add-to-list 'spacemacs--web-beautify-modes
+                 (cons 'json-mode 'web-beautify-js))
+    (when (eq json-fmt-on-save t)
+      (add-hook 'json-mode-hook
+                (lambda ()
+                  (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))))

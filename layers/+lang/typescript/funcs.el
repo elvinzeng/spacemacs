@@ -12,21 +12,29 @@
 
 ;; backend
 
+(defun spacemacs//typescript-backend ()
+  "Returns selected backend."
+  (if typescript-backend
+      typescript-backend
+    (cond
+     ((configuration-layer/layer-used-p 'lsp) 'lsp)
+     (t 'tide))))
+
 (defun spacemacs//typescript-setup-backend ()
   "Conditionally setup typescript backend."
-  (pcase typescript-backend
+  (pcase (spacemacs//typescript-backend)
     (`tide (spacemacs//typescript-setup-tide))
     (`lsp (spacemacs//typescript-setup-lsp))))
 
 (defun spacemacs//typescript-setup-company ()
   "Conditionally setup company based on backend."
-  (pcase typescript-backend
+  (pcase (spacemacs//typescript-backend)
     (`tide (spacemacs//typescript-setup-tide-company))
     (`lsp (spacemacs//typescript-setup-lsp-company))))
 
 (defun spacemacs//typescript-setup-eldoc ()
   "Conditionally setup eldoc based on backend."
-  (pcase typescript-backend
+  (pcase (spacemacs//typescript-backend)
     (`tide (spacemacs//typescript-setup-tide-eldoc))
     (`lsp (spacemacs//typescript-setup-lsp-eldoc))))
 
@@ -40,10 +48,6 @@
       (kbd "C-k") 'tide-find-previous-reference
       (kbd "C-j") 'tide-find-next-reference
       (kbd "C-l") 'tide-goto-reference)
-    (add-to-list 'spacemacs-jump-handlers-typescript-tsx-mode
-                 '(tide-jump-to-definition :async t))
-    (add-to-list 'spacemacs-jump-handlers-typescript-mode
-                 '(tide-jump-to-definition :async t))
     (tide-setup)))
 
 (defun spacemacs//typescript-setup-tide-company ()
@@ -66,9 +70,9 @@
   "Setup lsp backend."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (spacemacs//setup-lsp-jump-handler 'typescript-mode
-                                    'typescript-tsx-mode)
-        (lsp-javascript-typescript-enable))
+        (when (not typescript-lsp-linter)
+          (setq-local lsp-prefer-flymake :none))
+        (lsp))
     (message (concat "`lsp' layer is not installed, "
                      "please add `lsp' layer to your dotfile."))))
 
@@ -76,7 +80,6 @@
   "Setup lsp auto-completion."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (fix-lsp-company-prefix)
         (spacemacs|add-company-backends
           :backends company-lsp
           :modes typescript-mode typescript-tsx-mode
@@ -90,6 +93,13 @@
 (defun spacemacs//typescript-setup-lsp-eldoc ()
   "Setup eldoc for LSP."
   (eldoc-mode))
+
+
+;; Emmet
+
+(defun spacemacs/typescript-emmet-mode ()
+  "Configure `emmet-mode' for local buffer."
+  (setq-local emmet-expand-jsx-className? t))
 
 
 ;; Others
@@ -135,9 +145,11 @@
     (call-interactively 'spacemacs/typescript-tsfmt-format-buffer))
    ((eq typescript-fmt-tool 'tide)
     (call-interactively 'tide-format))
+   ((eq typescript-fmt-tool 'prettier)
+    (call-interactively 'prettier-js))
    (t (error (concat "%s isn't valid typescript-fmt-tool value."
-                     " It should be 'tide or 'typescript-formatter."
-                     (symbol-name typescript-fmt-tool))))))
+                     " It should be 'tide, 'typescript-formatter or 'prettier.")
+                     (symbol-name typescript-fmt-tool)))))
 
 (defun spacemacs/typescript-fmt-before-save-hook ()
   (add-hook 'before-save-hook 'spacemacs/typescript-format t t))
@@ -153,3 +165,17 @@
 
 (defun spacemacs/typescript-yasnippet-setup ()
   (yas-activate-extra-mode 'js-mode))
+
+(defun spacemacs/typescript-jump-to-type-def ()
+  (interactive)
+  (tide-jump-to-definition))
+
+(defun spacemacs/typescript-safe-local-variables (values)
+  ;; safe values for backend to be used in directory file variables
+  (dolist (value values)
+    (add-to-list 'safe-local-variable-values
+                 (cons 'typescript-backend value))))
+
+(defun spacemacs//typescript-setup-checkers ()
+  (when-let* ((found (executable-find "eslint_d")))
+    (set (make-local-variable 'flycheck-javascript-eslint-executable) found)))

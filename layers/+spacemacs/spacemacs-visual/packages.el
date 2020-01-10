@@ -13,7 +13,10 @@
       '(
         (ansi-colors :location built-in)
         desktop
-        fill-column-indicator
+        ;; `display-fill-column-indicator' is available in Emacs 27+
+        (display-fill-column-indicator :location built-in
+                                       :toggle (boundp 'display-fill-column-indicator))
+        (fill-column-indicator :toggle (not (boundp 'display-fill-column-indicator)))
         hl-todo
         popup
         popwin
@@ -31,6 +34,21 @@
     (setq desktop-dirname spacemacs-cache-directory)
     :config
     (add-to-list 'desktop-path spacemacs-cache-directory)))
+
+(defun spacemacs-visual/init-display-fill-column-indicator ()
+  (spacemacs|add-toggle fill-column-indicator
+    :mode display-fill-column-indicator-mode
+    :documentation "Display the fill column indicator."
+    :evil-leader "tf")
+  (spacemacs|add-toggle fill-column-indicator-globally
+    :mode global-display-fill-column-indicator-mode
+    :documentation "Display the fill column indicator globally."
+    :evil-leader "t C-f")
+  (with-eval-after-load 'display-fill-column-indicator
+    ;; manually register the minor mode since it does not define any
+    ;; lighter
+    (add-to-list 'minor-mode-alist '(display-fill-column-indicator-mode ""))
+    (spacemacs|diminish display-fill-column-indicator-mode " ⓕ" " f")))
 
 (defun spacemacs-visual/init-fill-column-indicator ()
   (use-package fill-column-indicator
@@ -53,8 +71,10 @@
 (defun spacemacs-visual/init-hl-todo ()
   (use-package hl-todo
     :defer t
-    :init (spacemacs/add-to-hooks 'hl-todo-mode '(text-mode-hook
-                                                  prog-mode-hook))))
+    :init
+    ;; global hook activates hl-todo-mode for prog-mode, text-mode
+    ;; mode can be explicitly defined using hl-todo-activate-in-modes variable
+    (global-hl-todo-mode 1)))
 
 (defun spacemacs-visual/init-popup ())
 
@@ -75,7 +95,7 @@
       (push '("*compilation*"          :dedicated t :position bottom :stick t :noselect t   :height 0.4) popwin:special-display-config)
       (push '("*Shell Command Output*" :dedicated t :position bottom :stick t :noselect nil            ) popwin:special-display-config)
       (push '("*Async Shell Command*"  :dedicated t :position bottom :stick t :noselect nil            ) popwin:special-display-config)
-      (push '(" *undo-tree*"           :dedicated t :position right  :stick t :noselect nil :width   60) popwin:special-display-config)
+      (push '("*undo-tree*"            :dedicated t :position right  :stick t :noselect nil :width   60) popwin:special-display-config)
       (push '("*undo-tree Diff*"       :dedicated t :position bottom :stick t :noselect nil :height 0.3) popwin:special-display-config)
       (push '("*ert*"                  :dedicated t :position bottom :stick t :noselect nil            ) popwin:special-display-config)
       (push '("*grep*"                 :dedicated t :position bottom :stick t :noselect nil            ) popwin:special-display-config)
@@ -93,12 +113,19 @@
       (spacemacs|define-transient-state zoom-frm
         :title "Zoom Frame Transient State"
         :doc "
-[_+_/_=_] zoom frame in [_-_] zoom frame out [_0_] reset zoom [_q_] quit"
+[_+_/_=_/_k_] zoom frame in   [_m_] max frame
+[_-_/___/_j_] zoom frame out  [_f_] fullscreen
+[_0_]^^^^     reset zoom      [_q_] quit"
         :bindings
         ("+" spacemacs/zoom-frm-in)
         ("=" spacemacs/zoom-frm-in)
+        ("k" spacemacs/zoom-frm-in)
         ("-" spacemacs/zoom-frm-out)
+        ("_" spacemacs/zoom-frm-out)
+        ("j" spacemacs/zoom-frm-out)
         ("0" spacemacs/zoom-frm-unzoom)
+        ("f" spacemacs/toggle-frame-fullscreen-non-native)
+        ("m" spacemacs/toggle-maximize-frame)
         ("q" nil :exit t))
       (spacemacs/set-leader-keys "zf" 'spacemacs/zoom-frm-transient-state/body)
 

@@ -1,4 +1,4 @@
-;;; packages.el --- CMake layer packages  fuke for Spacemacs
+;;; packages.el --- CMake layer packages file for Spacemacs.
 ;;
 ;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
@@ -41,8 +41,7 @@
     :mode (("CMakeLists\\.txt\\'" . cmake-mode) ("\\.cmake\\'" . cmake-mode))))
 
 (defun cmake/post-init-company ()
-  (when (configuration-layer/package-used-p 'cmake-mode)
-    (spacemacs|add-company-backends :backends company-cmake :modes cmake-mode)))
+  (spacemacs|add-company-backends :backends company-cmake :modes cmake-mode))
 
 (defun cmake/init-helm-ctest ()
   (use-package helm-ctest

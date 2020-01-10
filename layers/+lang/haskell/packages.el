@@ -10,36 +10,59 @@
 ;;; License: GPLv3
 
 (setq haskell-packages
-  '(
-    cmm-mode
-    (company-cabal :requires company)
-    company-ghci
-    company-ghc
-    flycheck
-    (flycheck-haskell :requires flycheck)
-    ggtags
-    ghc
-    haskell-mode
-    haskell-snippets
-    counsel-gtags
-    helm-gtags
-    (helm-hoogle :requires helm)
-    hindent
-    hlint-refactor
-    intero
-    (dante :toggle (version<= "25" emacs-version))
-    ))
+      '(
+        cmm-mode
+        company
+        (company-cabal :requires company)
+
+        ;; ghci completion backend
+        (company-ghci :requires company)
+
+        ;; ghc-mod completion backend
+        (company-ghc :requires company)
+        ghc
+
+        ;; intero completion backend
+        (intero :requires company)
+
+        ;; dante completion backend
+        (dante :requires company)
+        ;; dante auto refactor companion
+        (attrap :requires dante)
+
+        lsp-haskell
+
+        flycheck
+        (flycheck-haskell :requires flycheck)
+        ggtags
+        haskell-mode
+        haskell-snippets
+        counsel-gtags
+        helm-gtags
+        (helm-hoogle :requires helm)
+        hindent
+        hlint-refactor
+        ))
+
+(defun haskell/init-lsp-haskell()
+  (use-package lsp-haskell
+    :defer t))
 
 (defun haskell/init-cmm-mode ()
   (use-package cmm-mode
     :defer t))
 
+(defun haskell/post-init-company ()
+  (add-hook 'haskell-mode-local-vars-hook #'spacemacs-haskell//setup-company)
+  (add-hook 'literate-haskell-mode-local-vars-hook #'spacemacs-haskell//setup-company))
+
 (defun haskell/init-company-cabal ()
   (use-package company-cabal
     :defer t
-    :init (spacemacs|add-company-backends
-            :backends company-cabal
-            :modes haskell-cabal-mode)))
+    :init
+    (spacemacs|add-company-backends
+      :backends company-cabal
+      :modes haskell-cabal-mode)))
 
 (defun haskell/init-company-ghci ()
   (use-package company-ghci
@@ -49,14 +72,29 @@
   (use-package company-ghc
     :defer t))
 
-(defun haskell/post-init-ggtags ()
-  (add-hook 'haskell-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
-
 (defun haskell/init-ghc ()
   (use-package ghc
-    :defer t))
-
-(defun haskell/init-dante ())
+    :defer t
+    :config
+    (progn
+      (dolist (mode haskell-modes)
+        (spacemacs/declare-prefix-for-mode mode "mm" "haskell/ghc-mod")
+        (spacemacs/set-leader-keys-for-major-mode mode
+          "mt" 'ghc-insert-template-or-signature
+          "mu" 'ghc-initial-code-from-signature
+          "ma" 'ghc-auto
+          "mf" 'ghc-refine
+          "me" 'ghc-expand-th
+          "mn" 'ghc-goto-next-hole
+          "mp" 'ghc-goto-prev-hole
+          "m>" 'ghc-make-indent-deeper
+          "m<" 'ghc-make-indent-shallower
+          "hi" 'ghc-show-info
+          "ht" 'ghc-show-type))
+      (when (configuration-layer/package-used-p 'flycheck)
+        ;; remove overlays from ghc-check.el if flycheck is enabled
+        (set-face-attribute 'ghc-face-error nil :underline nil)
+        (set-face-attribute 'ghc-face-warn nil :underline nil)))))
 
 (defun haskell/init-intero ()
   (use-package intero
@@ -65,7 +103,54 @@
     (progn
       (spacemacs|diminish intero-mode " λ" " \\")
       (advice-add 'intero-repl-load
-                  :around #'haskell-intero//preserve-focus))))
+                  :around #'haskell-intero//preserve-focus)
+
+      (dolist (mode haskell-modes)
+        (spacemacs/set-leader-keys-for-major-mode mode
+          "gb" 'xref-pop-marker-stack
+          "hi" 'intero-info
+          "ht" 'intero-type-at
+          "hT" 'haskell-intero/insert-type
+          "rs" 'intero-apply-suggestions
+          "sb" 'intero-repl-load))
+
+      (dolist (mode (cons 'haskell-cabal-mode haskell-modes))
+        (spacemacs/set-leader-keys-for-major-mode mode
+          "sc"  nil
+          "sS"  'haskell-intero/display-repl
+          "ss"  'haskell-intero/pop-to-repl))
+
+      (dolist (mode (append haskell-modes '(haskell-cabal-mode intero-repl-mode)))
+        (spacemacs/declare-prefix-for-mode mode "mi" "haskell/intero")
+        (spacemacs/set-leader-keys-for-major-mode mode
+          "ic"  'intero-cd
+          "id"  'intero-devel-reload
+          "ik"  'intero-destroy
+          "il"  'intero-list-buffers
+          "ir"  'intero-restart
+          "it"  'intero-targets))
+
+      (evil-define-key '(insert normal) intero-mode-map
+        (kbd "M-.") 'intero-goto-definition))))
+
+(defun haskell/init-dante ()
+  (use-package dante
+    :defer t
+    :config
+    (progn
+      (dolist (mode haskell-modes)
+        (spacemacs/set-leader-keys-for-major-mode mode
+          "gb" 'xref-pop-marker-stack
+          "ht" 'dante-type-at
+          "hT" 'spacemacs-haskell//dante-insert-type
+          "hi" 'dante-info
+          "rs" 'dante-auto-fix
+          "se" 'dante-eval-block
+          "sr" 'dante-restart)))))
+
+(defun haskell/init-attrap ()
+  (use-package attrap
+    :defer t))
 
 (defun haskell/init-helm-hoogle ()
   (use-package helm-hoogle
@@ -82,13 +167,17 @@
     :commands flycheck-haskell-configure
     :init (add-hook 'flycheck-mode-hook 'flycheck-haskell-configure)))
 
+(defun haskell/post-init-ggtags ()
+  (add-hook 'haskell-mode-local-vars-hook #'spacemacs/ggtags-mode-enable)
+  (add-hook 'literate-haskell-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
+
 (defun haskell/init-haskell-mode ()
   (use-package haskell-mode
     :defer t
     :init
     (progn
-      (add-hook 'haskell-mode-local-vars-hook
-                #'spacemacs-haskell//setup-completion-backend)
+      (add-hook 'haskell-mode-local-vars-hook #'spacemacs-haskell//setup-backend)
+      (add-hook 'literate-haskell-mode-local-vars-hook #'spacemacs-haskell//setup-backend)
 
       (defun spacemacs//force-haskell-mode-loading ()
         "Force `haskell-mode' loading when visiting cabal file."
@@ -143,6 +232,10 @@
         (interactive)
         (haskell-process-do-type 1))
 
+      ;; Bind repl
+      (spacemacs/register-repl 'haskell
+                               'haskell-interactive-switch "haskell")
+
       (dolist (mode haskell-modes)
         (spacemacs/set-leader-keys-for-major-mode mode
           "gi"  'haskell-navigate-imports
@@ -152,6 +245,7 @@
           "sc"  'haskell-interactive-mode-clear
           "sS"  'spacemacs/haskell-interactive-bring
           "ss"  'haskell-interactive-switch
+          "'"   'haskell-interactive-switch
 
           "ca"  'haskell-process-cabal
           "cb"  'haskell-process-cabal-build
@@ -194,6 +288,7 @@
 
       ;; configure C-c C-l so it doesn't throw any errors
       (bind-key "C-c C-l" 'haskell-process-load-file haskell-mode-map)
+      (bind-key "C-c C-z" 'haskell-interactive-switch haskell-mode-map)
 
       ;; Switch back to editor from REPL
       (spacemacs/set-leader-keys-for-major-mode 'haskell-interactive-mode
@@ -229,24 +324,24 @@
       (evil-define-key 'normal haskell-interactive-mode-map
         (kbd "RET") 'haskell-interactive-mode-return))
 
-  ;; align rules for Haskell
-  (with-eval-after-load 'align
-    (add-to-list 'align-rules-list
-                 '(haskell-types
-                   (regexp . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
-                   (modes . haskell-modes)))
-    (add-to-list 'align-rules-list
-                 '(haskell-assignment
-                   (regexp . "\\(\\s-+\\)=\\s-+")
-                   (modes . haskell-modes)))
-    (add-to-list 'align-rules-list
-                 '(haskell-arrows
-                   (regexp . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
-                   (modes . haskell-modes)))
-    (add-to-list 'align-rules-list
-                 '(haskell-left-arrows
-                   (regexp . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+")
-                   (modes . haskell-modes))))))
+    ;; align rules for Haskell
+    (with-eval-after-load 'align
+      (add-to-list 'align-rules-list
+                   '(haskell-types
+                     (regexp . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
+                     (modes . haskell-modes)))
+      (add-to-list 'align-rules-list
+                   '(haskell-assignment
+                     (regexp . "\\(\\s-+\\)=\\s-+")
+                     (modes . haskell-modes)))
+      (add-to-list 'align-rules-list
+                   '(haskell-arrows
+                     (regexp . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
+                     (modes . haskell-modes)))
+      (add-to-list 'align-rules-list
+                   '(haskell-left-arrows
+                     (regexp . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+")
+                     (modes . haskell-modes))))))
 
 (defun haskell/init-haskell-snippets ()
   ;; manually load the package since the current implementation is not lazy

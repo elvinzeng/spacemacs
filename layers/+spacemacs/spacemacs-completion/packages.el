@@ -46,8 +46,10 @@
     (add-hook 'helm-find-files-before-init-hook
               'spacemacs//set-dotted-directory)
     (add-hook 'spacemacs-editing-style-hook 'spacemacs//helm-hjkl-navigation)
+    (add-hook 'helm-find-files-after-init-hook
+              'spacemacs//helm-find-files-enable-helm--in-fuzzy)
     ;; setup advices
-    ;; fuzzy matching for all the sourcess
+    ;; fuzzy matching for all the sources
     (unless (eq helm-use-fuzzy 'source)
       (advice-add 'helm-make-source :around #'spacemacs//helm-make-source))
 
@@ -70,9 +72,9 @@
     (spacemacs|define-transient-state helm-navigation
       :title "Helm Transient State"
       :doc "
- [_j_/_k_]  next/prev candidate  [_v_]^^     persistent action     [_e_]^^    edit occurrences
- [_h_/_l_]  prev/next source     [_1_.._0_]  action 1..10          [_t_/_T_]  toggle visible/all mark
- [_q_]^^    quit                 [_a_]^^     action selection pg"
+ [_j_/_k_] next/prev candidate   [_v_]^^    persistent action    [_e_]^^   edit occurrences
+ [_h_/_l_] prev/next source      [_1_.._0_] action 1..10         [_t_/_T_] toggle visible/all mark
+ [_g_/_G_] first/last candidate  [_a_]^^    action selection pg  [_q_]^^   quit"
         :foreign-keys run
         :on-enter (spacemacs//helm-navigation-ts-on-enter)
         :on-exit  (spacemacs//helm-navigation-ts-on-exit)
@@ -125,7 +127,8 @@
 (defun spacemacs-completion/init-default-ivy-config ()
   (with-eval-after-load 'ivy
     (setq ivy-height 15
-          ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+          ivy-re-builders-alist '((spacemacs/counsel-search . spacemacs/ivy--regex-plus)
+                                  (t . ivy--regex-ignore-order)))
     (spacemacs|hide-lighter ivy-mode)
     ;; setup hooks
     (add-hook 'spacemacs-editing-style-hook 'spacemacs//ivy-hjkl-navigation)
@@ -187,7 +190,8 @@ Current Action: %s(ivy-action-name)
       'spacemacs/ivy-transient-state/body)
     (define-key ivy-minibuffer-map (kbd "s-M-SPC")
       'spacemacs/ivy-transient-state/body)
-    ))
+    (define-key ivy-minibuffer-map (kbd "s-M-SPC")
+      'spacemacs/ivy-transient-state/body)))
 
 (defun spacemacs-completion/init-flx-ido ()
   (use-package flx-ido

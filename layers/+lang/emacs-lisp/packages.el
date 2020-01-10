@@ -22,6 +22,8 @@
         evil-cleverparens
         eval-sexp-fu
         flycheck
+        flycheck-elsa
+        flycheck-package
         ggtags
         counsel-gtags
         helm-gtags
@@ -32,7 +34,8 @@
         parinfer
         semantic
         smartparens
-        srefactor))
+        srefactor
+        ))
 
 (defun emacs-lisp/init-ielm ()
   (use-package ielm
@@ -81,13 +84,13 @@
           "dF" 'spacemacs/edebug-instrument-defun-off))
       ;; since we evilify `edebug-mode-map' we don't need to intercept it to
       ;; make it work with evil
-     (evil-set-custom-state-maps
-      'evil-intercept-maps
-      'evil-pending-intercept-maps
-      'intercept-state
-      'evil-make-intercept-map
-      (delq (assq 'edebug-mode-map evil-intercept-maps)
-            evil-intercept-maps))
+      (evil-set-custom-state-maps
+       'evil-intercept-maps
+       'evil-pending-intercept-maps
+       'intercept-state
+       'evil-make-intercept-map
+       (delq (assq 'edebug-mode-map evil-intercept-maps)
+             evil-intercept-maps))
       (evilified-state-evilify-map edebug-mode-map
         :eval-after-load edebug
         :bindings
@@ -134,14 +137,19 @@
       (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
       (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
         (spacemacs/declare-prefix-for-mode mode "mg" "find-symbol")
-        (spacemacs/declare-prefix-for-mode mode "mh" "help")
         (spacemacs/set-leader-keys-for-major-mode mode
-          "hh" 'elisp-slime-nav-describe-elisp-thing-at-point)
+          "gb" 'xref-pop-marker-stack)
+        (spacemacs/declare-prefix-for-mode mode "mh" "help")
+
+        ;; Load better help mode if helpful is installed
+        (if (configuration-layer/layer-used-p 'helpful)
+            (spacemacs/set-leader-keys-for-major-mode mode
+              "hh" 'helpful-at-point)
+          (spacemacs/set-leader-keys-for-major-mode mode
+            "hh" 'elisp-slime-nav-describe-elisp-thing-at-point))
         (let ((jumpl (intern (format "spacemacs-jump-handlers-%S" mode))))
           (add-to-list jumpl 'elisp-slime-nav-find-elisp-thing-at-point))))
-    :config (spacemacs|hide-lighter elisp-slime-nav-mode)
-
-    ))
+    :config (spacemacs|hide-lighter elisp-slime-nav-mode)))
 
 (defun emacs-lisp/init-emacs-lisp ()
   (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
@@ -209,6 +217,7 @@
         :status nameless-mode
         :on (nameless-mode)
         :off (nameless-mode -1)
+        :documentation "Hide package namespaces in your emacs-lisp code."
         :evil-leader-for-mode (emacs-lisp-mode . "Tn"))
       ;; activate nameless only when in a GUI
       ;; in a terminal nameless triggers all sorts of graphical glitches.
@@ -250,6 +259,14 @@
   ;; Make flycheck recognize packages in loadpath
   ;; i.e (require 'company) will not give an error now
   (setq flycheck-emacs-lisp-load-path 'inherit))
+
+(defun emacs-lisp/init-flycheck-package ()
+  (use-package flycheck-package
+    :hook (emacs-lisp-mode . flycheck-package-setup)))
+
+(defun emacs-lisp/init-flycheck-elsa ()
+  (use-package flycheck-elsa
+    :hook (emacs-lisp-mode . flycheck-elsa-setup)))
 
 (defun emacs-lisp/post-init-counsel-gtags ()
   (spacemacs/counsel-gtags-define-keys-for-mode 'emacs-lisp-mode))

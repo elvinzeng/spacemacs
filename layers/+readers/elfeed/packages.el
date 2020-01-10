@@ -11,9 +11,9 @@
 
 (setq elfeed-packages
       '(elfeed
-        elfeed-goodies
+        (elfeed-goodies :toggle elfeed-enable-goodies)
         elfeed-org
-        elfeed-web
+        (elfeed-web :toggle elfeed-enable-web-interface)
         ))
 
 (defun elfeed/init-elfeed ()
@@ -31,14 +31,12 @@
         "gR" 'elfeed-search-update--force
         "gu" 'elfeed-unjam
         "o"  'elfeed-load-opml
-        "q"  'quit-window
         "w"  'elfeed-web-start
         "W"  'elfeed-web-stop)
       (evilified-state-evilify-map elfeed-show-mode-map
         :mode elfeed-show-mode
         :eval-after-load elfeed-show
         :bindings
-        "q" 'quit-window
         (kbd "C-j") 'elfeed-show-next
         (kbd "C-k") 'elfeed-show-prev)
       (evil-define-key 'visual elfeed-search-mode-map
@@ -72,8 +70,9 @@
   (use-package elfeed-web
     :defer t
     :commands elfeed-web-stop
-    :init (when elfeed-enable-web-interface
-            ;; TODO check if the port is already in use
-            ;; hack to force elfeed feature to be required before elfeed-search
-            (require 'elfeed)
-            (elfeed-web-start))))
+    :init
+    (progn
+      ;; TODO check if the port is already in use
+      ;; hack to force elfeed feature to be required before elfeed-search
+      (require 'elfeed)
+      (elfeed-web-start))))

@@ -11,12 +11,14 @@
 
 (setq go-packages
       '(
+        company
         (company-go :requires company)
         counsel-gtags
+        eldoc
         flycheck
-        (flycheck-gometalinter :toggle (and go-use-gometalinter
-                                            (configuration-layer/package-used-p
-                                             'flycheck)))
+        (flycheck-golangci-lint :toggle (and go-use-golangci-lint
+                                             (configuration-layer/package-used-p
+                                              'flycheck)))
         ggtags
         helm-gtags
         go-eldoc
@@ -28,8 +30,7 @@
         go-rename
         go-tag
         godoctor
-        popwin
-        ))
+        popwin))
 
 (defun go/init-company-go ()
   (use-package company-go
@@ -39,16 +40,22 @@
             :modes go-mode
             :variables company-go-show-annotation t)))
 
+(defun go/post-init-company ()
+  (add-hook 'go-mode-local-vars-hook #'spacemacs//go-setup-company))
+
 (defun go/post-init-counsel-gtags ()
   (spacemacs/counsel-gtags-define-keys-for-mode 'go-mode))
+
+(defun go/post-init-eldoc ()
+  (add-hook 'go-mode-hook #'spacemacs//go-setup-eldoc))
 
 (defun go/post-init-flycheck ()
   (spacemacs/enable-flycheck 'go-mode))
 
-(defun go/init-flycheck-gometalinter ()
-  (use-package flycheck-gometalinter
+(defun go/init-flycheck-golangci-lint ()
+  (use-package flycheck-golangci-lint
     :defer t
-    :init (add-hook 'go-mode-hook 'spacemacs//go-enable-gometalinter t)))
+    :init (add-hook 'go-mode-hook 'spacemacs//go-enable-flycheck-golangci-lint t)))
 
 (defun go/post-init-ggtags ()
   (add-hook 'go-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
@@ -57,7 +64,7 @@
   (spacemacs/helm-gtags-define-keys-for-mode 'go-mode))
 
 (defun go/init-go-eldoc ()
-  (add-hook 'go-mode-hook 'go-eldoc-setup))
+  (use-package go-eldoc :defer t))
 
 (defun go/init-go-fill-struct ()
   (use-package go-fill-struct
@@ -70,6 +77,7 @@
     :defer t
     :init
     (progn
+      (spacemacs/declare-prefix-for-mode 'go-mode "mtg" "generate")
       (spacemacs/set-leader-keys-for-major-mode 'go-mode
         "tgg" 'go-gen-test-dwim
         "tgf" 'go-gen-test-exported
@@ -108,18 +116,32 @@
     (progn
       ;; get go packages much faster
       (setq go-packages-function 'spacemacs/go-packages-gopkgs)
-      (add-hook 'go-mode-hook 'spacemacs//go-set-tab-width))
+      (add-hook 'go-mode-hook 'spacemacs//go-set-tab-width)
+      (add-hook 'go-mode-local-vars-hook
+                #'spacemacs//go-setup-backend)
+      (dolist (value '(lsp go-mode))
+        (add-to-list 'safe-local-variable-values
+                     (cons 'go-backend value)))
+      (spacemacs|add-toggle go-test-verbose
+        :documentation "Enable verbose test output."
+        :status go-test-verbose
+        :on (setq go-test-verbose t)
+        :off (setq go-test-verbose nil)
+        :evil-leader-for-mode (go-mode . "tv")))
     :config
     (progn
-      (add-hook 'before-save-hook 'gofmt-before-save)
+      (when go-format-before-save
+        (add-hook 'before-save-hook 'gofmt-before-save))
       (spacemacs/declare-prefix-for-mode 'go-mode "me" "playground")
       (spacemacs/declare-prefix-for-mode 'go-mode "mg" "goto")
       (spacemacs/declare-prefix-for-mode 'go-mode "mh" "help")
       (spacemacs/declare-prefix-for-mode 'go-mode "mi" "imports")
       (spacemacs/declare-prefix-for-mode 'go-mode "mr" "refactoring")
       (spacemacs/declare-prefix-for-mode 'go-mode "mt" "test")
+      (spacemacs/declare-prefix-for-mode 'go-mode "mT" "toggle")
       (spacemacs/declare-prefix-for-mode 'go-mode "mx" "execute")
       (spacemacs/set-leader-keys-for-major-mode 'go-mode
+        "="  'gofmt
         "eb" 'go-play-buffer
         "ed" 'go-download-play
         "er" 'go-play-region

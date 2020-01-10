@@ -44,7 +44,7 @@
         :documentation "Always keep code indented."
         :evil-leader "tI")
       (spacemacs|add-toggle aggressive-indent-globally
-        :mode aggressive-indent-mode
+        :mode global-aggressive-indent-mode
         :documentation "Always keep code indented globally."
         :evil-leader "t C-I"))
     :config
@@ -55,7 +55,7 @@
 (defun spacemacs-editing/init-avy ()
   (use-package avy
     :defer t
-    :commands (spacemacs/avy-open-url spacemacs/avy-goto-url avy-pop-mark)
+    :commands (spacemacs/avy-open-url spacemacs/avy-goto-url avy-pop-mark avy-with)
     :init
     (progn
       (setq avy-all-windows 'all-frames)
@@ -65,6 +65,7 @@
         "jj" 'evil-avy-goto-char-timer
         "jl" 'evil-avy-goto-line
         "ju" 'spacemacs/avy-goto-url
+        "jU" 'spacemacs/avy-open-url
         "jw" 'evil-avy-goto-word-or-subword-1
         "xo" 'spacemacs/avy-open-url))
     :config
@@ -72,7 +73,7 @@
       (defun spacemacs/avy-goto-url()
         "Use avy to go to an URL in the buffer."
         (interactive)
-        (avy--generic-jump "https?://" nil 'pre))
+        (avy-jump "https?://"))
       (defun spacemacs/avy-open-url ()
         "Use avy to select an URL in the buffer and open it."
         (interactive)
@@ -184,7 +185,8 @@
     :init
     (spacemacs/set-leader-keys
       "xo" 'link-hint-open-link
-      "xO" 'link-hint-open-multiple-links)))
+      "xO" 'link-hint-open-multiple-links
+      "xy" 'link-hint-copy-link)))
 
 (defun spacemacs-editing/init-lorem-ipsum ()
   (use-package lorem-ipsum
@@ -326,7 +328,7 @@
         :documentation "Enable smartparens."
         :evil-leader "tp")
       (spacemacs|add-toggle smartparens-globally
-        :mode smartparens-mode
+        :mode smartparens-global-mode
         :documentation "Enable smartparens globally."
         :evil-leader "t C-p")
       ;; key bindings
@@ -405,7 +407,12 @@
   (use-package undo-tree
     :defer t
     :init (setq undo-tree-visualizer-timestamps t
-                undo-tree-visualizer-diff t)
+                undo-tree-visualizer-diff t
+                ;; 10X bump of the undo limits to avoid issues with premature
+                ;; Emacs GC which truncages the undo history very aggresively
+                undo-limit 800000
+                undo-strong-limit 12000000
+                undo-outer-limit 120000000)
     :config
     (progn
       ;; restore diff window after quit.  TODO fix upstream

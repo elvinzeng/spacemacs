@@ -10,32 +10,42 @@
 (defun dash/init-helm-dash ()
   (use-package helm-dash
     :defer t
-    :init (spacemacs/set-leader-keys
-            "dh" 'helm-dash-at-point
-            "dH" 'helm-dash)
-    :config (dash//activate-package-docsets helm-dash-docset-newpath)))
+    :init (progn
+            (spacemacs/declare-prefix "d" "docs")
+            (spacemacs/set-leader-keys
+              "dh" 'helm-dash-at-point
+              "dH" 'helm-dash))
+    :config (when dash-autoload-common-docsets
+              (dash//activate-package-docsets dash-docs-docset-newpath))))
 
 (defun dash/init-counsel-dash ()
   (use-package counsel-dash
     :defer t
-    :init (spacemacs/set-leader-keys
-            "dh" 'counsel-dash-at-point
-            "dH" 'counsel-dash)
-    :config (dash//activate-package-docsets helm-dash-docset-newpath)))
+    :init (progn
+            (spacemacs/declare-prefix "d" "docs")
+            (spacemacs/set-leader-keys
+              "dh" 'counsel-dash-at-point
+              "dH" 'counsel-dash))
+    :config (when dash-autoload-common-docsets
+              (dash//activate-package-docsets dash-docs-docset-newpath))))
 
 (defun dash/init-dash-at-point ()
   (use-package dash-at-point
     :defer t
-    :init (spacemacs/set-leader-keys
-            "dd" 'dash-at-point
-            "dD" 'dash-at-point-with-docset)))
+    :init (progn
+            (spacemacs/declare-prefix "d" "docs")
+            (spacemacs/set-leader-keys
+              "dd" 'dash-at-point
+              "dD" 'dash-at-point-with-docset))))
 
 (defun dash/init-zeal-at-point ()
   (use-package zeal-at-point
     :defer t
-    :init (spacemacs/set-leader-keys
+    :init (progn
+           (spacemacs/declare-prefix "d" "docs")
+           (spacemacs/set-leader-keys
             "dd" 'zeal-at-point
-            "dD" 'zeal-at-point-set-docset)
+            "dD" 'zeal-at-point-set-docset))
     :config
-    ;; This lets users seach in multiple docsets
+    ;; This lets users search in multiple docsets
     (add-to-list 'zeal-at-point-mode-alist '(web-mode . "html,css,javascript"))))

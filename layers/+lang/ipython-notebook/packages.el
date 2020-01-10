@@ -9,25 +9,70 @@
 ;;
 ;;; License: GPLv3
 
-(setq ipython-notebook-packages '(company
-                                  ein
-                                  ob-ipython
-                                  ))
+(setq ipython-notebook-packages
+      '(
+        company
+        ein
+        ob-ipython
+        websocket
+        request
+        request-deferred
+        dash
+        s
+        skewer-mode
+        ))
+
+(defun ipython-notebook/init-websocket ()
+  (use-package websocket
+    :defer t
+    :init))
+
+(defun ipython-notebook/init-request-deferred ()
+  (use-package request-deferred
+    :defer t
+    :init))
+
+(defun ipython-notebook/init-dash ()
+  (use-package dash
+    :defer t
+    :init))
+
+(defun ipython-notebook/init-s ()
+  (use-package s
+    :defer t
+    :init))
+
+(defun ipython-notebook/post-init-skewer-mode ())
+
+(defun ipython-notebook/post-init-request ())
 
 (defun ipython-notebook/post-init-company ()
   (spacemacs|add-company-backends
     :backends ein:company-backend
     :modes ein:notebook-mode))
 
+(defun ipython-notebook/init-ein-notebook ()
+  (use-package ein-notebook
+    :defer t
+    :init))
+
+(defun ipython-notebook/init-ein-subpackages ()
+  (use-package ein-subpackages
+    :defer t
+    :init))
+
 (defun ipython-notebook/init-ein ()
   (use-package ein
     :defer t
-    :commands (ein:notebooklist-open ein:notebooklist-login)
+    :commands (ein:notebooklist-open ein:notebooklist-login ein:run ein:stop)
     :init
     (progn
       (spacemacs/set-leader-keys
         "ayl" 'ein:notebooklist-login
-        "ayo" 'ein:notebooklist-open)
+        "ayo" 'ein:notebooklist-open
+        "ayr" 'ein:run
+        "ays" 'ein:stop)
+      (spacemacs/declare-prefix "ay" "ipython notebook")
       (with-eval-after-load 'ein-notebooklist
         (evilified-state-evilify-map ein:notebooklist-mode-map
           :mode ein:notebooklist-mode
@@ -174,12 +219,12 @@
         ("9" ein:notebook-worksheet-open-last)
         ("+" ein:notebook-worksheet-insert-next)
         ("-" ein:notebook-worksheet-delete)
-        ("x" ein:notebook-close))
-      (spacemacs/set-leader-keys "ein" 'spacemacs/ipython-notebook-transient-state/body))))
+        ("x" ein:notebook-close)))))
 
 (defun ipython-notebook/pre-init-ob-ipython ()
   (spacemacs|use-package-add-hook org
     :post-config
     (use-package ob-ipython
       :init (add-to-list 'org-babel-load-languages '(ipython . t)))))
+
 (defun ipython-notebook/init-ob-ipython ())
