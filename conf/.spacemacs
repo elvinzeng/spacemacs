@@ -75,9 +75,9 @@ This function should only modify configuration layer settings."
      typescript
      pandoc
      (go :variables
-	go-use-gometalinter t
-	gofmt-command "goimports"
-	)
+         go-use-gometalinter t
+         gofmt-command "goimports"
+         )
      ;;django
      ;;react
      ;;rust
