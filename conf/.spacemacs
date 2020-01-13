@@ -49,6 +49,8 @@ This function should only modify configuration layer settings."
      org
      (shell :variables
              shell-default-height 30
+             shell-default-shell 'ansi-term
+             shell-default-term-shell "/bin/zsh"
              shell-default-position 'bottom)
      ;;  spell-checking
      (spell-checking :variables
@@ -96,7 +98,9 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(
+                                      eterm-256color
+                                      )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -517,7 +521,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
                               charset (font-spec :family "思源黑体" :size 20)))
           ))
 
-
+    (add-hook 'term-mode-hook #'eterm-256color-mode) 
 
     (setq package-check-signature nil)
   )
