@@ -521,6 +521,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
                               charset (font-spec :family "思源黑体" :size 20)))
           ))
 
+    ;; apt-get install ncurses-term
     (add-hook 'term-mode-hook #'eterm-256color-mode) 
 
     (setq package-check-signature nil)
