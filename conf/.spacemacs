@@ -46,7 +46,7 @@ This function should only modify configuration layer settings."
      git
      markdown
      ;;neotree
-     treemacs
+     (treemacs :variables treemacs-use-git-mode 'deferred)
      org
      (shell :variables
              shell-default-height 30
@@ -220,7 +220,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
-   dotspacemacs-initial-scratch-message "#+TITLE: 未命名文档
+   dotspacemacs-initial-scratch-message "#+TITLE: scratch
 #+AUTHOR: Elvin Zeng
 #+STARTUP: indent
 #+OPTIONS: ^:nil
@@ -317,7 +317,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-auto-save-file-location 'original
 
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
-   dotspacemacs-max-rollback-slots 15
+   dotspacemacs-max-rollback-slots 30
 
    ;; If non-nil, the paste transient-state is enabled. While enabled, pressing
    ;; `p' several times cycles through the elements in the `kill-ring'.
@@ -398,7 +398,10 @@ It should only modify the values of Spacemacs settings."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   ;;dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers '(
+                               :enabled-for-modes go-mode
+                              :size-limit-kb 1000)
 
 
    ;; Code folding method. Possible values are `evil' and `origami'.
