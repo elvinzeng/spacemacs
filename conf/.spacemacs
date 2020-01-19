@@ -89,6 +89,7 @@ This function should only modify configuration layer settings."
      ;;django
      ;;react
      ;;rust
+     (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
      )
 
    ;; List of additional packages that will be installed without being
