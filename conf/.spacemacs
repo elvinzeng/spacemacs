@@ -221,7 +221,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
-   dotspacemacs-initial-scratch-message "#+TITLE: scratch
+   dotspacemacs-initial-scratch-message "#+TITLE: Scratch
 #+AUTHOR: Elvin Zeng
 #+STARTUP: indent
 #+OPTIONS: ^:nil
