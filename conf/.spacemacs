@@ -70,7 +70,11 @@ This function should only modify configuration layer settings."
      html
      ;;java
      javascript
-     plantuml
+     (plantuml :variables
+               plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
+               org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
+               plantuml-default-exec-mode 'jar
+      )
      ;;lua
      shell-scripts
      yaml
@@ -582,8 +586,6 @@ before packages are loaded."
           ))
 
     (setq org-html-validation-link nil)
-    (setq plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
-    (setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
 
     ;; FIXME: workaround
     ;; https://github.com/syl20bnr/spacemacs/issues/11798
