@@ -71,9 +71,10 @@ This function should only modify configuration layer settings."
      ;;java
      javascript
      (plantuml :variables
-               plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
-               org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
+               plantuml-jar-path "~/bin/plantuml.jar"
+               org-plantuml-jar-path "~/bin/plantuml.jar"
                plantuml-default-exec-mode 'jar
+               org-confirm-babel-evaluate nil
       )
      ;;lua
      shell-scripts
