@@ -96,6 +96,7 @@ This function should only modify configuration layer settings."
      ;;rust
      (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
      themes-megapack
+     major-modes
      )
 
    ;; List of additional packages that will be installed without being
