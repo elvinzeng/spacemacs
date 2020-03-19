@@ -95,6 +95,7 @@ This function should only modify configuration layer settings."
      ;;react
      ;;rust
      (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
+     themes-megapack
      )
 
    ;; List of additional packages that will be installed without being
