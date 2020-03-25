@@ -559,6 +559,13 @@ before packages are loaded."
     (add-hook 'spacemacs-buffer-mode-hook (lambda ()
                                         (set (make-local-variable 'mouse-1-click-follows-link) nil)))
 
+    (add-hook 'after-change-major-mode-hook (lambda ()
+                                              (when (eq major-mode 'go-mode)
+                                                (progn
+                                                  (set-fill-column 120)
+                                                  (spacemacs/toggle-fill-column-indicator-on)
+                                                  (message "keep it simple and stupid")))))
+
     ;;(setq-default dotspacemacs-default-font '("Source Code Pro"
     ;;                                          :size 16
     ;;                                          :weight normal
