@@ -120,9 +120,9 @@ This doesn't support the chanserv auth method. "
 
 (defun spacemacs//znc-auth-source-fetch-password (server)
   "Given a server with at least :host :port :login, return the :password"
-  (destructuring-bind (&key host auth &allow-other-keys)
+  (cl-destructuring-bind (&key host auth &allow-other-keys)
       (cdr server)
-    (destructuring-bind (&key secret &allow-other-keys)
+    (cl-destructuring-bind (&key secret &allow-other-keys)
         (car (auth-source-search :host host
                                  :port "irc"
                                  :user auth
@@ -150,7 +150,7 @@ This doesn't support the chanserv auth method. "
   (cl-loop
    for s in rcirc-server-alist
    collect
-   (destructuring-bind (&key host
+   (cl-destructuring-bind (&key host
                              (port rcirc-default-port)
                              (nick rcirc-default-nick)
                              (user-name rcirc-default-user-name)
@@ -170,3 +170,20 @@ This doesn't support the chanserv auth method. "
                 (rcirc-connect host port nick user-name
                                full-name channels password encryption)))
            (process-put process :rcirc-server server)))))))
+
+;; erc-image -----------------------------------------------------------------
+
+(defun spacemacs//rcirc-image-show-url (_sender _response)
+  (unless (boundp 'erc-fill-prefix)
+    (setq erc-fill-prefix rcirc-fill-prefix))
+  (erc-image-show-url))
+
+;; erc-yt --------------------------------------------------------------------
+
+(defun spacemacs//rcirc-youtube-show-info (_sender _response)
+  (erc-yt-show-info))
+
+;; erc-tweet --------------------------------------------------------------------
+
+(defun spacemacs//rcirc-tweet-show-tweet (_sender _response)
+  (erc-tweet-show-tweet))

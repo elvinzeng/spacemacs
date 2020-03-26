@@ -24,6 +24,7 @@
     bubbleberry-theme
     busybee-theme
     cherry-blossom-theme
+    chocolate-theme
     clues-theme
     color-theme-sanityinc-solarized
     color-theme-sanityinc-tomorrow
@@ -61,6 +62,8 @@
     majapahit-theme
     material-theme
     minimal-theme
+    modus-operandi-theme
+    modus-vivendi-theme
     moe-theme
     molokai-theme
     monokai-theme

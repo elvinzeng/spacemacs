@@ -16,6 +16,7 @@
         centered-cursor-mode
         (compile :location built-in)
         (doc-view :location built-in)
+        (view :location built-in)
         golden-ratio
         (grep :location built-in)
         (info+ :location local)
@@ -23,6 +24,7 @@
         paradox
         restart-emacs
         (smooth-scrolling :location built-in)
+        symbol-overlay
         winum))
 
 (defun spacemacs-navigation/init-ace-link ()
@@ -68,7 +70,7 @@
             ahs-inhibit-face-list nil
             spacemacs--symbol-highlight-transient-state-doc "
  %s
- [_n_] next   [_N_/_p_] prev  [_d_/_D_] next/prev def  [_r_] range  [_R_] reset
+ [_n_] next   [_N_/_p_] prev  [_d_/_D_] next/prev def  [_r_] range  [_R_] reset  [_z_] recenter
  [_e_] iedit")
 
       ;; since we are creating our own maps,
@@ -136,6 +138,8 @@
         ("p" spacemacs/quick-ahs-backward)
         ("R" ahs-back-to-start)
         ("r" ahs-change-range)
+        ("z" (progn (recenter-top-bottom)
+                    (spacemacs/symbol-highlight)))
         ("q" nil :exit t)))))
 
 (defun spacemacs-navigation/init-centered-cursor-mode ()
@@ -159,6 +163,7 @@
       (setq ccm-recenter-at-end-of-file t
             ccm-ignored-commands '(mouse-drag-region
                                    mouse-set-point
+                                   mouse-set-region
                                    widget-button-click
                                    scroll-bar-toolkit-scroll
                                    evil-mouse-drag-region))
@@ -203,12 +208,22 @@
               (doc-view-minor-mode))
           ad-do-it)))))
 
+(defun spacemacs-navigation/init-view ()
+  (use-package view
+    :defer t
+    :init
+    ;; Add binding via mode symbole to have a local binding set
+    ;; after loading view mode. If not done this way the new bindings
+    ;; will only be affective after the user pressing `q' once.
+    (evil-define-key 'normal 'view-mode
+      "q" #'View-quit)))
+
 (defun spacemacs-navigation/init-golden-ratio ()
   (use-package golden-ratio
     :defer t
     :init
     (progn
-      (spacemacs/transient-state-register-add-bindings 'window-manipulation
+      (spacemacs/transient-state-register-add-bindings 'window
         '(("g" spacemacs/toggle-golden-ratio)))
       (spacemacs|add-toggle golden-ratio
         :status golden-ratio-mode
@@ -232,6 +247,7 @@
                    "gdb-inferior-io-mode"
                    "gdb-disassembly-mode"
                    "gdb-memory-mode"
+                   "ranger-mode"
                    "speedbar-mode"))
 
         (add-to-list 'golden-ratio-exclude-modes m))
@@ -354,7 +370,7 @@
       "qr" 'spacemacs/restart-emacs-resume-layouts
       "qR" 'spacemacs/restart-emacs
       "qt" 'spacemacs/restart-emacs-timed-requires
-      "qt" 'spacemacs/restart-emacs-adv-timers)))
+      "qT" 'spacemacs/restart-emacs-adv-timers)))
 
 (defun spacemacs-navigation/init-smooth-scrolling ()
   (setq scroll-preserve-screen-position t
@@ -366,6 +382,48 @@
     :off (spacemacs/disable-smooth-scrolling)
     :documentation "Smooth scrolling."
     :evil-leader "tv"))
+
+(defun spacemacs-navigation/init-symbol-overlay ()
+  (use-package symbol-overlay
+    :init
+    (progn
+      (setq spacemacs--symbol-overlay-transient-state-doc "
+%s
+ [_n_] next   [_N_/_p_] prev      [_d_] def           [_f_/_b_] switch [_t_] scope
+ [_e_] echo   [_o_]^^   unoverlay [_O_] unoverlay all [_c_]^^   copy   [_z_] center
+ [_s_] search [_r_]^^   replace   [_R_] rename        ^^^^             [_q_] quit")
+
+      ;; since we are creating our own maps,
+      ;; prevent the default keymap from getting created
+      (setq symbol-overlay-map (make-sparse-keymap)))
+    :config
+    (progn
+      (spacemacs/set-leader-keys
+        "so" 'spacemacs/symbol-overlay
+        "sO" 'symbol-overlay-remove-all)
+
+      ;; transient state
+      (spacemacs|define-transient-state symbol-overlay
+        :title "Symbol Overlay Transient State"
+        :hint-is-doc t
+        :dynamic-hint (spacemacs//symbol-overlay-ts-doc)
+        :bindings
+        ("b" symbol-overlay-switch-backward)
+        ("c" symbol-overlay-save-symbol)
+        ("d" symbol-overlay-jump-to-definition)
+        ("e" symbol-overlay-echo-mark)
+        ("f" symbol-overlay-switch-forward)
+        ("n" symbol-overlay-jump-next)
+        ("N" symbol-overlay-jump-prev)
+        ("o" symbol-overlay-put)
+        ("O" symbol-overlay-remove-all)
+        ("p" symbol-overlay-jump-prev)
+        ("r" symbol-overlay-query-replace)
+        ("R" symbol-overlay-rename)
+        ("s" symbol-overlay-isearch-literally)
+        ("t" symbol-overlay-toggle-in-scope)
+        ("z" recenter-top-bottom)
+        ("q" nil :exit t)))))
 
 (defun spacemacs-navigation/init-winum ()
   (use-package winum

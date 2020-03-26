@@ -18,6 +18,7 @@
         evil
         flx
         helm-make
+        imenu
         ivy
         ivy-hydra
         (ivy-rich :toggle ivy-enable-advanced-buffer-information)
@@ -61,11 +62,14 @@
         "fL"  'counsel-locate
         ;; help
         "?"   'counsel-descbinds
+        "gff" 'counsel-git
+        "hda" 'counsel-apropos
         "hdf" 'counsel-describe-function
         "hdF" 'counsel-describe-face
         "hdm" 'spacemacs/describe-mode
         "hdv" 'counsel-describe-variable
         "hi"  'counsel-info-lookup-symbol
+        "hm"  (if (spacemacs/system-is-mswindows) 'woman 'man)
         "hR"  'spacemacs/counsel-search-docs
         ;; insert
         "iu"  'counsel-unicode-char
@@ -74,7 +78,7 @@
         "ry"  'counsel-yank-pop
         "rm"  'counsel-mark-ring
         ;; jumping
-        "sj"  'counsel-imenu
+        "sj"  'spacemacs/counsel-jump-in-buffer
         ;; themes
         "Ts"  'counsel-load-theme
         ;; search
@@ -98,39 +102,54 @@
         "sgF" 'spacemacs/search-grep-region-or-symbol
         "sgp" 'counsel-git-grep
         "sgP" 'spacemacs/counsel-git-grep-region-or-symbol
-        "skd" 'spacemacs/search-ack-grep
-        "skD" 'spacemacs/search-ack-grep-region-or-symbol
+        "skd" 'spacemacs/search-dir-ack
+        "skD" 'spacemacs/search-dir-ack-region-or-symbol
         "skf" 'spacemacs/search-ack
         "skF" 'spacemacs/search-ack-region-or-symbol
         "skp" 'spacemacs/search-project-ack
         "skP" 'spacemacs/search-project-ack-region-or-symbol
-        "srd" 'spacemacs/search-rg-grep
-        "srD" 'spacemacs/search-rg-grep-region-or-symbol
+        "srd" 'spacemacs/search-dir-rg
+        "srD" 'spacemacs/search-dir-rg-region-or-symbol
         "srf" 'spacemacs/search-rg
         "srF" 'spacemacs/search-rg-region-or-symbol
         "srp" 'spacemacs/search-project-rg
         "srP" 'spacemacs/search-project-rg-region-or-symbol
-        "std" 'spacemacs/search-pt-grep
-        "stD" 'spacemacs/search-pt-grep-region-or-symbol
+        "std" 'spacemacs/search-dir-pt
+        "stD" 'spacemacs/search-dir-pt-region-or-symbol
         "stf" 'spacemacs/search-pt
         "stF" 'spacemacs/search-pt-region-or-symbol
         "stp" 'spacemacs/search-project-pt
         "stP" 'spacemacs/search-project-pt-region-or-symbol))
     :config
     (progn
+      ;; Temporarily handle older versions of ivy
+      ;; https://github.com/abo-abo/swiper/pull/1863/files
+      (unless (fboundp 'counsel--elisp-to-pcre)
+        (defalias 'counsel--elisp-to-pcre 'counsel-unquote-regex-parens))
+
       ;; set additional ivy actions
       (ivy-set-actions
        'counsel-find-file
        spacemacs--ivy-file-actions)
 
-      (define-key counsel-find-file-map (kbd "C-h") 'counsel-up-directory)
+      (when (or (eq 'vim dotspacemacs-editing-style)
+                (and (eq 'hybrid dotspacemacs-editing-style)
+                     hybrid-style-enable-hjkl-bindings))
+        (define-key counsel-find-file-map (kbd "C-h") 'counsel-up-directory))
+
+      (define-key read-expression-map (kbd "C-r") 'counsel-minibuffer-history)
+      (spacemacs//counsel-search-add-extra-bindings counsel-ag-map)
       ;; remaps built-in commands that have a counsel replacement
       (counsel-mode 1)
       (spacemacs|hide-lighter counsel-mode)
       ;; TODO Commands to port
       (spacemacs//ivy-command-not-implemented-yet "jI")
       ;; Set syntax highlighting for counsel search results
-      (ivy-set-display-transformer 'spacemacs/counsel-search 'counsel-git-grep-transformer))))
+      (ivy-set-display-transformer 'spacemacs/counsel-search
+                                   'counsel-git-grep-transformer)
+      ;; Enable better auto completion of counsel-find-file
+      ;; by recognizing file at point.
+      (setq counsel-find-file-at-point t))))
 
 (defun ivy/pre-init-counsel-projectile ()
   ;; overwrite projectile settings
@@ -174,7 +193,7 @@
         "cm" 'helm-make))))
 
 (defun ivy/post-init-imenu ()
-  (spacemacs/set-leader-keys "ji" 'counsel-imenu))
+  (spacemacs/set-leader-keys "ji" 'spacemacs/counsel-jump-in-buffer))
 
 (defun ivy/init-ivy ()
   (use-package ivy
@@ -183,9 +202,14 @@
       ;; Key bindings
       (spacemacs/set-leader-keys
         "a'" 'spacemacs/ivy-available-repls
+        "Ce" 'counsel-colors-emacs
+        "Cf" 'counsel-faces
+        "Cw" 'counsel-colors-web
         "fr" 'counsel-recentf
         "rl" 'ivy-resume
-        "bb" 'ivy-switch-buffer))
+        "bb" 'ivy-switch-buffer)
+      ;; Moved C-k to C-M-k
+      (define-key ivy-switch-buffer-map (kbd "C-M-k") 'ivy-switch-buffer-kill))
 
     :config
     (progn
@@ -194,19 +218,28 @@
        'counsel-recentf
        spacemacs--ivy-file-actions)
 
+      ;; add spacemacs/counsel-search command to ivy-highlight-grep-commands
+      (add-to-list 'ivy-highlight-grep-commands 'spacemacs/counsel-search)
+
       ;; mappings to quit minibuffer or enter transient state
       (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
       (define-key ivy-minibuffer-map (kbd "M-SPC") 'hydra-ivy/body)
+
+      (when ivy-ret-visits-directory
+        (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
+        (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-done))
 
       (ivy-mode 1)
       (global-set-key (kbd "C-c C-r") 'ivy-resume)
       (global-set-key (kbd "<f6>") 'ivy-resume)
       ;; Occur
+      (evil-set-initial-state 'ivy-occur-grep-mode 'normal)
       (evil-make-overriding-map ivy-occur-mode-map 'normal)
       (ivy-set-occur 'spacemacs/counsel-search
                      'spacemacs//counsel-occur)
       (spacemacs/set-leader-keys-for-major-mode 'ivy-occur-grep-mode
-        "w" 'ivy-wgrep-change-to-wgrep-mode)
+        "w" 'spacemacs/ivy-wgrep-change-to-wgrep-mode
+        "s" 'wgrep-save-all-buffers)
       ;; Why do we do this ?
       (ido-mode -1)
 
@@ -219,14 +252,16 @@
 
 (defun ivy/init-ivy-rich ()
   (use-package ivy-rich
-    :defer t
+    ;; if `counsel' loads after `ivy-rich', it overrides some of `ivy-rich''s
+    ;; transformers
+    :after counsel
     :init
     (progn
-      (setq ivy-rich-abbreviate-paths t
-            ivy-virtual-abbreviate 'full
-            ivy-rich-switch-buffer-align-virtual-buffer t)
-      (ivy-set-display-transformer 'ivy-switch-buffer
-                                   'ivy-rich-switch-buffer-transformer))))
+      (setq ivy-rich-path-style 'abbrev
+            ivy-virtual-abbreviate 'full))
+    :config
+    (progn
+      (ivy-rich-mode))))
 
 (defun ivy/init-ivy-spacemacs-help ()
   (use-package ivy-spacemacs-help
@@ -285,7 +320,10 @@
   (ivy-set-actions
    'spacemacs/ivy-spacemacs-layouts
    '(("c" persp-kill-without-buffers "Close layout(s)")
-     ("k" persp-kill  "Kill layout(s)")))
+     ("k" persp-kill  "Kill layout(s)")
+     ("n" persp-copy "Copy Current Layout")
+     ("p" spacemacs//create-persp-with-current-project-buffers
+      "Create Project Layout")))
   ;; TODO: better handling of C and X bindings for ivy
   ;;       check ivy/pre-init-persp-mode
   (spacemacs/transient-state-register-remove-bindings 'layouts
@@ -307,11 +345,11 @@
            '(("R" (lambda (arg)
                     (interactive)
                     (recentf-cleanup)
-                    (ivy-recentf)) "refresh list")
+                    (counsel-recentf)) "refresh list")
              ("D" (lambda (arg)
                     (interactive)
                     (setq recentf-list (delete arg recentf-list))
-                    (ivy-recentf)) "delete from list"))))
+                    (counsel-recentf)) "delete from list"))))
   ;; merge recentf and bookmarks into buffer switching. If we set this
   (setq ivy-use-virtual-buffers t))
 

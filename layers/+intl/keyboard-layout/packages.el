@@ -33,6 +33,7 @@
     org-agenda
     ranger
     twittering-mode
+    undo-tree
     ))
 
 (defun keyboard-layout/pre-init-ace-window ()
@@ -172,18 +173,18 @@
     "Remap `evil-window' bindings."
     :loader
     (with-eval-after-load 'evil-commands BODY)
-    :common
-    ;; FIXME: Not working
-    (kl/leader-correct-keys
-      "wh"
-      "wj"
-      "wk"
-      "wl"
-      ;;
-      "wH"
-      "wJ"
-      "wK"
-      "wL")
+    ;; :common
+    ;; ;; FIXME: Not working
+    ;; (kl/leader-correct-keys
+    ;;   "wh"
+    ;;   "wj"
+    ;;   "wk"
+    ;;   "wl"
+    ;;   ;;
+    ;;   "wH"
+    ;;   "wJ"
+    ;;   "wK"
+    ;;   "wL")
     :bepo
     (progn
       (spacemacs/set-leader-keys
@@ -397,9 +398,9 @@
         "C-k"))
     :bepo
     (progn
-      (magit-change-popup-key 'magit-dispatch-popup :actions ?t ?j)
-      (magit-change-popup-key 'magit-dispatch-popup :actions ?s ?k)
-      (magit-change-popup-key 'magit-dispatch-popup :actions ?S ?K))
+      (transient-suffix-put 'magit-dispatch "t" :key "j")
+      (transient-suffix-put 'magit-dispatch "s" :key "k")
+      (transient-suffix-put 'magit-dispatch "S" :key "K"))
     :colemak-jkhl
     (kl/evil-correct-keys 'visual magit-mode-map
       "j"
@@ -602,3 +603,16 @@
       "J"
       "K"
       "L")))
+
+(defun keyboard-layout/pre-init-undo-tree ()
+  (kl|config undo-tree
+    :description
+    "Remap navigation keys in `undo-tree-visualizer-mode'."
+    :loader
+    (spacemacs|use-package-add-hook undo-tree :post-config BODY)
+    :common
+    (kl/evil-correct-keys 'evilified undo-tree-visualizer-mode-map
+      "h"
+      "j"
+      "k"
+      "l")))

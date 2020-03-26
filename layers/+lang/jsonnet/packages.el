@@ -9,7 +9,14 @@
 ;;
 ;;; License: GPLv3
 
-(setq jsonnet-packages '(jsonnet-mode))
+(setq jsonnet-packages
+      '(
+        jsonnet-mode
+        flycheck
+        ))
+
+(defun jsonnet/post-init-flycheck ()
+  (spacemacs/enable-flycheck 'jsonnet-mode))
 
 (defun jsonnet/init-jsonnet-mode ()
   (use-package jsonnet-mode

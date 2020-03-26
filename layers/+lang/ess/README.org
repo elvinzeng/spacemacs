@@ -1,19 +1,23 @@
 #+TITLE: ESS (R) layer
 
+#+TAGS: dsl|layer|programming
+
 [[file:img/r.jpg]]
 
-* Table of Contents                                         :TOC_4_gh:noexport:
+* Table of Contents                     :TOC_5_gh:noexport:
 - [[#description][Description]]
   - [[#features][Features:]]
 - [[#install][Install]]
+  - [[#layer][Layer]]
+  - [[#linting][Linting]]
+  - [[#lsp][LSP]]
 - [[#options][Options]]
-- [[#key-bindings][Key Bindings]]
+- [[#key-bindings][Key bindings]]
   - [[#inferior-repl-process][Inferior REPL process]]
   - [[#help][Help]]
   - [[#more-interaction-with-the-repl][More interaction with the REPL]]
   - [[#r-devtools][R devtools]]
   - [[#debugging][Debugging]]
-  - [[#editing-markdown][Editing Markdown]]
 
 * Description
 This layer adds support for statistical programming languages to Spacemacs.
@@ -24,47 +28,55 @@ This layer adds support for statistical programming languages to Spacemacs.
 - Syntax-checking via [[https://github.com/jimhester/lintr][lintr]]
 - Additional data viewer for R via [[https://github.com/myuhe/ess-R-data-view.el][ess-R-data-view]]
 - Support for Org-Babel
-- Better 'equals' behavior via [[https://github.com/genovese/ess-smart-equals][ess-smart-equals]]
 - Showing of inline help for =R= constructs
 - Repl support via =R terminal=
 - Support for =S=, =SAS= and =R=
 - Much more via the [[https://ess.r-project.org/Manual/ess.html#Current-Features][ESS Project]]
 
 * Install
+** Layer
 To use this configuration layer, add it to your =~/.spacemacs=. You will need to
 add =ess= to the existing =dotspacemacs-configuration-layers= list in this
 file.
 
-Also install [[https://github.com/jimhester/lintr][lintr]] library via the R terminal to enable syntax checking.
+** Linting
+Install [[https://github.com/jimhester/lintr][lintr]] library via the R terminal to enable syntax checking.
 To do so start the R terminal and type below code.
 
 #+BEGIN_SRC R
   install.packages("lintr")
 #+END_SRC
 
+** LSP
+This backend uses an external server to provide the various IDE integrations
+and a more modern UI integration in =spacemacs=.
+
+It requires installing the external server via:
+
+#+BEGIN_SRC R
+  install.packages('languageserver')
+#+END_SRC
+
+Enable the =lsp= layer to activate this backend as well as setting the layer
+variable =ess-r-backend=:
+
+#+BEGIN_SRC elisp
+  (ess :variables ess-r-backend 'lsp)
+#+END_SRC
+
 * Options
-To turn off the automatic replacement of underscores by =<-=, set in your
-=~/.spacemacs=:
+Use a key binding to insert =<-=:
 
 #+BEGIN_SRC emacs-lisp
   (setq-default dotspacemacs-configuration-layers '((ess :variables
-                                                         ess-disable-underscore-assign t)))
+                                                         ess-assign-key "\M--")))
 #+END_SRC
 
-Alternatively you may enable =ess-smart-equals=, which also disables replacement
-of underscores by =<-=, and additionally replace the equals sign with =<-= when
-appropriate:
-
-#+BEGIN_SRC emacs-lisp
-  (setq-default dotspacemacs-configuration-layers '((ess :variables
-                                                         ess-enable-smart-equals t)))
-#+END_SRC
-
-* Key Bindings
+* Key bindings
 ** Inferior REPL process
 Send code to inferior process with these commands:
 
-| Key Binding | Description                                          |
+| Key binding | Description                                          |
 |-------------+------------------------------------------------------|
 | ~SPC m '​~   | start REPL                                           |
 | ~SPC m ,​~   | send region, current function, or paragraph and step |
@@ -86,7 +98,7 @@ Send code to inferior process with these commands:
 ** Help
 Get help and helpers for inspecting objects at point are available in R buffers only.
 
-| Key Binding | Description                                                    |
+| Key binding | Description                                                    |
 |-------------+----------------------------------------------------------------|
 | ~SPC m h a~ | help apropos                                                   |
 | ~SPC m h d~ | display help on object                                         |
@@ -106,47 +118,47 @@ Get help and helpers for inspecting objects at point are available in R buffers 
 ** More interaction with the REPL
 Helpers that provide further interaction with the REPL.
 
-| Key Binding   | Description                                           |
+| Key binding   | Description                                           |
 |---------------+-------------------------------------------------------|
-| ~SPC m r /~   | set working directory                                 |
-| ~SPC m r TAB~ | install package                                       |
-| ~SPC m r d~   | edit object source or dump() object into a new buffer |
-| ~SPC m r e~   | execute a command in the ESS process                  |
-| ~SPC m r i~   | install package                                       |
-| ~SPC m r l~   | load installed package                                |
-| ~SPC m r r~   | reload ESS process                                    |
-| ~SPC m r s~   | set source style                                      |
-| ~SPC m r t~   | build tags for directory                              |
-| ~SPC m r w~   | set "width" option                                    |
+| ~SPC m E /~   | set working directory                                 |
+| ~SPC m E TAB~ | install package                                       |
+| ~SPC m E d~   | edit object source or dump() object into a new buffer |
+| ~SPC m E e~   | execute a command in the ESS process                  |
+| ~SPC m E i~   | install package                                       |
+| ~SPC m E l~   | load installed package                                |
+| ~SPC m E r~   | reload ESS process                                    |
+| ~SPC m E s~   | set source style                                      |
+| ~SPC m E t~   | build tags for directory                              |
+| ~SPC m E w~   | set "width" option                                    |
 
 ** R devtools
 Interaction with the =R= =devtools= package.
 
-| Key Binding   | Description                              |
+| Key binding   | Description                              |
 |---------------+------------------------------------------|
-| ~SPC m w TAB~ | interface for =devtools::install()=      |
-| ~SPC m w a~   | ask for a devtools command and runs it   |
-| ~SPC m w c~   | interface for =devtools::check()=        |
-| ~SPC m w d~   | interface for =devtools::document()=     |
-| ~SPC m w i~   | interface for =devtools::install()=      |
-| ~SPC m w l~   | interface for =devtools::load_all()=     |
-| ~SPC m w r~   | interface for =devtools::revdep_check()= |
-| ~SPC m w s~   | set a package for ESS r-package commands |
-| ~SPC m w t~   | interface for =devtools::tests()=        |
-| ~SPC m w u~   | interface for =devtools::unload()=       |
+| ~SPC m D TAB~ | interface for =devtools::install()=      |
+| ~SPC m D a~   | ask for a devtools command and runs it   |
+| ~SPC m D c~   | interface for =devtools::check()=        |
+| ~SPC m D d~   | interface for =devtools::document()=     |
+| ~SPC m D i~   | interface for =devtools::install()=      |
+| ~SPC m D l~   | interface for =devtools::load_all()=     |
+| ~SPC m D r~   | interface for =devtools::revdep_check()= |
+| ~SPC m D s~   | set a package for ESS r-package commands |
+| ~SPC m D t~   | interface for =devtools::tests()=        |
+| ~SPC m D u~   | interface for =devtools::unload()=       |
 
 ** Debugging
 Tools for debugging
 
-| Key Binding  | Description                                                       |
+| Key binding  | Description                                                       |
 |--------------+-------------------------------------------------------------------|
-| ~SPC m d ?~  | 'ess-tracebug-show-help                                           |
+| ~SPC m d ?~  | =ess-tracebug-show-help=                                          |
 | ~SPC m d `~  | show traceback and last error message                             |
 | ~SPC m d \~~ | display call current call stack                                   |
 | ~SPC m d b~  | set breakpoint                                                    |
 | ~SPC m d B~  | set conditional breakpoint                                        |
 | ~SPC m d d~  | set debugging flag for function                                   |
-| ~SPC m d e~  | toggle the `on-error` action                                      |
+| ~SPC m d e~  | toggle the =on-error= action                                      |
 | ~SPC m d i~  | jump to point where the last debugger or traceback event occurred |
 | ~SPC m d k~  | kill breakpoint                                                   |
 | ~SPC m d K~  | kill all breakpoints in buffer                                    |
@@ -159,15 +171,3 @@ Tools for debugging
 | ~SPC m d t~  | toggle tracebug                                                   |
 | ~SPC m d u~  | unflag function for debug                                         |
 | ~SPC m d w~  | trigger ESS watch mode                                            |
-
-** Editing Markdown
-Edit Markdown files
-
-| Key Binding | Description                                               |
-|-------------+-----------------------------------------------------------|
-| ~SPC m c C~ | send knitr/sweave chunk and switch to REPL in insert mode |
-| ~SPC m c c~ | send knitr/sweave chunk and keep buffer focused           |
-| ~SPC m c d~ | send knitr/sweave chunk and step to next chunk            |
-| ~SPC m c m~ | mark knitr/sweave chunk around point                      |
-| ~SPC m c n~ | next knitr/sweave chunk                                   |
-| ~SPC m c N~ | previous knitr/sweave chunk                               |

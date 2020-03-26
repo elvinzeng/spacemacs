@@ -12,10 +12,12 @@
 (setq hy-packages
       '(
         company
+        evil-cleverparens
         hy-mode
         ob-hy
         pyenv-mode
         pyvenv
+        pipenv
         smartparens
         ))
 
@@ -25,26 +27,42 @@
     :backends company-hy
     :modes hy-mode inferior-hy-mode))
 
+(defun hy/pre-init-evil-cleverparens ()
+  (spacemacs|use-package-add-hook evil-cleverparens
+    :pre-init
+    (add-to-list 'evil-lisp-safe-structural-editing-modes 'hy-mode)))
+
 (defun hy/init-hy-mode ()
   (use-package hy-mode
     :defer t
-    :init
+    :mode ("\\.hy\\'" . hy-mode)
+    :interpreter ("hy" . hy-mode)
+    :config
     (progn
-      ;; need to do this as they are not auloaded by the package
-      (add-to-list 'auto-mode-alist '("\\.hy\\'" . hy-mode))
-      (add-to-list 'interpreter-mode-alist '("hy" . hy-mode))
       ;; Disable this unless using special branch
       (setq hy-shell-use-control-codes? nil)
       ;; key bindings
-      (spacemacs/declare-prefix-for-mode 'hy-mode "me" "eval")
       (spacemacs/declare-prefix-for-mode 'hy-mode "md" "debug")
       (spacemacs/declare-prefix-for-mode 'hy-mode "mt" "test")
+      (spacemacs/declare-prefix-for-mode 'hy-mode "me" "eval")
       (spacemacs/declare-prefix-for-mode 'hy-mode "ms" "REPL")
       (spacemacs/declare-prefix-for-mode 'hy-mode "mv" "pyvenv")
+      (spacemacs/declare-prefix-for-mode 'hy-mode "mh" "help")
       (spacemacs/set-leader-keys-for-major-mode 'hy-mode
+        "'" 'run-hy
+
         "dd" 'hy-insert-pdb
         "dt" 'hy-insert-pdb-threaded
         "hh" 'hy-describe-thing-at-point
+
+        "eb" 'hy-shell-eval-buffer
+        "eB" 'spacemacs/hy-shell-eval-buffer-and-go
+        "ec" 'hy-shell-eval-current-form
+        "eC" 'spacemacs/hy-shell-eval-current-form-and-go
+        "ei" 'run-hy
+        "er" 'hy-shell-eval-region
+        "eR" 'spacemacs/hy-shell-eval-region-and-go
+
         "sb" 'hy-shell-eval-buffer
         "sB" 'spacemacs/hy-shell-eval-buffer-and-go
         "sc" 'hy-shell-eval-current-form
@@ -52,7 +70,7 @@
         "si" 'hy-shell-start-or-switch-to-shell
         "sr" 'hy-shell-eval-region
         "sR" 'spacemacs/hy-shell-eval-region-and-go
-        "ss" 'hy-shell-start-or-switch-to-shell
+
         "tA" 'spacemacs/python-test-pdb-all
         "ta" 'spacemacs/python-test-all
         "tM" 'spacemacs/python-test-pdb-module
@@ -70,6 +88,9 @@
 
 (defun hy/pre-init-pyvenv ()
   (add-to-list 'spacemacs--python-pyvenv-modes 'hy-mode))
+
+(defun hy/pre-init-pipenv ()
+  (add-to-list 'spacemacs--python-pipenv-modes 'hy-mode))
 
 (defun hy/post-init-smartparens ()
   (add-hook 'hy-mode-hook 'smartparens-mode))

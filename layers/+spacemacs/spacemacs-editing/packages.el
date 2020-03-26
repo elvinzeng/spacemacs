@@ -13,7 +13,7 @@
       '(aggressive-indent
         avy
         (bracketed-paste :toggle (version<= emacs-version "25.0.92"))
-        clean-aindent-mode
+        (clean-aindent-mode :toggle dotspacemacs-use-clean-aindent-mode)
         editorconfig
         eval-sexp-fu
         expand-region
@@ -44,7 +44,7 @@
         :documentation "Always keep code indented."
         :evil-leader "tI")
       (spacemacs|add-toggle aggressive-indent-globally
-        :mode aggressive-indent-mode
+        :mode global-aggressive-indent-mode
         :documentation "Always keep code indented globally."
         :evil-leader "t C-I"))
     :config
@@ -55,7 +55,7 @@
 (defun spacemacs-editing/init-avy ()
   (use-package avy
     :defer t
-    :commands (spacemacs/avy-open-url spacemacs/avy-goto-url avy-pop-mark)
+    :commands (spacemacs/avy-open-url spacemacs/avy-goto-url avy-pop-mark avy-with)
     :init
     (progn
       (setq avy-all-windows 'all-frames)
@@ -65,6 +65,7 @@
         "jj" 'evil-avy-goto-char-timer
         "jl" 'evil-avy-goto-line
         "ju" 'spacemacs/avy-goto-url
+        "jU" 'spacemacs/avy-open-url
         "jw" 'evil-avy-goto-word-or-subword-1
         "xo" 'spacemacs/avy-open-url))
     :config
@@ -72,7 +73,7 @@
       (defun spacemacs/avy-goto-url()
         "Use avy to go to an URL in the buffer."
         (interactive)
-        (avy--generic-jump "https?://" nil 'pre))
+        (avy-jump "https?://"))
       (defun spacemacs/avy-open-url ()
         "Use avy to select an URL in the buffer and open it."
         (interactive)
@@ -89,7 +90,10 @@
 
 (defun spacemacs-editing/init-clean-aindent-mode ()
   (use-package clean-aindent-mode
-    :config (clean-aindent-mode)))
+    :config
+    (progn
+      (clean-aindent-mode)
+      (add-hook 'prog-mode-hook 'spacemacs//put-clean-aindent-last t))))
 
 (defun spacemacs-editing/init-editorconfig ()
   (use-package editorconfig
@@ -102,9 +106,9 @@
   (use-package eval-sexp-fu
     :commands eval-sexp-fu-flash-mode))
 
-  ;; ;; ignore obsolete function warning generated on startup
-  ;; (let ((byte-compile-not-obsolete-funcs (append byte-compile-not-obsolete-funcs '(preceding-sexp))))
-  ;;   (require 'eval-sexp-fu)))
+;; ;; ignore obsolete function warning generated on startup
+;; (let ((byte-compile-not-obsolete-funcs (append byte-compile-not-obsolete-funcs '(preceding-sexp))))
+;;   (require 'eval-sexp-fu)))
 
 (defun spacemacs-editing/init-expand-region ()
   (use-package expand-region
@@ -184,7 +188,8 @@
     :init
     (spacemacs/set-leader-keys
       "xo" 'link-hint-open-link
-      "xO" 'link-hint-open-multiple-links)))
+      "xO" 'link-hint-open-multiple-links
+      "xy" 'link-hint-copy-link)))
 
 (defun spacemacs-editing/init-lorem-ipsum ()
   (use-package lorem-ipsum
@@ -259,10 +264,10 @@
         ("<tab>" origami-recursively-toggle-node)
         ("q" nil :exit t)
         ("C-g" nil :exit t)
-        ("<SPC>" nil :exit t))
-      ;; Note: The key binding for the fold transient state is defined in
-      ;; evil config
-      )))
+        ("<SPC>" nil :exit t)))))
+;; Note: The key binding for the fold transient state is defined in
+;; evil config
+
 
 (defun spacemacs-editing/init-password-generator ()
   (use-package password-generator
@@ -326,7 +331,7 @@
         :documentation "Enable smartparens."
         :evil-leader "tp")
       (spacemacs|add-toggle smartparens-globally
-        :mode smartparens-mode
+        :mode smartparens-global-mode
         :documentation "Enable smartparens globally."
         :evil-leader "t C-p")
       ;; key bindings
@@ -405,7 +410,12 @@
   (use-package undo-tree
     :defer t
     :init (setq undo-tree-visualizer-timestamps t
-                undo-tree-visualizer-diff t)
+                undo-tree-visualizer-diff t
+                ;; 10X bump of the undo limits to avoid issues with premature
+                ;; Emacs GC which truncages the undo history very aggresively
+                undo-limit 800000
+                undo-strong-limit 12000000
+                undo-outer-limit 120000000)
     :config
     (progn
       ;; restore diff window after quit.  TODO fix upstream

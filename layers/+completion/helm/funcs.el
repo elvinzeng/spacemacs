@@ -16,8 +16,9 @@
 
 (defun spacemacs//helm-cleanup ()
   "Cleanup some helm related states when quitting."
-  ;; deactivate any running transient map (transient-state)
-  (setq overriding-terminal-local-map nil))
+  ;; deactivate helm transient state if active when closing the helm buffer
+  (ignore-errors
+    (spacemacs/helm-navigation-transient-state/nil)))
 
 (defun spacemacs//helm-prepare-display ()
   "Prepare necessary settings to make Helm display properly."
@@ -163,9 +164,9 @@ If DEFAULT-INPUTP is non nil then the current region or symbol at point
   ;; --line-number forces line numbers (disabled by default on windows)
   ;; no --vimgrep because it adds column numbers that wgrep can't handle
   ;; see https://github.com/syl20bnr/spacemacs/pull/8065
-  (let* ((root-helm-ag-base-command "rg --smart-case --no-heading --color never --line-number")
+  (let* ((root-helm-ag-base-command "rg --smart-case --no-heading --color=never --line-number")
          (helm-ag-base-command (if spacemacs-helm-rg-max-column-number
-                                   (concat root-helm-ag-base-command " --max-columns " (number-to-string spacemacs-helm-rg-max-column-number))
+                                   (concat root-helm-ag-base-command " --max-columns=" (number-to-string spacemacs-helm-rg-max-column-number))
                                  root-helm-ag-base-command)))
     (helm-do-ag dir)))
 
@@ -207,6 +208,11 @@ If DEFAULT-INPUTP is non nil then the current region or symbol at point
   "Search in current directory with `ack'."
   (interactive)
   (spacemacs/helm-files-do-ack default-directory))
+
+(defun spacemacs/helm-dir-do-grep ()
+  "Search in current directory with `grep'."
+  (interactive)
+  (spacemacs//helm-do-grep-region-or-symbol (list default-directory) nil))
 
 (defun spacemacs/helm-dir-do-ack-region-or-symbol ()
   "Search in current directory with `ack' with a default input."
@@ -291,7 +297,7 @@ If DEFAULT-INPUTP is non nil then the current region or symbol at point
   ;; --line-number forces line numbers (disabled by default on windows)
   ;; no --vimgrep because it adds column numbers that wgrep can't handle
   ;; see https://github.com/syl20bnr/spacemacs/pull/8065
-  (let ((helm-ag-base-command "rg --smart-case --no-heading --color never --line-number --max-columns 150"))
+  (let ((helm-ag-base-command "rg --smart-case --no-heading --color=never --line-number --max-columns=150"))
     (helm-do-ag-buffers)))
 
 (defun spacemacs/helm-buffers-do-rg-region-or-symbol ()
@@ -444,9 +450,10 @@ If DEFAULT-INPUTP is non nil then the current region or symbol at point
                     (helm-read-file-name
                      "Search in file(s): "
                      :marked-candidates t
-                     :preselect (if helm-ff-transformer-show-only-basename
-                                    (helm-basename preselection)
-                                  preselection)))))
+                     :preselect (when preselection
+                                  (if helm-ff-transformer-show-only-basename
+                                      (helm-basename preselection)
+                                    preselection))))))
     (helm-do-grep-1 targets nil nil nil nil use-region-or-symbol-p)))
 
 (defun spacemacs/helm-file-do-grep ()
@@ -503,6 +510,8 @@ If DEFAULT-INPUTP is non nil then the current region or symbol at point
   "Custom spacemacs implementation for calling helm-find-files-1.
 Removes the automatic guessing of the initial value based on thing at point. "
   (interactive "P")
+  ;; fixes #10882 and #11270
+  (require 'helm-files)
   (let* ((hist (and arg helm-ff-history (helm-find-files-history)))
          (default-input hist)
          (input (cond ((and (eq major-mode 'dired-mode) default-input)
@@ -562,10 +571,10 @@ not set to any window (but in the case of files, they are still opened
 to buffers)."
   (let ((num-buffers (length buffers))
         (num-windows (length (winum--window-list)))
-        (cur-win (winum-get-number))
+        (cur-win (or (winum-get-number) (winum-get-number (other-window 1))))
         (num-buffers-placed 0))
     (cl-loop for buffer in buffers do
-             (when (>= num-buffers-placed num-windows) cl-return)
+             (when (>= num-buffers-placed num-windows) (cl-return))
              (set-window-buffer (winum-get-window-by-number cur-win) buffer)
              (setq cur-win (+ 1 (mod cur-win num-windows)))
              (incf num-buffers-placed))))
@@ -619,3 +628,11 @@ to buffers)."
   (interactive)
   (let (helm-candidate-number-limit)
     (helm-themes)))
+
+;; Buffers ---------------------------------------------------------------------
+
+(defun spacemacs/helm-buffers-list-unfiltered ()
+  "Helm buffers without filtering."
+  (interactive)
+  (let ((helm-boring-buffer-regexp-list nil))
+    (call-interactively #'helm-buffers-list)))

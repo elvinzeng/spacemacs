@@ -30,7 +30,8 @@
           :config
           (progn
             (if (or (eq dotspacemacs-line-numbers t)
-                    (eq dotspacemacs-line-numbers 'relative))
+                    (eq dotspacemacs-line-numbers 'relative)
+                    (eq dotspacemacs-line-numbers 'visual))
                 (progn
                   (add-hook 'prog-mode-hook 'nlinum-mode)
                   (add-hook 'text-mode-hook 'nlinum-mode))
@@ -44,11 +45,10 @@
           (progn
             (setq nlinum-relative-current-symbol ""
                   nlinum-relative-redisplay-delay 0)
-            (when (spacemacs/relative-line-numbers-p)
+            (when (or (spacemacs/visual-line-numbers-p)
+                      (spacemacs/relative-line-numbers-p))
               (nlinum-relative-setup-evil)
               (add-hook 'nlinum-mode-hook 'nlinum-relative-on))
             (spacemacs/set-leader-keys "tr" 'spacemacs/nlinum-relative-toggle)))))
-
-  (defconst nlinum-packages nil)
-  (spacemacs-buffer/warning (concat "nlinum layer is deprecated for Emacs 26.1 and above."
-                      " You can safely remove it from your dotfile.")))
+  ;;  Emacs version 26 and above
+  (defconst nlinum-packages nil))

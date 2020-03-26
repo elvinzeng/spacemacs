@@ -9,10 +9,12 @@
 ;;
 ;;; License: GPLv3
 
+(spacemacs|define-jump-handlers ess-r-mode)
+
 ;; Variables
 
-(defvar ess-enable-smart-equals nil
-  "If non-nil smart-equal support is enabled")
+(defvar ess-r-backend 'nil
+  "The backend to use for IDE features. Possible values are `ess' and `lsp'.")
 
-(defvar ess-disable-underscore-assign nil
-  "If non-nil, disables underscore _ being a shortcut for assignment <-")
+(defvar ess-assign-key nil
+  "Call `ess-insert-assign'.")

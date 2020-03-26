@@ -1,4 +1,4 @@
-;;; packages.el --- treemacs Layer packages File for Spacemacs
+;;; config.el --- treemacs Layer configuration File for Spacemacs
 ;;
 ;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
@@ -15,17 +15,18 @@
 (defvar treemacs-use-filewatch-mode t
   "When non-nil use `treemacs-filewatch-mode'.")
 
-(defvar treemacs-use-collapsed-directories (if (executable-find "python") 3 0)
-  "Number of directories to collapse with `treemacs-collapse-dirs'.
-Must be a number.")
-
 (defvar treemacs-use-git-mode
   (pcase (cons (not (null (executable-find "git")))
                (not (null (executable-find "python3"))))
-    (`(t . t) 'extended)
+    (`(t . t) 'deferred)
     (`(t . _) 'simple))
   "Type of git integration for `treemacs-git-mode'.
 There are 2 possible values:
 1) simple, which highlights only files based on their git status, and is
    slightly faster
-2) extended, which highlights both files and directories, but requires python")
+2) extended, which highlights both files and directories, but requires python
+3) deferred, which is the same is extended, but delays highlighting for improved
+   performance")
+
+(defvar treemacs-lock-width nil
+  "When non-nil the treemacs window will not be manually resizable by default.")

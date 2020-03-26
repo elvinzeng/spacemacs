@@ -23,7 +23,6 @@
 <p align="center">
 <a href="https://gitter.im/syl20bnr/spacemacs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join Chat.svg" alt="Gitter"></a>
 <a href="https://circleci.com/gh/syl20bnr/spacemacs/tree/develop"><img src="https://circleci.com/gh/syl20bnr/spacemacs/tree/develop.svg?style=shield" alt="Build Status"></a>
-<a href="https://waffle.io/syl20bnr/spacemacs"><img src="https://badge.waffle.io/syl20bnr/spacemacs.png?label=Merging...&title=Merging" alt="PR being merged"></a>
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ESFVNPKP4Y742"><img src="https://img.shields.io/badge/Paypal-Donate-blue.svg" alt="Donate"></a>
 <a href="https://shop.spreadshirt.com/spacemacs-shop"><img src="https://img.shields.io/badge/Shop-T--Shirts-blue.svg" alt="Donate"></a>
 <a href="http://www.slant.co/topics/12/~what-are-the-best-programming-text-editors"><img src="https://img.shields.io/badge/Slant-Recommend-ff69b4.svg" alt="Recommend it"></a>
@@ -74,6 +73,7 @@ the [full installation instructions](#install) for other options.
 - [Quotes](#quotes)
 - [Contributions](#contributions)
 - [Communities](#communities)
+- [Spacemacs Everywhere](#spacemacs-everywhere)
 - [License](#license)
 - [Supporting Spacemacs](#supporting-spacemacs)
 
@@ -123,6 +123,12 @@ community will help you out.
 If you prefer IRC, connect to the [Gitter Chat IRC server][] and join the
 `#syl20bnr/spacemacs` channel.
 
+Last but not least there are a lot of high class tutorials available on YouTube:
+* Jack of Some's Spacemacs related channel [here](https://www.youtube.com/watch?v=r-BHx7VNX5s&list=PLd_Oyt6lAQ8Rxb0HUnGbRrn6R4Cdt2yoI)
+* GDQuest's Game Design oriented tutorials to Spacemacs [here](https://www.youtube.com/watch?v=hCNOB5jjtmc&list=PLhqJJNjsQ7KFkMVBunWWzFD8SlH714qm4)
+* Practicalli's Clojure tutorials based on Spacemacs [here](https://www.youtube.com/watch?v=ZKuQDrQLAnc&list=PLpr9V-R8ZxiCHMl2_dn1Fovcd34Oz45su)
+* Eivind Fonn's classic Spacemacs ABC [here](https://www.youtube.com/watch?v=ZFV5EqpZ6_s&list=PLrJ2YN5y27KLhd3yNs2dR8_inqtEiEweE)
+
 # Prerequisites
 Spacemacs is an extension of a popular text editor called Emacs. Thus you need
 to first install base Emacs and then download the Spacemacs extension files with
@@ -156,7 +162,7 @@ This might also be true for other linux distributions.
 ```
 brew tap d12frosted/emacs-plus
 brew install emacs-plus
-ln -s /usr/local/Cellar/emacs-plus/*/Emacs.app/ /Applications/
+brew link emacs-plus
 ```
 
 ##### Using emacs-mac
@@ -164,10 +170,8 @@ ln -s /usr/local/Cellar/emacs-plus/*/Emacs.app/ /Applications/
 ```
 brew tap railwaycat/emacsmacport
 brew install emacs-mac
+brew link emacs-mac
 ```
-
-Copy and paste the symlink (`ln`) from the install instructions if `brew linkapps`
-is deprecated.
 
 ##### Using cask
 
@@ -185,7 +189,7 @@ This installs a pre-built package from https://emacsformacosx.com/
 
 If you're not comfortable with the ways mentioned above, then
 [EmacsWiki](https://www.emacswiki.org/emacs/EmacsForMacOS#toc12) lists down
-a few ways to install Emacs for Mac OS.
+a few ways to install Emacs for macOS.
 
 #### Install Source Code Pro font
 
@@ -193,7 +197,7 @@ Once Emacs is installed, run the following commands in the terminal to install
 the default Source Code Pro font:
 
 ```sh
-brew tap caskroom/fonts
+brew tap homebrew/cask-fonts
 brew cask install font-source-code-pro
 ```
 
@@ -208,9 +212,20 @@ After completing the Spacemacs [install process](#install), then it's also
 recommended to add the [osx layer][] to your [dotfile][]. Installation
 instructions are available in the documentation for the [osx layer][].
 
+Depending on the installed version of GnuTLS securely installing emacs
+packages may fail. In this case it is possible to install using
+`emacs --insecure`. However be aware that this means your packages will
+be transferred using http, use at your own risk.
+
+You might also have some issues when doing some search on your projects, you
+probably want to install grep through homebrew with default names:
+
+```sh
+$ brew install grep --with-default-names
+```
+
 ### Windows
-You can download good quality builds from the [emacs-w64 project][emacs-for-windows].
-It is recommended to install the most recent [stable build][emacs-for-windows-stable].
+Download the official 64-bit (x86_64) stable builds from the [GNU FTP][emacs-for-windows].
 
 You'll also need `gzip` and put it in your path, to download it go to the
 [GNUWin32 project page][gzip-for-windows]
@@ -219,13 +234,13 @@ Be sure to declare an environment variable named `HOME` that's pointing to your
 user directory `C:\Users\<username>`. Then you can clone Spacemacs into that
 directory.
 
-Sometimes you'll get the following error when you first start Emacs:
+If the following error occurs after starting Emacs:
 
 ```
 The directory ~/.emacs.d/server is unsafe
 ```
 
-To fix it change the owner of the directory `~/.emacs.d/server`:
+Fix it by changing the owner of the directory `~/.emacs.d/server`:
   - from Properties select the Tab “Security”,
   - select the button “Advanced”,
   - select the Tab “Owner”
@@ -235,6 +250,12 @@ Source: [Stack Overflow][so-server-unsafe]
 
 For efficient searches we recommend installing `pt` ([the platinum searcher][]).
 `pt` version 1.7.7 or higher is required.
+
+**Notes:**
+Depending on the installed version of GnuTLS securely installing emacs
+packages may fail. In this case it is possible to install using
+`emacs --insecure`. However be aware that this means your packages will
+be transferred using http, use at your own risk.
 
 # Install
 ## Default installation
@@ -257,6 +278,14 @@ For efficient searches we recommend installing `pt` ([the platinum searcher][]).
    git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
    ```
 
+   Or
+
+   ```sh
+   git clone --depth 1 https://github.com/syl20bnr/spacemacs ~/.emacs.d
+   ```
+
+   In case you have a limited internet connection or speed.
+
    `master` is the stable branch and it is _immutable_, **DO NOT** make any
    modification to it or you will break the update mechanism. If you want to
    fork Spacemacs safely, use the `develop` branch where you'll handle updates
@@ -273,7 +302,7 @@ For efficient searches we recommend installing `pt` ([the platinum searcher][]).
    git clone https://github.com/syl20bnr/spacemacs /path/to/your/.emacs.d
    ```
 
-3. Install the default fonts
+3. (Optional) Install the default fonts
 
    It's recommended to install [Source Code Pro][] by Adobe, as the default
    font. It ensures that, for example the symbols on the modeline (bottom bar)
@@ -292,7 +321,19 @@ For efficient searches we recommend installing `pt` ([the platinum searcher][]).
    If you're running in a terminal then you'll also need to change the terminals
    font settings.
 
-4. Launch Emacs, and answer the questions in the Dotfile wizard installer. If
+4. Launch Emacs. Spacemacs will automatically install the packages it requires.
+   There is a well-known issue with some GPG keys having expired end of 2019.
+   This can be fixed by upgrading to Emacs 26.3 or above or by manually adding
+   the new keys using something like:
+   ```sh
+   gpg --homedir ~/.emacs.d/elpa/gnupg --receive-keys 066DAFCB81E42C40
+   ```
+   If you have a restrictive firewall it may help to manually specify the keyserver:
+   ```sh
+   gpg --keyserver keyserver.ubuntu.com --homedir ~/.emacs.d/elpa/gnupg/ --receive-keys 066DAFCB81E42C40
+   ```
+
+5. Launch Emacs, and answer the questions in the Dotfile wizard installer. If
    you are new to Emacs and Spacemacs, then it's fine to just accept the default
    choices. It's easy to try the other choices later, without having to
    reinstall Spacemacs. They can be changed in the dotfile `~/.spacemacs`.
@@ -302,16 +343,16 @@ For efficient searches we recommend installing `pt` ([the platinum searcher][]).
    Restart Emacs to complete the installation.
 
 **Notes:**
-If you get an error regarding package downloads, then you can try to
-disable the HTTPS protocol by starting Emacs with the `--insecure` argument:
-
+If you are behind a firewall or similar and you get an error regarding package
+downloads then you may try to disable the HTTPS protocol by starting Emacs with
 ```sh
 emacs --insecure
 ```
+but this should be a last resort because of the security implications.
 
-Or you can set the `dotspacemacs-elpa-https` variable to `nil` in your
-dotfile `~/.spacemacs`. That will remove the need to start Emacs with the
-`--insecure` argument. You may also want to clear out your `.emacs.d/elpa`
+You can set the `dotspacemacs-elpa-https` variable to `nil` in your
+dotfile `~/.spacemacs` but this has the same security implications as the
+insecure flag. You may also want to clear out your `.emacs.d/elpa`
 directory before doing this, so that any corrupted packages you may have
 downloaded will be re-installed.
 
@@ -356,7 +397,7 @@ lines in the `~/.emacs.d/init.el` file:
 For Ubuntu users, follow this guide to
 [change the logo in Unity][cpaulik-unity-icon].
 
-For Mac users, you need to [download the .icns version of the logo][icon-repository],
+For macOS users, you need to [download the .icns version of the logo][icon-repository],
 then [change the logo on the Dock][icon-mac-instructions].
 
 # Update
@@ -425,14 +466,18 @@ and to propose great and useful configurations for all the things!
 Before contributing be sure to consult the
 [contribution guidelines][CONTRIBUTING.org] and [conventions][CONVENTIONS.org].
 
-Here is a throughput graph of the repository for the last few weeks:
-
-[![Throughput Graph](https://graphs.waffle.io/syl20bnr/spacemacs/throughput.svg)](https://waffle.io/syl20bnr/spacemacs/metrics)
-
 # Communities
 - [Gitter Chat]
 - [Stack Exchange]
 - [Reddit]
+
+# Spacemacs Everywhere
+
+Once you've learned the Spacemacs key bindings, you can use them in other IDEs/tools, thanks to the following projects:
+- [Intellimacs](https://github.com/MarcoIeni/intellimacs) - Spacemacs' like key bindings for IntelliJ platform
+- [Spaceclipse](https://github.com/MarcoIeni/spaceclipse) - Spacemacs’ like key bindings for Eclipse
+- [SpaceVim](https://github.com/SpaceVim/SpaceVim) - A community-driven modular vim distribution
+- [VSpaceCode](https://github.com/VSpaceCode/VSpaceCode) - Spacemacs’ like key bindings for Visual Studio Code
 
 # License
 The license is GPLv3 for all parts specific to Spacemacs, this includes:
@@ -493,8 +538,7 @@ Thank you!
 [Homebrew]: http://brew.sh
 [emacs-plus]: https://github.com/d12frosted/homebrew-emacs-plus
 [powerline documentation]: http://spacemacs.org/doc/DOCUMENTATION.html#powerline-separators
-[emacs-for-windows]: http://emacsbinw64.sourceforge.net/
-[emacs-for-windows-stable]: https://sourceforge.net/projects/emacsbinw64/files/release/
+[emacs-for-windows]: https://ftp.gnu.org/gnu/emacs/windows/
 [gzip-for-windows]: http://gnuwin32.sourceforge.net/packages/gzip.htm
 [the platinum searcher]: https://github.com/monochromegane/the_platinum_searcher
 [so-server-unsafe]: http://stackoverflow.com/questions/885793/emacs-error-when-calling-server-start

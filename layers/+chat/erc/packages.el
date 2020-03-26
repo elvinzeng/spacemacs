@@ -30,6 +30,7 @@
     erc-yt
     linum
     persp-mode
+    window-purpose
     ))
 
 (defun erc/post-init-company ()
@@ -52,6 +53,7 @@
         "aiE" 'erc-tls
         "aii" 'erc-track-switch-buffer
         "aiD" 'erc/default-servers)
+      (spacemacs/declare-prefix "ai"  "irc")
       ;; utf-8 always and forever
       (setq erc-server-coding-system '(utf-8 . utf-8)))
     :config
@@ -76,6 +78,8 @@
       (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE")
             erc-server-coding-system '(utf-8 . utf-8))
       (setq erc-prompt (lambda () (concat "[" (buffer-name) "]")))
+      (erc-spelling-mode 1)
+      (setq erc-interpret-mirc-color t)
 
       ;; Notifications are enabled if erc-enable-notifications is non-nil, and
       ;; D-BUS is available (i.e. Linux/BSD).
@@ -97,6 +101,7 @@
         "j" 'erc-join-channel
         "n" 'erc-channel-names
         "l" 'erc-list-command
+        "c" 'spacemacs/erc-find-channel-log
         "p" 'erc-part-from-channel
         "q" 'erc-quit-server))))
 
@@ -209,11 +214,17 @@
       (spacemacs|define-transient-state erc-log
         :title "ERC Log Transient State"
         :doc "\n[_r_] reload the log file  [_>_/_<_] go to the next/prev mention"
-        :evil-leader-for-mode (erc-mode . ".")
+        :evil-leader-for-mode (erc-view-log-mode . ".")
         :bindings
         ("r" erc-view-log-reload-file)
         (">" erc-view-log-next-mention)
-        ("<" erc-view-log-previous-mention)))))
+        ("<" erc-view-log-previous-mention))
+
+      (defun spacemacs/erc-find-channel-log ()
+        "find current erc channel's log file in `erc-view-log-mode'"
+        (interactive)
+        (when (erc-logging-enabled)
+            (find-file-existing (erc-current-logfile)))))))
 
 (defun erc/init-erc-image ()
   (use-package erc-image
@@ -245,3 +256,6 @@
               (erc/default-servers)
             (call-interactively 'erc)))))))
 
+(defun erc/pre-init-window-purpose ()
+  (spacemacs|use-package-add-hook window-purpose
+    :pre-config (add-to-list 'purpose-user-mode-purposes '(erc-mode . chat))))

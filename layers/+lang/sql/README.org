@@ -1,18 +1,22 @@
 #+TITLE: SQL layer
 
+#+TAGS: dsl|layer|programming
+
 [[file:img/sql.png]]
 
-* Table of Contents                                         :TOC_4_gh:noexport:
+* Table of Contents                     :TOC_5_gh:noexport:
 - [[#description][Description]]
   - [[#features][Features:]]
 - [[#install][Install]]
+  - [[#external-dependencies][External Dependencies]]
   - [[#sql-keywords-capitalization][SQL Keywords Capitalization]]
     - [[#sql-interactive-mode][SQL Interactive Mode]]
     - [[#blacklisting-keywords][Blacklisting keywords]]
+  - [[#auto-indent][Auto-Indent]]
 - [[#key-bindings][Key bindings]]
   - [[#highlighting][Highlighting]]
   - [[#inferior-process-interactions-sqli][Inferior Process Interactions (SQLi)]]
-    - [[#send-sql-queries-to-sqli][Send SQL queries to SQLi:]]
+    - [[#send-sql-queries-to-sqli][Send SQL queries to SQLi]]
   - [[#sqli-buffer][SQLi buffer]]
   - [[#code-formatting][Code Formatting]]
 
@@ -36,6 +40,7 @@ This layer adds support for a wide range of SQL dialects to Spacemacs.
   - Sybase
   - Vertica
 - Syntax-checking via [[https://github.com/purcell/sqlint][sqlint]] for ANSI SQL.
+- Format code with [[https://github.com/mjibson/sqlfmt][=sqlfmt=]]
 - Snippet insertion for the more general SQL constructs.
 - REPL support via =SQLi= buffer.
 - Automatic capitalization of keywords.
@@ -45,10 +50,18 @@ To use this configuration layer, add it to your =~/.spacemacs=. You will need to
 add =sql= to the existing =dotspacemacs-configuration-layers= list in this
 file.
 
-For syntax-checking you also need to install [[https://www.ruby-lang.org/en/about/][ruby]] as well as =sqlint=.
+** External Dependencies
+Some functionality, like linting, rely on external binaries:
+- *Syntax Checking*: Install [[https://www.ruby-lang.org/en/about/][ruby]] and the =sqlint= gem.
+- *Formatting*: Install [[https://github.com/mjibson/sqlfmt][sqlfmt]] and move it into your =$PATH=
 
 #+BEGIN_SRC ruby
-	gem install sqlint
+  gem install sqlint
+#+END_SRC
+
+#+BEGIN_SRC sh
+  # Download and extract the binary 0.4.0 for linux
+  wget -q -O - https://github.com/mjibson/sqlfmt/releases/latest/download/sqlfmt_0.4.0_linux_amd64.tar.gz | tar -xpvzf - --directory "${installdir}/bin"
 #+END_SRC
 
 ** SQL Keywords Capitalization
@@ -84,43 +97,60 @@ a list with keywords to ignore, e.g.
 This layer is blacklisting =name= by default as it is a very common name for
 column and NAME is non-reserved SQL keyword.
 
+** Auto-Indent
+This mode use [[https://github.com/alex-hhh/emacs-sql-indent][sql-indent]] to indent the code. You can check the package's README
+to adjust the rules. If that's not what you want, you can also disable
+auto-indent by setting the variable =sql-auto-indent= to =nil=.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers '(
+    (sql :variables sql-auto-indent nil)))
+#+END_SRC
+
 * Key bindings
 ** Highlighting
 
-| Key Binding | Description                       |
+| Key binding | Description                       |
 |-------------+-----------------------------------|
 | ~SPC m h k~ | select a SQL dialect to highlight |
 
 ** Inferior Process Interactions (SQLi)
 
-| Key Binding | Description                 |
-|-------------+-----------------------------|
-| ~SPC m b b~ | show the SQLi buffer name   |
-| ~SPC m b s~ | set the SQLi buffer         |
-| ~SPC m l a~ | List all objects            |
-| ~SPC m l t~ | list all objects in a table |
+| Key binding | Description                                          |
+|-------------+------------------------------------------------------|
+| ~SPC m b b~ | show the SQLi buffer name                            |
+| ~SPC m b c~ | connect to a SQLi buffer from your saved buffer list |
+| ~SPC m b s~ | set the SQLi buffer                                  |
+| ~SPC m l a~ | List all objects                                     |
+| ~SPC m l t~ | list all objects in a table                          |
 
-*** Send SQL queries to SQLi:
+*** Send SQL queries to SQLi
 
-| Key Binding | Description                                                                           |
-|-------------+---------------------------------------------------------------------------------------|
-| ~SPC m s b~ | Send the whole buffer to the SQLi buffer                                              |
-| ~SPC m s B~ | Send the whole buffer to the SQLi buffer and switch to it in =insert state=           |
-| ~SPC m s i~ | Start the SQLi process                                                                |
-| ~SPC m s f~ | Send the paragraph around point to the SQLi buffer                                    |
-| ~SPC m s F~ | Send the paragraph around point to the SQLi buffer and switch to it in =insert state= |
-| ~SPC m s q~ | Prompt for a string to send to the SQLi buffer                                        |
-| ~SPC m s Q~ | Prompt for a string to send to the SQLi buffer and switch to it in =insert state=     |
-| ~SPC m s r~ | Send the selected region to the SQLi buffer                                           |
-| ~SPC m s R~ | Send the selected region to the SQLi buffer and switch to it in =insert state=        |
+| Key binding | Description                                                                                           |
+|-------------+-------------------------------------------------------------------------------------------------------|
+| ~SPC m s b~ | Send the whole buffer to the SQLi buffer                                                              |
+| ~SPC m s B~ | Send the whole buffer to the SQLi buffer and switch to it in =insert state=                           |
+| ~SPC m s i~ | Start the SQLi process                                                                                |
+| ~SPC m s f~ | Send the paragraph around point to the SQLi buffer                                                    |
+| ~SPC m s F~ | Send the paragraph around point to the SQLi buffer and switch to it in =insert state=                 |
+| ~SPC m s l~ | Send the current line to the SQLi buffer and move to the next line =insert state=                     |
+| ~SPC m s L~ | Send the current line to the SQLi buffer and move to the next line and switch to it in =insert state= |
+| ~SPC m s q~ | Prompt for a string to send to the SQLi buffer                                                        |
+| ~SPC m s Q~ | Prompt for a string to send to the SQLi buffer and switch to it in =insert state=                     |
+| ~SPC m s r~ | Send the selected region to the SQLi buffer                                                           |
+| ~SPC m s R~ | Send the selected region to the SQLi buffer and switch to it in =insert state=                        |
 
 ** SQLi buffer
 
-| Key Binding | Description                                                  |
+| Key binding | Description                                                  |
 |-------------+--------------------------------------------------------------|
 | ~SPC m b r~ | rename buffer (follow up in the SQL buffer with ~SPC m b s~) |
 | ~SPC m b S~ | save the current connection                                  |
 
 ** Code Formatting
 
+| Key binding | Description                                                  |
+|-------------+--------------------------------------------------------------|
 | ~SPC m = c~ | capitalize SQL keywords in region (if capitalize is enabled) |
+| ~SPC m = =~ | ~sqlfmt~ whole buffer                                        |
+| ~SPC m = r~ | ~sqlfmt~ active region                                       |

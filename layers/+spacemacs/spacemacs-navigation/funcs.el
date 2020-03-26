@@ -138,7 +138,7 @@ If the universal prefix argument is used then kill also the window."
   (spacemacs/ahs-highlight-now-wrapper)
   (setq spacemacs-last-ahs-highlight-p (ahs-highlight-p))
   (spacemacs/symbol-highlight-transient-state/body)
-  (spacemacs/integrate-evil-search nil))
+  (spacemacs/integrate-evil-search t))
 
 (defun spacemacs//ahs-ts-on-exit ()
   ;; Restore user search direction state as ahs has exitted in a state
@@ -198,6 +198,39 @@ If the universal prefix argument is used then kill also the window."
            (spacemacs//symbol-highlight-doc))))
 
 
+;; symbol overlay
+
+(defun spacemacs/symbol-overlay ()
+  "Start symbol-overlay-transient-state."
+  (interactive)
+  (symbol-overlay-put)
+  (spacemacs/symbol-overlay-transient-state/body))
+
+(defun spacemacs//symbol-overlay-doc ()
+        (let* ((symbol-at-point (symbol-overlay-get-symbol))
+               (keyword (symbol-overlay-assoc symbol-at-point))
+               (symbol (car keyword))
+	             (before (symbol-overlay-get-list -1 symbol))
+	             (after (symbol-overlay-get-list 1 symbol))
+	             (count (length before))
+               (scope (format "%s"
+                              (if (cadr keyword)
+                                  "Scope"
+                                "Buffer")))
+               (color (cddr keyword))
+               (x/y (format "[%s/%s]" (+ count 1) (+ count (length after)))))
+            (concat
+             (propertize (format " %s " scope) 'face color))
+             (propertize (format " %s " x/y) 'face
+                         `(:foreground "#ffffff" :background "#000000"))))
+
+(defun spacemacs//symbol-overlay-ts-doc ()
+  (spacemacs//transient-state-make-doc
+   'symbol-overlay
+   (format spacemacs--symbol-overlay-transient-state-doc
+           (spacemacs//symbol-overlay-doc))))
+
+
 ;; golden ratio
 
 (defun spacemacs/no-golden-ratio-for-buffers (bufname)
@@ -244,7 +277,7 @@ If the universal prefix argument is used then kill also the window."
                (avy--process
                 (spacemacs//collect-spacemacs-buffer-links)
                 #'avy--overlay-pre))))
-    (when res
+    (when (numberp res)
       (goto-char (1+ res))
       (widget-button-press (point)))))
 
@@ -284,11 +317,16 @@ When ARG is non-nil search in junk files."
          (rel-fname (file-name-nondirectory fname))
          (junk-dir (file-name-directory fname))
          (default-directory junk-dir))
+    (make-directory junk-dir t)
     (cond ((and arg (configuration-layer/layer-used-p 'ivy))
            (spacemacs/counsel-search dotspacemacs-search-tools nil junk-dir))
           ((configuration-layer/layer-used-p 'ivy)
            (require 'counsel)
-           (counsel-find-file rel-fname))
+           ;; HACK: If major-mode is dired, counsel will use
+           ;; (dired-current-directory) instead of default-directory. So, trick
+           ;; counsel by shadowing major-mode.
+           (let ((major-mode nil))
+             (counsel-find-file rel-fname)))
           (arg
            (require 'helm)
            (let (helm-ff-newfile-prompt-p)

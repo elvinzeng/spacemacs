@@ -27,15 +27,9 @@
       (spacemacs/set-leader-keys "ie" 'emoji-cheat-sheet-plus-insert)
       (evilified-state-evilify emoji-cheat-sheet-plus-buffer-mode
         emoji-cheat-sheet-plus-buffer-mode-map
-        "<RET>" 'emoji-cheat-sheet-plus-echo-and-copy)
-
-      (defun spacemacs/delay-emoji-cheat-sheet-hook ()
-        "Work-around for org buffers."
-        ;; we need to wait for org buffer to be fully loaded before
-        ;; calling the emoji mode.
-        ;; If we directly call the emoji mode at hook runtime then some
-        ;; text properties are not applied correctly.
-        (run-at-time 0.1 nil 'emoji-cheat-sheet-plus-display-mode)))))
+        "<RET>" 'emoji-cheat-sheet-plus-echo-and-copy))
+    :config
+    (spacemacs|hide-lighter emoji-cheat-sheet-plus-display-mode)))
 
 (defun emoji/init-emojify ()
   (use-package emojify
@@ -48,7 +42,6 @@
     :defer t
     :init
     (progn
-      (setq company-emoji-insert-unicode nil)
       ;; For when Emacs is started in GUI mode:
       (spacemacs//set-emoji-font nil)
       ;; Hook for when a frame is created with emacsclient

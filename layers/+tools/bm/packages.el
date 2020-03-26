@@ -17,11 +17,13 @@
     :defer t
     :commands (bm-buffer-restore)
     :init (progn
+            ;; restore on load (even before you require bm)
+            (setq bm-restore-repository-on-load t)
             ;; Allow cross-buffer 'next'
             (setq bm-cycle-all-buffers t)
             ;; save bookmarks
             (setq-default bm-buffer-persistence t)
-            ;; where to store persistant files
+            ;; where to store persistent files
             (setq bm-repository-file (format "%sbm-repository"
                                              spacemacs-cache-directory))
             (spacemacs|define-transient-state bm
@@ -42,7 +44,6 @@
             (advice-add 'spacemacs/bm-transient-state/body
                         :before #'bm-buffer-restore))
     :config (progn
-              (bm-load-and-restore)
               ;; Saving bookmarks
               (add-hook 'kill-buffer-hook #'bm-buffer-save)
               ;; Saving the repository to file when on exit.

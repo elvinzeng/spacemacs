@@ -50,9 +50,10 @@
     (and (0+ space) "=" (0+ space))
     (and ":" (1+ space))) ;; separator
    (or
+    line-start
     (and "'" (group (0+ (or "\\'" (not (any "'"))))) "'") ;; single quoted value
     (and ?\" (group (0+ (or "\\\"" (not (any "\""))))) ?\") ;; double quoted value
-    (group (1+ (not (in "#" "\n" space)))) ;; unquoted value
+    (group (1+ (not (in "#" "\n")))) ;; unquoted value
     )
    (0+ space)
    (optional "#" (0+ any))
@@ -75,14 +76,24 @@
   (load-env-vars-re-seq load-env-vars-env-var-regexp))
 
 (defun load-env-vars-set-env (env-vars)
-  "Set envariable variables from key value lists from ENV-VARS."
-  (dolist (element env-vars)
-    (let ((key (car element)) (value (cadr element)))
-      (when (string-equal "PATH" key)
-        (let ((paths (split-string value path-separator)))
-          (dolist (p paths)
-            (add-to-list 'exec-path p))))
-      (setenv key value))))
+  "Set environment variables from key value lists from ENV-VARS."
+  (setq exec-path (cl-remove-duplicates (mapcar #'directory-file-name exec-path)
+                                        :test #'string-equal :from-end t))
+  (let ((convert-to-os-path (if (memq system-type '(windows-nt cygwin ms-dos))
+                                (apply-partially #'subst-char-in-string ?/ ?\\)
+                              ;; Assume that we start with forward slashes.
+                              #'identity)))
+    (dolist (element env-vars)
+      (let ((key (car element)) (value (cadr element)))
+        (if (string-equal "PATH" key)
+            (let ((paths (split-string value path-separator)))
+              (dolist (p paths)
+                (add-to-list 'exec-path (directory-file-name
+                                         (subst-char-in-string ?\\ ?/ p))
+                             'append))
+              (setenv "PATH" (mapconcat convert-to-os-path exec-path
+                                        path-separator)))
+          (setenv key value))))))
 
 ;;;###autoload
 (defun load-env-vars (file-path)

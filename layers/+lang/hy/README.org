@@ -1,16 +1,19 @@
 #+TITLE: Hy layer
 
+#+TAGS: general|layer|multi-paradigm|programming
+
 [[file:img/hy.png]]
 
-* Table of Contents                                         :TOC_4_gh:noexport:
+* Table of Contents                     :TOC_5_gh:noexport:
 - [[#description][Description]]
   - [[#features][Features:]]
 - [[#install][Install]]
   - [[#layer][Layer]]
-- [[#key-bindings][Key Bindings]]
+- [[#key-bindings][Key bindings]]
   - [[#debug][Debug]]
   - [[#repl][REPL]]
   - [[#tests][Tests]]
+  - [[#python-environments][Python environments]]
 
 * Description
 This layer adds support for the Hy language based on Python.
@@ -34,10 +37,10 @@ To install =hy= globally:
   pip install hy
 #+END_SRC
 
-* Key Bindings
+* Key bindings
 ** Debug
 
-| Key Binding | Description         |
+| Key binding | Description         |
 |-------------+---------------------|
 | ~SPC m d d~ | insert pdb          |
 | ~SPC m d t~ | insert pdb threaded |
@@ -50,7 +53,7 @@ by activating a virtual environment.
 
 Send code to hy REPL commands:
 
-| Key Binding | Description                                                     |
+| Key binding | Description                                                     |
 |-------------+-----------------------------------------------------------------|
 | ~SPC m s b~ | send buffer to the REPL                                         |
 | ~SPC m s B~ | send buffer to the REPL and switch to it                        |
@@ -63,9 +66,25 @@ Send code to hy REPL commands:
 
 ** Tests
 
-| Key Binding | Description                                          |
+| Key binding | Description                                          |
 |-------------+------------------------------------------------------|
 | ~SPC m t a~ | launch all tests of the project                      |
 | ~SPC m t A~ | launch all tests of the project in debug mode        |
 | ~SPC m t m~ | launch all tests of the current module               |
 | ~SPC m t M~ | launch all tests of the current module in debug mode |
+
+** Python environments
+
+| Key binding   | Description                                     |
+|---------------+-------------------------------------------------|
+| ~SPC m v a~   | activate a virtual environment in any directory |
+| ~SPC m v d~   | deactivate active virtual environment           |
+| ~SPC m v s~   | set a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]              |
+| ~SPC m v u~   | unset a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]            |
+| ~SPC m v w~   | work on virtual environment in =WORKON_HOME=    |
+| ~SPC m v p a~ | activate pipenv in current project              |
+| ~SPC m v p d~ | deactivate pipenv in current project            |
+| ~SPC m v p i~ | install module into pipenv environment          |
+| ~SPC m v p o~ | open pipenv module in buffer                    |
+| ~SPC m v p s~ | launch pipenv shell in current project          |
+| ~SPC m v p u~ | uninstall module from pipenv environment        |

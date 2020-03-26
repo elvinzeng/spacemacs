@@ -108,7 +108,8 @@ FILE: the path to the file containing the banner."
                                          banner-width) 2)))))
          (while (not (eobp))
            (insert (make-string margin ?\s))
-           (forward-line 1))))
+           (forward-line 1)))
+       (insert "\n"))
      (buffer-string))))
 
 (defun spacemacs-buffer/insert-banner-and-buttons ()
@@ -116,6 +117,8 @@ FILE: the path to the file containing the banner."
 in spacemacs buffer along with quick buttons underneath.
 Easter egg:
 Doge special text banner can be reachable via `999', `doge' or `random*'.
+Doge special text banner for dark themes can be reachable via `997',
+`doge-inverted' or `random*'.
 Cate special text banner can de reachable via `998', `cat' or `random*'.
 `random' ignore special banners whereas `random*' does not."
   (let ((banner (spacemacs-buffer//choose-banner))
@@ -125,8 +128,7 @@ Cate special text banner can de reachable via `998', `cat' or `random*'.
         (spacemacs-buffer/message (format "Banner: %s" banner))
         (if (image-type-available-p (intern (file-name-extension banner)))
             (spacemacs-buffer//insert-image-banner banner)
-          (spacemacs-buffer//insert-ascii-banner-centered banner))
-        (spacemacs-buffer//inject-version))
+          (spacemacs-buffer//insert-ascii-banner-centered banner)))
       (spacemacs-buffer//insert-buttons)
       (spacemacs//redisplay))))
 
@@ -162,6 +164,8 @@ Cate special text banner can de reachable via `998', `cat' or `random*'.
            (spacemacs-buffer//choose-random-text-banner t))
           ((eq 'doge dotspacemacs-startup-banner)
            (spacemacs-buffer//get-banner-path 999))
+          ((eq 'doge-inverted dotspacemacs-startup-banner)
+           (spacemacs-buffer//get-banner-path 997))
           ((eq 'cat dotspacemacs-startup-banner)
            (spacemacs-buffer//get-banner-path 998))
           ((integerp dotspacemacs-startup-banner)
@@ -204,8 +208,6 @@ BANNER: the path to an ascii banner file."
            (size (image-size spec))
            (width (car size))
            (left-margin (max 0 (floor (- spacemacs-buffer--window-width width) 2))))
-      (goto-char (point-min))
-      (insert "\n")
       (insert (make-string left-margin ?\s))
       (insert-image spec)
       (insert "\n\n")
@@ -213,21 +215,22 @@ BANNER: the path to an ascii banner file."
                                                (+ (length title) 1)) 2))) ?\s))
       (insert (format "%s\n\n" title)))))
 
-(defun spacemacs-buffer//inject-version ()
-  "Inject the current version of spacemacs.
-Insert it in the first line of the buffer, right justified."
+(defun spacemacs-buffer//insert-version ()
+  "Insert the current version of Spacemacs and Emacs.
+Right justified, based on the Spacemacs buffers window width."
   (with-current-buffer (get-buffer-create spacemacs-buffer-name)
-    (save-excursion
-      (let ((version (format "%s@%s (%s)"
-                             spacemacs-version
-                             emacs-version
-                             dotspacemacs-distribution))
-            (buffer-read-only nil))
-        (goto-char (point-min))
-        (delete-region (point) (progn (end-of-line) (point)))
-        (insert (format (format "%%%ds"
-                                spacemacs-buffer--window-width)
-                        version))))))
+    (let ((version (format "%s@%s (%s)"
+                           spacemacs-version
+                           emacs-version
+                           dotspacemacs-distribution))
+          (buffer-read-only nil))
+      (insert (format (format "%%%ds"
+                              (if (display-graphic-p)
+                                  spacemacs-buffer--window-width
+                                ;; terminal needs one less char
+                                (1- spacemacs-buffer--window-width)))
+                      version))
+      (insert "\n\n"))))
 
 (defun spacemacs-buffer//insert-footer ()
   "Insert the footer of the home buffer."
@@ -263,6 +266,24 @@ Insert it in the first line of the buffer, right justified."
                                             heart-size
                                             (length build-rhs)))
           (insert "\n"))))))
+
+(defmacro spacemacs-buffer||notes-adapt-caption-to-width (caption
+                                                          caption-length
+                                                          width)
+  "Adapt caption string's length to the note's frame current width.
+For internal use in `spacemacs-buffer//notes-render-framed-text'.
+CAPTION: string to be encrusted onto the note's frame
+CAPTION-LENGTH: length of the caption
+WIDTH: current external width of the note's frame."
+  `(when (> ,caption-length (- ,width 6)) ; minimum frame width is 6
+     (if (> ,width 8)
+         (setq ,caption (concat (substring ,caption
+                                           0
+                                           (min -3 (- (- ,width 6 3)
+                                                      ,caption-length)))
+                                "..."))
+       (setq ,caption nil
+             ,caption-length 0))))
 
 (defun spacemacs-buffer//notes-render-framed-text
     (content &optional topcaption botcaption hpadding max-width min-width)
@@ -331,23 +352,6 @@ MIN-WIDTH is the minimal width of the frame, frame included.  The frame will not
        (make-string (max 0 (- width (if botcaption 6 4) botcaption-length)) ?─)
        "─╯" (when botcaption "\n")))))
 
-(defmacro spacemacs-buffer||notes-adapt-caption-to-width (caption
-                                                          caption-length
-                                                          width)
-  "Adapt caption string's length to the note's frame current width.
-For internal use in `spacemacs-buffer//notes-render-framed-text'.
-CAPTION: string to be encrusted onto the note's frame
-CAPTION-LENGTH: length of the caption
-WIDTH: current external width of the note's frame."
-  `(when (> ,caption-length (- ,width 6)) ; minimum frame width is 6
-     (if (> ,width 8)
-         (setq ,caption (concat (substring ,caption
-                                           0
-                                           (min -3 (- (- ,width 6 3)
-                                                      ,caption-length)))
-                                "..."))
-       (setq ,caption nil
-             ,caption-length 0))))
 
 (defun spacemacs-buffer//notes-render-framed-line (line width hpadding)
   "Return a formatted LINE with borders of a frame on each side.
@@ -616,7 +620,7 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
   (insert " ")
   (widget-create 'url-link
                  :tag (propertize "Homepage" 'face 'font-lock-keyword-face)
-                 :help-echo "Open the Spacemacs Github page in your browser."
+                 :help-echo "Open the Spacemacs GitHub page in your browser."
                  :mouse-face 'highlight
                  :follow-link "\C-m"
                  "http://spacemacs.org")
@@ -693,7 +697,7 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
                  :mouse-face 'highlight
                  :follow-link "\C-m")
   (spacemacs-buffer//center-line)
-  (insert "\n\n"))
+  (insert "\n"))
 
 (defun spacemacs-buffer//insert-string-list (list-display-name list)
   "Insert a non-interactive startup list in the home buffer.
@@ -1004,7 +1008,9 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
 
 (defun spacemacs-buffer/goto-buffer (&optional refresh)
   "Create the special buffer for `spacemacs-buffer-mode' and switch to it.
-REFRESH if the buffer should be redrawn."
+REFRESH if the buffer should be redrawn.
+
+If a prefix argument is given, switch to it in an other, possibly new window."
   (interactive)
   (let ((buffer-exists (buffer-live-p (get-buffer spacemacs-buffer-name)))
         (save-line nil))
@@ -1025,6 +1031,10 @@ REFRESH if the buffer should be redrawn."
             (let ((inhibit-read-only t))
               (erase-buffer)))
           (spacemacs-buffer/set-mode-line "")
+          (if dotspacemacs-startup-buffer-show-version
+            (spacemacs-buffer//insert-version)
+            (let ((inhibit-read-only t))
+              (insert "\n")))
           (spacemacs-buffer/insert-banner-and-buttons)
           (when (bound-and-true-p spacemacs-initialized)
             (spacemacs-buffer//notes-redisplay-current-note)
@@ -1040,7 +1050,9 @@ REFRESH if the buffer should be redrawn."
                    (forward-line (1- save-line))
                    (forward-to-indentation 0))
           (spacemacs-buffer/goto-link-line)))
-      (switch-to-buffer spacemacs-buffer-name)
+      (if current-prefix-arg
+          (switch-to-buffer-other-window spacemacs-buffer-name)
+        (switch-to-buffer spacemacs-buffer-name))
       (spacemacs//redisplay))))
 
 (add-hook 'window-setup-hook
@@ -1051,13 +1063,22 @@ REFRESH if the buffer should be redrawn."
 
 (defun spacemacs-buffer//resize-on-hook ()
   "Hook run on window resize events to redisplay the home buffer."
-  (let ((home-buffer (get-buffer-window spacemacs-buffer-name))
-        (frame-win (frame-selected-window)))
-    (when (and dotspacemacs-startup-buffer-responsive
-               home-buffer
-               (not (window-minibuffer-p frame-win)))
-      (with-selected-window home-buffer
-        (spacemacs-buffer/goto-buffer)))))
+  ;; prevent spacemacs buffer redisplay in the filetree window
+  (unless (memq this-command '(neotree-find-project-root
+                               neotree-show
+                               neotree-toggle
+                               spacemacs/treemacs-project-toggle
+                               treemacs
+                               treemacs-bookmark
+                               treemacs-find-file
+                               treemacs-select-window))
+   (let ((home-buffer (get-buffer-window spacemacs-buffer-name))
+         (frame-win (frame-selected-window)))
+     (when (and dotspacemacs-startup-buffer-responsive
+                home-buffer
+                (not (window-minibuffer-p frame-win)))
+       (with-selected-window home-buffer
+         (spacemacs-buffer/goto-buffer))))))
 
 (defun spacemacs-buffer/refresh ()
   "Force recreation of the spacemacs buffer."

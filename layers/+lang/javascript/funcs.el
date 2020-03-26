@@ -12,18 +12,39 @@
 
 ;; backend
 
+(defun spacemacs//javascript-backend ()
+  "Returns selected backend."
+  (if javascript-backend
+      javascript-backend
+    (cond
+     ((configuration-layer/layer-used-p 'lsp) 'lsp)
+     (t 'tern))))
+
 (defun spacemacs//javascript-setup-backend ()
   "Conditionally setup javascript backend."
-  (pcase javascript-backend
+  (pcase (spacemacs//javascript-backend)
     (`tern (spacemacs//javascript-setup-tern))
+    (`tide (spacemacs//tide-setup))
     (`lsp (spacemacs//javascript-setup-lsp))))
 
 (defun spacemacs//javascript-setup-company ()
   "Conditionally setup company based on backend."
-  (pcase javascript-backend
+  (pcase (spacemacs//javascript-backend)
     (`tern (spacemacs//javascript-setup-tern-company))
+    (`tide (spacemacs//tide-setup-company 'js2-mode))
     (`lsp (spacemacs//javascript-setup-lsp-company))))
 
+(defun spacemacs//javascript-setup-dap ()
+  "Conditionally setup elixir DAP integration."
+  ;; currently DAP is only available using LSP
+  (pcase (spacemacs//javascript-backend)
+    (`lsp (spacemacs//javascript-setup-lsp-dap))))
+
+(defun spacemacs//javascript-setup-next-error-fn ()
+  "If the `syntax-checking' layer is enabled, then disable `js2-mode''s
+`next-error-function', and let `flycheck' handle any errors."
+  (when (configuration-layer/layer-used-p 'syntax-checking)
+    (setq-local next-error-function nil)))
 
 ;; lsp
 
@@ -31,9 +52,9 @@
   "Setup lsp backend."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (spacemacs//setup-lsp-jump-handler 'js2-mode)
-        (lsp-javascript-typescript-enable)
-        (lsp-javascript-flow-enable))
+        (when (not javascript-lsp-linter)
+          (setq-local lsp-diagnostic-package :none))
+        (lsp))
     (message (concat "`lsp' layer is not installed, "
                      "please add `lsp' layer to your dotfile."))))
 
@@ -41,7 +62,6 @@
   "Setup lsp auto-completion."
   (if (configuration-layer/layer-used-p 'lsp)
       (progn
-        (fix-lsp-company-prefix)
         (spacemacs|add-company-backends
           :backends company-lsp
           :modes js2-mode
@@ -50,6 +70,11 @@
         (company-mode))
     (message (concat "`lsp' layer is not installed, "
                      "please add `lsp' layer to your dotfile."))))
+
+(defun spacemacs//javascript-setup-lsp-dap ()
+  "Setup DAP integration."
+  (require 'dap-firefox)
+  (require 'dap-chrome))
 
 
 ;; tern
@@ -66,7 +91,6 @@
         (spacemacs/tern-setup-tern-company 'js2-mode))
     (message (concat "Tern was configured as the javascript backend but "
                      "the `tern' layer is not present in your `.spacemacs'!"))))
-
 
 
 ;; js-doc
@@ -127,3 +151,25 @@
   (spacemacs/skewer-eval-region beg end)
   (skewer-repl)
   (evil-insert-state))
+
+
+;; Others
+
+(defun spacemacs//javascript-setup-checkers ()
+  (when-let* ((found (executable-find "eslint_d")))
+    (set (make-local-variable 'flycheck-javascript-eslint-executable) found)))
+
+(defun spacemacs/javascript-format ()
+  "Call formatting tool specified in `javascript-fmt-tool'."
+  (interactive)
+  (cond
+   ((eq javascript-fmt-tool 'prettier)
+    (call-interactively 'prettier-js))
+   ((eq javascript-fmt-tool 'web-beautify)
+    (call-interactively 'web-beautify-js))
+   (t (error (concat "%s isn't valid javascript-fmt-tool value."
+                     " It should be 'web-beutify or 'prettier.")
+                     (symbol-name javascript-fmt-tool)))))
+
+(defun spacemacs/javascript-fmt-before-save-hook ()
+  (add-hook 'before-save-hook 'spacemacs/javascript-format t t))
