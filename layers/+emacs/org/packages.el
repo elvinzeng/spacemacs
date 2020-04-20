@@ -142,12 +142,20 @@
 
       ;; Follow the confirm and abort conventions
       (with-eval-after-load 'org-capture
-        (spacemacs/set-leader-keys-for-minor-mode 'org-capture-mode
-          dotspacemacs-major-mode-leader-key 'org-capture-finalize
-          "a" 'org-capture-kill
-          "c" 'org-capture-finalize
-          "k" 'org-capture-kill
-          "r" 'org-capture-refile))
+        (defun spacemacs//org-capture-start ()
+          "Make sure that the keybindings are available for org capture."
+          (spacemacs/set-leader-keys-for-minor-mode 'org-capture-mode
+            dotspacemacs-major-mode-leader-key 'org-capture-finalize
+            "a" 'org-capture-kill
+            "c" 'org-capture-finalize
+            "k" 'org-capture-kill
+            "r" 'org-capture-refile)
+          ;; Evil bindins seem not to be applied until at least one
+          ;; Evil state is executed
+          (evil-normal-state))
+        ;; Must be done everytime we run org-capture otherwise it will
+        ;; be ignored until insert mode is entered.
+        (add-hook 'org-capture-mode-hook 'spacemacs//org-capture-start))
 
       (with-eval-after-load 'org-src
         (spacemacs/set-leader-keys-for-minor-mode 'org-src-mode
@@ -432,14 +440,6 @@ Will work on both org-mode and any mode that accepts plain html."
         ("e" org-babel-execute-maybe :exit t)
         ("'" org-edit-special :exit t)))))
 
-(defun org/post-init-org ()
-  ;; unfold the org headings for a target line
-  ;; There's a pending upstream PR:
-  ;; Use helm-goto-char to show match and reveal outlines
-  ;; https://github.com/syohex/emacs-helm-ag/pull/304
-  ;; when/if it's accepted, then this advice can be removed.
-  (advice-add 'helm-ag--find-file-action :after #'spacemacs/org-reveal-advice))
-
 (defun org/init-org-agenda ()
   (use-package org-agenda
     :defer t
@@ -461,6 +461,7 @@ Will work on both org-mode and any mode that accepts plain html."
         "ds" 'org-agenda-schedule
         "ie" 'org-agenda-set-effort
         "ip" 'org-agenda-set-property
+        "iP" 'org-agenda-priority
         "it" 'org-agenda-set-tags
         "sr" 'org-agenda-refile)
       (spacemacs|define-transient-state org-agenda
@@ -760,7 +761,9 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (spacemacs/declare-prefix "aoj" "org-journal")
       (spacemacs/set-leader-keys
         "aojj" 'org-journal-new-entry
-        "aojs" 'org-journal-search-forever)
+        "aojs" 'org-journal-search-forever
+        "aojt" 'org-journal-new-scheduled-entry
+        "aojv" 'org-journal-schedule-view)
 
       (setq spacemacs-org-journal-mode-map (copy-keymap spacemacs-org-mode-map))
 
