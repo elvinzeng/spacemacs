@@ -69,7 +69,6 @@ This function should only modify configuration layer settings."
      csv
      html
      ;;java
-     javascript
      (plantuml :variables
                plantuml-jar-path "~/bin/plantuml.jar"
                org-plantuml-jar-path "~/bin/plantuml.jar"
@@ -92,7 +91,21 @@ This function should only modify configuration layer settings."
          go-use-golangci-lint t
          )
      ;;django
-     ;;react
+     (javascript :variables
+                 javascript-import-tool 'import-js
+                 javascript-backend 'lsp
+                 ;;javascript-lsp-linter nil
+                 javascript-fmt-tool 'web-beautify
+                 ;;javascript-fmt-tool 'prettier
+                 javascript-fmt-on-save t
+                 javascript-repl `nodejs
+                 node-add-modules-path t
+                 js2-include-node-externs t
+                 )
+     react
+     (vue :variables vue-backend 'lsp)
+     prettier
+     web-beautify
      ;;rust
      (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
      themes-megapack
