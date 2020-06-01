@@ -67,7 +67,13 @@ This function should only modify configuration layer settings."
      chinese
      c-c++
      csv
-     html
+     (html :variables
+           css-enable-lsp t
+           less-enable-lsp t
+           scss-enable-lsp t
+           html-enable-lsp t
+           web-fmt-tool 'web-beautify
+      )
      ;;java
      (plantuml :variables
                plantuml-jar-path "~/bin/plantuml.jar"
@@ -102,8 +108,12 @@ This function should only modify configuration layer settings."
                  node-add-modules-path t
                  js2-include-node-externs t
                  )
+     (node :variables node-add-modules-path t)
      react
-     (vue :variables vue-backend 'lsp)
+     (vue :variables
+          ;; vue-backend 'lsp
+          vue-backend 'dumb
+          )
      prettier
      web-beautify
      ;;rust
