@@ -448,7 +448,7 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    ;;dotspacemacs-line-numbers nil
    dotspacemacs-line-numbers '(
-                               :enabled-for-modes go-mode
+                               :enabled-for-modes go-mode vue-mode js-mode html-mode css-mode
                               :size-limit-kb 1000)
 
 
