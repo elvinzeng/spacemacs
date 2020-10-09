@@ -64,7 +64,9 @@ This function should only modify configuration layer settings."
      sql
      python
      emoji
-     chinese
+     (chinese :variables
+              chinese-enable-fcitx t
+      )
      c-c++
      csv
      (html :variables
@@ -138,7 +140,9 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(
+                                    pangu-spacing
+                                    )
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -290,12 +294,13 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("思源黑体"
+   dotspacemacs-default-font '("Noto Sans CJK Regular"
                                ;;"Source Code Pro"
-                               :size 20
+                               ;;:size 40
                                :weight normal
                                :width normal
-                               :powerline-scale 1)
+                               ;;:powerline-scale 1
+                               )
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -570,14 +575,18 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
     (if (display-graphic-p)
         (progn
-          (setq-default dotspacemacs-default-font '("Source Code Pro"
-                                                    :size 16
+          (setq-default dotspacemacs-default-font '("Noto Sans CJK Regular"
+                                                    ;;:size 32
                                                     :weight normal
                                                     :width normal
-                                                    :powerline-scale 1.3))
+                                                    ;;:powerline-scale 1.3
+                                                    ))
           (dolist (charset '(kana han symbol cjk-misc bopomofo))
             (set-fontset-font (frame-parameter nil 'font)
-                              charset (font-spec :family "思源黑体" :size 20)))
+                              charset (font-spec
+                                       :family "Noto Sans CJK Regular"
+                                       ;;:size 40
+                                       )))
           ))
 
     ;; apt-get install ncurses-term
@@ -633,14 +642,18 @@ before packages are loaded."
 
     (if (display-graphic-p)
         (progn
-          (setq-default dotspacemacs-default-font '("Source Code Pro"
-                                                    :size 16
+          (setq-default dotspacemacs-default-font '("Noto Sans CJK Regular"
+                                                    ;;:size 32
                                                     :weight normal
                                                     :width normal
-                                                    :powerline-scale 1.3))
+                                                    ;;:powerline-scale 1.3
+                                                    ))
           (dolist (charset '(kana han symbol cjk-misc bopomofo))
             (set-fontset-font (frame-parameter nil 'font)
-                              charset (font-spec :family "思源黑体" :size 20)))
+                              charset (font-spec
+                                       :family "Noto Sans CJK Regular"
+                                       ;;:size 40
+                                       )))
           ))
 
     (setq org-html-validation-link nil)
