@@ -161,7 +161,12 @@ This might also be true for other linux distributions.
 
 ```
 brew tap d12frosted/emacs-plus
+# to install Emacs 26
 brew install emacs-plus
+# or to install Emacs 27
+brew install emacs-plus@27 --with-spacemacs-icon
+# or to install Emacs 28
+brew install emacs-plus@28 --with-spacemacs-icon
 brew link emacs-plus
 ```
 
@@ -506,19 +511,19 @@ the spacemacs badge: [![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/sp
 
 - For Markdown:
 
-   ```
+   ```markdown
    [![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
    ```
 
 - For HTML:
 
-   ```
-   <a href="http://spacemacs.org"><img src="https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg" /></a>
+   ```html
+   <a href="http://spacemacs.org"><img alt="Built with Spacemacs" src="https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg" /></a>
    ```
 
 - For Org-mode:
 
-   ```
+   ```org
    [[http://spacemacs.org][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]]
    ```
 

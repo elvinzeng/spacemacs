@@ -1,6 +1,6 @@
 ;;; config.el --- Auto-completion configuration File for Spacemacs
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -37,6 +37,9 @@ selection.")
 (defvar auto-completion-complete-with-key-sequence-delay 0.1
   "Timeout (seconds) when waiting for the second key of
 `auto-completion-complete-with-key-sequence'.")
+
+(defvar auto-completion-minimum-prefix-length 2
+  "The minimum prefix length for idle completion.")
 
 (defvar auto-completion-idle-delay 0.2
   "Delay (seconds) before completions are shown.")

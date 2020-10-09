@@ -1,6 +1,6 @@
 ;;; core-debug.el --- Spacemacs Core File  -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -82,6 +82,8 @@ seconds to load")
                                              (profiler-report)
                                              (profiler-stop))))))
 
+  (when (version<= "27.0" emacs-version)
+    (require 'time-date))
   (when spacemacs-debug-with-timed-requires
     (with-current-buffer (get-buffer-create "*load-times*")
       (insert (format "Threshold set at %.3f seconds\n\n"
