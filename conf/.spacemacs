@@ -51,7 +51,7 @@ This function should only modify configuration layer settings."
      (shell :variables
              shell-default-height 30
              shell-default-shell 'ansi-term
-             shell-default-term-shell "/bin/zsh"
+             shell-default-term-shell "/usr/bin/zsh"
              shell-default-position 'bottom)
      ;;  spell-checking
      (spell-checking :variables
@@ -294,7 +294,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Noto Sans CJK Regular"
+   dotspacemacs-default-font '("Noto Sans CJK SC"
                                ;;"Source Code Pro"
                                ;;:size 40
                                :weight normal
@@ -575,7 +575,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
     (if (display-graphic-p)
         (progn
-          (setq-default dotspacemacs-default-font '("Noto Sans CJK Regular"
+          (setq-default dotspacemacs-default-font '("Noto Sans CJK SC"
                                                     ;;:size 32
                                                     :weight normal
                                                     :width normal
@@ -584,7 +584,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
           (dolist (charset '(kana han symbol cjk-misc bopomofo))
             (set-fontset-font (frame-parameter nil 'font)
                               charset (font-spec
-                                       :family "Noto Sans CJK Regular"
+                                       :family "Noto Sans CJK SC"
                                        ;;:size 40
                                        )))
           ))
@@ -642,7 +642,7 @@ before packages are loaded."
 
     (if (display-graphic-p)
         (progn
-          (setq-default dotspacemacs-default-font '("Noto Sans CJK Regular"
+          (setq-default dotspacemacs-default-font '("Noto Sans CJK SC"
                                                     ;;:size 32
                                                     :weight normal
                                                     :width normal
@@ -651,7 +651,7 @@ before packages are loaded."
           (dolist (charset '(kana han symbol cjk-misc bopomofo))
             (set-fontset-font (frame-parameter nil 'font)
                               charset (font-spec
-                                       :family "Noto Sans CJK Regular"
+                                       :family "Noto Sans CJK SC"
                                        ;;:size 40
                                        )))
           ))
