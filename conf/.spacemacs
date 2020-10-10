@@ -294,8 +294,8 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Noto Sans CJK SC"
-                               ;;"Source Code Pro"
+   dotspacemacs-default-font '(
+                               "Source Code Pro"
                                ;;:size 40
                                :weight normal
                                :width normal
@@ -553,42 +553,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
           ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
           ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 
-
-    ;;(setq-default dotspacemacs-default-font '("Source Code Pro"
-    ;;                                          :size 16
-    ;;                                          :weight normal
-    ;;                                          :width normal
-    ;;                                          :powerline-scale 1.3))
-    ;;(dolist (charset '(kana han symbol cjk-misc bopomofo))
-    ;;  (set-fontset-font (frame-parameter nil 'font)
-    ;;                    charset (font-spec :family "微软雅黑" :size 20)))
-
-
-    ;;(setq-default dotspacemacs-default-font '("Source Code Pro"
-                                              ;;:size 14
-                                              ;;:weight normal
-                                              ;;:width normal
-                                              ;;))
-    ;;(dolist (charset '(kana han symbol cjk-misc bopomofo))
-      ;;(set-fontset-font (frame-parameter nil 'font)
-                        ;;charset (font-spec :family "华文仿宋" :size 16)))
-
-    (if (display-graphic-p)
-        (progn
-          (setq-default dotspacemacs-default-font '("Noto Sans CJK SC"
-                                                    ;;:size 32
-                                                    :weight normal
-                                                    :width normal
-                                                    ;;:powerline-scale 1.3
-                                                    ))
-          (dolist (charset '(kana han symbol cjk-misc bopomofo))
-            (set-fontset-font (frame-parameter nil 'font)
-                              charset (font-spec
-                                       :family "Noto Sans CJK SC"
-                                       ;;:size 40
-                                       )))
-          ))
-
     ;; apt-get install ncurses-term
     (add-hook 'term-mode-hook #'eterm-256color-mode) 
 
@@ -621,38 +585,21 @@ before packages are loaded."
                                                   (spacemacs/toggle-fill-column-indicator-on)
                                                   (message "keep it simple and stupid")))))
 
-    ;;(setq-default dotspacemacs-default-font '("Source Code Pro"
-    ;;                                          :size 16
-    ;;                                          :weight normal
-    ;;                                          :width normal
-    ;;                                          :powerline-scale 1.3))
-    ;;(dolist (charset '(kana han symbol cjk-misc bopomofo))
-    ;;  (set-fontset-font (frame-parameter nil 'font)
-    ;;                    charset (font-spec :family "微软雅黑" :size 20)))
-
-
-    ;;(setq-default dotspacemacs-default-font '("Source Code Pro"
-                                              ;;:size 14
-                                              ;;:weight normal
-                                              ;;:width normal
-                                              ;;))
-    ;;(dolist (charset '(kana han symbol cjk-misc bopomofo))
-      ;;(set-fontset-font (frame-parameter nil 'font)
-                        ;;charset (font-spec :family "华文仿宋" :size 16)))
-
     (if (display-graphic-p)
         (progn
-          (setq-default dotspacemacs-default-font '("Noto Sans CJK SC"
-                                                    ;;:size 32
+          (setq-default dotspacemacs-default-font '(
+                                                    "Source Code Pro"
+                                                    :size 32
                                                     :weight normal
                                                     :width normal
-                                                    ;;:powerline-scale 1.3
                                                     ))
           (dolist (charset '(kana han symbol cjk-misc bopomofo))
             (set-fontset-font (frame-parameter nil 'font)
                               charset (font-spec
-                                       :family "Noto Sans CJK SC"
-                                       ;;:size 40
+                                       :family "Noto Sans Mono CJK SC"
+                                       ;;:family "Noto Sans CJK SC"
+                                       ;;:family "Microsoft YaHei"
+                                       :size 38
                                        )))
           ))
 
