@@ -1,6 +1,6 @@
 ;;; packages.el --- Mandatory Bootstrap Layer packages File
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -415,12 +415,12 @@
 
   ;; SPC b- buffers
   ;; rename the buffer-to-window-1 entry, to 1..9
-  (push '(("\\(.*\\)1" . "buffer-to-window-1") .
-          ("\\11..9" . "buffer to window 1..9"))
+  (push '(("\\(.*\\)1" . "Move buffer to window 1") .
+          ("\\11..9" . "Move buffer to window 1..9"))
         which-key-replacement-alist)
 
   ;; hide the "[2-9] -> buffer-to-window-[2-9]" entries
-  (push '((nil . "buffer-to-window-[2-9]") . t)
+  (push '((nil . "Move buffer to window [2-9]") . t)
         which-key-replacement-alist)
 
   ;; SPC k- lisp

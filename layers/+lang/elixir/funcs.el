@@ -1,6 +1,6 @@
 ;;; funcs.el --- Elixir Layer functions File for Spacemacs
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -93,13 +93,6 @@
            (newline-and-indent)
            (forward-line -1)
            (indent-according-to-mode)))))
-
-(defun spacemacs//elixir-enable-compilation-checking ()
-  "Enable compile checking if `elixir-enable-compilation-checking' is non nil."
-  (when (or elixir-enable-compilation-checking)
-    (flycheck-mix-setup)
-    ;; enable credo only if there are no compilation errors
-    (flycheck-add-next-checker 'elixir-mix '(warning . elixir-credo))))
 
 (defun spacemacs/elixir-annotate-pry ()
   "Highlight breakpoint lines."

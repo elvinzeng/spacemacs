@@ -1,6 +1,6 @@
 ;;; packages.el --- Git Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -25,6 +25,7 @@
         (helm-git-grep :requires helm)
         (helm-gitignore :requires helm)
         magit
+        (magit-delta :toggle git-enable-magit-delta-plugin)
         magit-gitflow
         magit-section
         magit-svn
@@ -151,7 +152,7 @@
     (progn
       (push "magit: .*" spacemacs-useless-buffers-regexp)
       (push "magit-.*: .*"  spacemacs-useless-buffers-regexp)
-      (spacemacs|require 'magit)
+      (spacemacs|require-when-dumping 'magit)
       (setq magit-completing-read-function
             (if (configuration-layer/layer-used-p 'ivy)
                 'ivy-completing-read
@@ -164,7 +165,7 @@
       ;; key bindings
       (spacemacs/declare-prefix "gf" "file")
       (spacemacs/set-leader-keys
-        "gb"  'spacemacs/git-blame-micro-state
+        "gb"  'spacemacs/git-blame-transient-state/body
         "gc"  'magit-clone
         "gfF" 'magit-find-file
         "gfl" 'magit-log-buffer-file
@@ -175,26 +176,35 @@
         "gs"  'magit-status
         "gS"  'magit-stage-file
         "gU"  'magit-unstage-file)
-      ;; transient state
-      ;; TODO use transient state instead of old micro-state, IIRC we continue
-      ;; to use micro-state because of the re-entry keyword :on-enter which is
-      ;; not available in transient state
-      (spacemacs|define-micro-state git-blame
+      (spacemacs|define-transient-state git-blame
         :title "Git Blame Transient State"
-        :doc "
-Press [_b_] again to blame further in the history, [_q_] to go up or quit."
+        :hint-is-doc t
+        :dynamic-hint (spacemacs//git-blame-ts-hint)
         :on-enter (let (golden-ratio-mode)
                     (unless (bound-and-true-p magit-blame-mode)
                       (call-interactively 'magit-blame-addition)))
-        :foreign-keys run
         :bindings
+        ("?" spacemacs//git-blame-ts-toggle-hint)
+        ;; chunks
+        ("p" magit-blame-previous-chunk)
+        ("P" magit-blame-previous-chunk-same-commit)
+        ("n" magit-blame-next-chunk)
+        ("N" magit-blame-next-chunk-same-commit)
+        ("RET" magit-show-commit)
+        ;; commits
         ("b" magit-blame-addition)
-        ;; here we use the :exit keyword because we should exit the
-        ;; micro-state only if the magit-blame-quit effectively disable
-        ;; the magit-blame mode.
-        ("q" nil :exit (progn (when (bound-and-true-p magit-blame-mode)
-                                (magit-blame-quit))
-                              (not (bound-and-true-p magit-blame-mode))))))
+        ("r" magit-blame-removal)
+        ("f" magit-blame-reverse)
+        ("e" magit-blame-echo)
+        ;; q closes any open blame buffers, one at a time,
+        ;; closing the last blame buffer disables magit-blame-mode,
+        ;; pressing q in this state closes the git blame TS
+        ("q" magit-blame-quit :exit (not (bound-and-true-p magit-blame-mode)))
+        ;; other
+        ("c" magit-blame-cycle-style)
+        ("Y" magit-blame-copy-hash)
+        ("B" magit-blame :exit t)
+        ("Q" nil :exit t)))
     :config
     (progn
       ;; seems to be necessary at the time of release
@@ -212,15 +222,15 @@ Press [_b_] again to blame further in the history, [_q_] to go up or quit."
         (let ((mm-key dotspacemacs-major-mode-leader-key))
           (dolist (state '(normal motion))
             (evil-define-key state with-editor-mode-map
-              (concat mm-key mm-key) 'with-editor-finish
-              (concat mm-key "a")    'with-editor-cancel
-              (concat mm-key "c")    'with-editor-finish
-              (concat mm-key "k")    'with-editor-cancel)
+              (concat (kbd mm-key) (kbd mm-key)) 'with-editor-finish
+              (concat (kbd mm-key) "a")    'with-editor-cancel
+              (concat (kbd mm-key) "c")    'with-editor-finish
+              (concat (kbd mm-key) "k")    'with-editor-cancel)
             (evil-define-key state magit-log-select-mode-map
-              (concat mm-key mm-key) 'magit-log-select-pick
-              (concat mm-key "a")    'magit-log-select-quit
-              (concat mm-key "c")    'magit-log-select-pick
-              (concat mm-key "k")    'magit-log-select-quit))))
+              (concat (kbd mm-key) (kbd mm-key)) 'magit-log-select-pick
+              (concat (kbd mm-key) "a")    'magit-log-select-quit
+              (concat (kbd mm-key) "c")    'magit-log-select-pick
+              (concat (kbd mm-key) "k")    'magit-log-select-quit))))
       ;; whitespace
       (define-key magit-status-mode-map (kbd "C-S-w")
         'spacemacs/magit-toggle-whitespace)
@@ -242,10 +252,17 @@ Press [_b_] again to blame further in the history, [_q_] to go up or quit."
       (evil-define-key 'normal magit-section-mode-map (kbd "M-8") 'winum-select-window-8)
       (evil-define-key 'normal magit-section-mode-map (kbd "M-9") 'winum-select-window-9))))
 
+(defun git/init-magit-delta ()
+  (use-package magit-delta
+    :defer t
+    :init (add-hook 'magit-mode-hook 'magit-delta-mode)))
+
 (defun git/init-magit-gitflow ()
   (use-package magit-gitflow
     :defer t
-    :init (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+    :init (progn
+            (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+            (setq magit-gitflow-popup-key "%"))
     :config
     (progn
       (spacemacs|diminish magit-gitflow-mode "Flow")

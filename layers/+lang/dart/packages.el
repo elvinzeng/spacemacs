@@ -1,6 +1,6 @@
 ;;; packages.el --- dart layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2019 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Bruno Tavares <connect+spacemacs@bltavares.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -15,6 +15,7 @@
     (dart-server :toggle (eq dart-backend 'analyzer))
     (flutter (eq dart-backend 'analyzer))
     flycheck
+    (lsp-dart (eq dart-backend 'lsp))
     ))
 
 (defun dart/show-buffer ()
@@ -74,6 +75,10 @@
       (spacemacs/declare-prefix-for-mode 'dart-mode "mx" "flutter")
       (spacemacs/set-leader-keys-for-major-mode 'dart-mode
         "xx" 'flutter-run-or-hot-reload))))
+
+(defun dart/init-lsp-dart ()
+  (use-package lsp-dart
+    :defer t))
 
 (defun dart/post-init-flycheck ()
   (spacemacs/enable-flycheck 'dart-mode))

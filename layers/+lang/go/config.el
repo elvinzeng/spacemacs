@@ -1,6 +1,6 @@
 ;;; config.el --- Go Layer config File for Spacemacs
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -44,3 +44,9 @@ If `nil' then `go-mode' is the default backend unless `lsp' layer is used.")
 
 (defvar go-run-args ""
   "Additional arguments to by supplied to `go run` during runtime.")
+
+(defvar go-run-command "go run"
+  "Go run command. Default is `go run`.")
+
+(defvar go-test-command "go test"
+  "Go test command. Default is `go test`.")

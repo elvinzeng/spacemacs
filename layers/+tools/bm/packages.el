@@ -1,6 +1,6 @@
 ;;; packages.el --- bm Layer packages File
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Eugene "JAremko" Yaremenko <w3techplayground@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -40,7 +40,7 @@
               ;; Toggle
               ("t" bm-toggle))
             (evil-leader/set-key
-              "ab" 'spacemacs/bm-transient-state/body)
+              "atb" 'spacemacs/bm-transient-state/body)
             (advice-add 'spacemacs/bm-transient-state/body
                         :before #'bm-buffer-restore))
     :config (progn
