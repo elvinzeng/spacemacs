@@ -46,7 +46,10 @@ This function should only modify configuration layer settings."
      git
      markdown
      ;;neotree
-     (treemacs :variables treemacs-use-git-mode 'deferred)
+     (treemacs :variables
+               treemacs-use-git-mode 'deferred
+               treemacs-lock-width t
+               )
      org
      (shell :variables
              shell-default-height 30
@@ -65,7 +68,7 @@ This function should only modify configuration layer settings."
      python
      emoji
      (chinese :variables
-              chinese-enable-fcitx t
+              ;;chinese-enable-fcitx t
       )
      c-c++
      csv
@@ -405,12 +408,12 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
    ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
    ;; borderless fullscreen. (default nil)
-   dotspacemacs-undecorated-at-startup nil
+   dotspacemacs-undecorated-at-startup t
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-active-transparency 90
+   dotspacemacs-active-transparency 95
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
@@ -610,7 +613,7 @@ before packages are loaded."
     (when (version<= "9.2" (org-version))
       (require 'org-tempo))
 
-    ;; (spacemacs/toggle-transparency)
+    (spacemacs/toggle-transparency)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
