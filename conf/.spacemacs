@@ -613,7 +613,7 @@ before packages are loaded."
     (when (version<= "9.2" (org-version))
       (require 'org-tempo))
 
-    (spacemacs/toggle-transparency)
+    ;;(spacemacs/toggle-transparency)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
