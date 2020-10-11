@@ -261,10 +261,16 @@ It should only modify the values of Spacemacs settings."
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
-   dotspacemacs-initial-scratch-message "#+TITLE: Scratch
+;;    dotspacemacs-initial-scratch-message "#+TITLE: Scratch
+;; #+AUTHOR: Elvin Zeng
+;; #+STARTUP: indent
+;; #+OPTIONS: ^:nil
+
+;; "
+      dotspacemacs-initial-scratch-message "#+TITLE: Scratch
 #+AUTHOR: Elvin Zeng
 #+STARTUP: indent
-#+OPTIONS: ^:nil
+#+OPTIONS: 
 
 "
 
@@ -587,6 +593,11 @@ before packages are loaded."
                                                   (set-fill-column 120)
                                                   (spacemacs/toggle-fill-column-indicator-on)
                                                   (message "keep it simple and stupid")))))
+    (add-hook 'after-change-major-mode-hook (lambda ()
+                                              (when (eq major-mode 'org-mode)
+                                                (progn
+                                                  (org-toggle-pretty-entities)
+                                                  ))))
 
     (if (display-graphic-p)
         (progn
