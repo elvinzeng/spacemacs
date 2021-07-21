@@ -132,6 +132,7 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
                                       eterm-256color
+                                      org-plus-contrib
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -666,6 +667,7 @@ before packages are loaded."
       (require 'org-tempo))
 
     ;; (spacemacs/toggle-transparency)
+    (require 'ox-taskjuggler)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
