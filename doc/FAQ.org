@@ -9,6 +9,8 @@
   - [[#environment-variables-or-path-are-not-set-properly][Environment variables or PATH are not set properly]]
   - [[#how-to-fix-package-download-errors-when-installing-spacemacs-][How to fix package download errors when installing Spacemacs ?]]
   - [[#how-to-fix-symbols-value-as-variable-is-void-errors-on-startup][How to fix =Symbol's value as variable is void= errors on startup?]]
+  - [[#how-to-fix-error-package-package-build--is-unavailable][How to fix =error: Package 'package-build-' is unavailable=?]]
+  - [[#how-to-fix-warning-bytecomp-and-other-compilation-warnings][How to fix =Warning (bytecomp)= and other compilation warnings?]]
   - [[#how-to-fix-wrong-type-argument-arrayp-nil-errors-on-startup][How to fix =(wrong-type-argument arrayp nil)= errors on startup?]]
   - [[#the-spacemacs-banner-is-ugly-what-should-i-do][The Spacemacs banner is ugly, what should I do?]]
   - [[#the-powerline-separators-are-ugly-how-can-i-fix-them][The powerline separators are ugly, how can I fix them?]]
@@ -18,7 +20,6 @@
   - [[#should-i-place-my-settings-in-user-init-or-user-config][Should I place my settings in =user-init= or =user-config=?]]
   - [[#why-do-some-of-my-org-related-settings-cause-problems][Why do some of my =org=-related settings cause problems?]]
   - [[#why-is-spacemacs-hanging-on-startup][Why is Spacemacs hanging on startup?]]
-  - [[#why-does-helm-m-x-spc-spc-not-accept-the-prefix-argument][Why does =helm-M-x= (~SPC SPC~) not accept the prefix argument?]]
   - [[#why-does-my-color-theme-not-render-correctly-in-terminal-mode][Why does my color theme not render correctly in terminal mode?]]
   - [[#typing-quickly-fd-takes-me-out-of-insert-state-what-is-going-on][Typing quickly =fd= takes me out of =insert state=. What is going on?]]
   - [[#why-do-i-get-files-starting-with-][Why do I get files starting with .#?]]
@@ -28,13 +29,14 @@
   - [[#i-want-to-learn-elisp-where-do-i-start-][I want to learn elisp, where do I start ?]]
 - [[#how-do-i][How do I]]
   - [[#install-a-package-not-provided-by-a-layer][Install a package not provided by a layer?]]
+  - [[#how-to-override-a-layer-package][How to override a layer package?]]
   - [[#disable-a-package-completely][Disable a package completely?]]
   - [[#disable-a-package-only-for-a-specific-major-mode][Disable a package only for a specific major-mode?]]
   - [[#disable-company-for-a-specific-major-mode][Disable company for a specific major-mode?]]
   - [[#change-special-buffer-rules][Change special buffer rules?]]
   - [[#enable-navigation-by-visual-lines][Enable navigation by visual lines?]]
   - [[#disable-evilification-of-a-mode][Disable evilification of a mode?]]
-  - [[#include-underscores-in-word-motions][Include underscores in word motions?]]
+  - [[#include-underscores-and-dashes-in-word-motions][Include underscores and dashes in word motions?]]
   - [[#setup-path][Setup =$PATH=?]]
   - [[#change-or-define-an-alias-for-a-leader-key][Change or define an alias for a leader key?]]
   - [[#restore-the-sentence-delimiter-to-two-spaces][Restore the sentence delimiter to two spaces?]]
@@ -45,7 +47,8 @@
   - [[#make-copypaste-working-with-the-mouse-in-x11-terminals][Make copy/paste working with the mouse in X11 terminals?]]
   - [[#use-helm-ag-to-search-only-in-files-of-a-certain-type][Use =helm-ag= to search only in files of a certain type?]]
   - [[#modify-spacemacs-documentation-look-space-doc-mode][Modify spacemacs documentation look (space-doc-mode)]]
-  - [[#remap-paste-key-to-be-able-to-paste-copied-text-multiple-times][Remap paste key to be able to paste copied text multiple times]]
+- [[#linux][Linux]]
+  - [[#error-on-deleting-a-system-package][Error on deleting a system package]]
 - [[#windows][Windows]]
   - [[#why-do-the-fonts-look-crappy-on-windows][Why do the fonts look crappy on Windows?]]
   - [[#why-is-there-no-spacemacs-logo-in-the-startup-buffer][Why is there no Spacemacs logo in the startup buffer?]]
@@ -109,6 +112,14 @@ to do this:
 - Set the variable =dotspacemacs-elpa-https= to =nil= in your dotfile. This has
   the same effect as =--insecure=, but is persistent.
 
+** How to fix =error: Package 'package-build-' is unavailable=?
+This may occur due to heavy network traffic. You can fix it by setting the
+=dotspacemacs-elpa-timeout= variable to =70= in your =dotspacemacs= file.
+
+** How to fix =Warning (bytecomp)= and other compilation warnings?
+They are perfectly normal. If you're curious, you can find out why these occur
+[[https://github.com/quelpa/quelpa/issues/90#issuecomment-137982713][here]].
+
 ** How to fix =(wrong-type-argument arrayp nil)= errors on startup?
 This is most likely caused by a corrupted package archive. Try deleting your
 =~/.emacs.d/elpa/archives/= folder and restart Emacs.
@@ -156,10 +167,10 @@ will be read before =user-config= is executed. (Hence to yield consistent
 behaviour, mode hooks should be set in =user-init=.)
 
 ** Why do some of my =org=-related settings cause problems?
-Since version 0.104, spacemacs uses the =org= version from the org ELPA
-repository instead of the one shipped with emacs. Then, any =org= related code
-should not be loaded before =dotspacemacs/user-config=, otherwise both versions
-will be loaded and will conflict.
+Since version 0.300, spacemacs uses the =org= version from the ELPA repository
+instead of the one shipped with emacs. Then, any =org= related code should not
+be loaded before =dotspacemacs/user-config=, otherwise both versions will be
+loaded and will conflict.
 
 Because of autoloading, calling to =org= functions will trigger the loading up
 of the =org= shipped with emacs which will induce conflicts. One way to avoid
@@ -195,17 +206,6 @@ not working, you can try to put these settings directly in =~/.ssh/config=:
   ControlPath ~/.ssh/master -%r@%h:%p
   ControlPersist = no
 #+END_SRC
-
-** Why does =helm-M-x= (~SPC SPC~) not accept the prefix argument?
-If you try to run =helm-M-x= with the prefix argument (i.e. ~SPC u SPC SPC~) it
-will fail with this message:
-
-#+BEGIN_VERSE
-  Error: Specifying a prefix arg before calling helm-M-x
-#+END_VERSE
-
-Instead, call =helm-M-x= first, select the command you want to run, and press
-~C-u~ before pressing ~RETURN~. For instance: ~SPC SPC org-reload C-u RET~
 
 ** Why does my color theme not render correctly in terminal mode?
 In the terminal version of Emacs, color themes will not render correctly as
@@ -287,6 +287,29 @@ Spacemacs provides a variable in the =dotspacemacs/layers= function in
 to the list and it will be installed when you reload your configuration with
 ~SPC f e R~, or at the next Spacemacs launch.
 
+** How to override a layer package?
+To replace a package that is installed and configured by a layer, without
+losing the layer's configuration for that package, add the package to your
+=dotspacemacs-additional-packages= with the =:location= keyword set to the
+value =local=:
+
+#+BEGIN_SRC emacs-lisp
+  (package-name :location local)
+#+END_SRC
+
+The package should reside at =<layer>/local/<package>/= (this could be a
+symbolic link to the real package (repo) directory). The package will still
+get configured (but not loaded) by the layer. To load the package, require it
+from your =dotspacemacs/user-config=: =(require 'package-name)=. In this way
+you can easily switch between the custom version and the version configured by
+the layer by commenting in/out the line in =dotspacemacs-additional-packages=
+(to restore deferred loading also comment out the =require= form in
+=dotspacemacs/user-config=).
+
+You could also fully replace (i.e. overwrite) the layer version of the package
+by using a Quelpa recipe with the pseudo-fetcher =local= as described [[https://develop.spacemacs.org/doc/LAYERS.html#packagesel][here]] and
+[[https://github.com/quelpa/quelpa#file][here]].
+
 ** Disable a package completely?
 To completely disable a package and effectively uninstalling it even if it is
 part of your used layers, look for the variable =dotspacemacs-excluded-packages=
@@ -365,9 +388,13 @@ binding in the mode's map, e.g. for =magit-status-mode=,
       (kbd dotspacemacs-leader-key) spacemacs-default-map))
 #+END_SRC
 
-** Include underscores in word motions?
-You can modify the syntax table of the mode in question. To do so you can
-include this on your =dotspacemacs/user-config=.
+** Include underscores and dashes in word motions?
+If you want =*= and =#= searches to include underscores and dashes as a
+part of a word, add ~(setq-default evil-symbol-word-search t)~ to your
+=dotspacemacs/user-config=.
+
+For other motions, you can modify the syntax table of the mode in question
+by also adding the following.
 
 #+BEGIN_SRC emacs-lisp
   ;; For python
@@ -381,6 +408,8 @@ include this on your =dotspacemacs/user-config=.
   ;; For all modes
   (add-hook 'after-change-major-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 #+END_SRC
+
+For more details, see the [[https://evil.readthedocs.io/en/latest/faq.html#underscore-is-not-a-word-character][FAQ for Evil]].
 
 ** Setup =$PATH=?
 Some layers require certain tools to be available on your =$PATH=. This means
@@ -561,20 +590,21 @@ By default only =center-buffer-mode= is disabled.
 Both =space-doc-mode= and =center-buffer-mode= can be customized
 with "Easy Customization Interface".
 
-** Remap paste key to be able to paste copied text multiple times
-In vim and evil, pasting over a text would cause it to be copied, hence making it impossible to paste
-the same text multiple times.
+* Linux
+** Error on deleting a system package
+If you see the an error message when either Spacemacs is trying to delete an orphaned package,
+or when you are trying to a package manually:
 
-To fix this, add the following snippet to your ~user-config~:
+#+BEGIN_EXAMPLE
+  Package ‘PACKAGE-NAME’ is a system package, not deleting
+#+END_EXAMPLE
 
-#+BEGIN_SRC emacs-lisp
-  (defun evil-paste-after-from-0 ()
-    (interactive)
-    (let ((evil-this-register ?0))
-      (call-interactively 'evil-paste-after)))
+it means this package comes with your distribution's package manager and is not installed by
+Spacemacs. You can suppress this by adding the package to =dotspacemacs-additional-packages=
+in your =.spacemacs= file.
 
-  (define-key evil-visual-state-map "p" 'evil-paste-after-from-0)
-#+END_SRC
+In addition, you also need to add the said package to =dotspacemacs-frozen-packages= in your
+=.spacemacs=, so that you will be able to update your Emacs packages successfully.
 
 * Windows
 ** Why do the fonts look crappy on Windows?

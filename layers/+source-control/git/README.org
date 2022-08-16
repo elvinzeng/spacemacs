@@ -9,12 +9,20 @@
   - [[#features][Features:]]
 - [[#install][Install]]
   - [[#layer][Layer]]
+  - [[#git][Git]]
+    - [[#basic-git-configuration][Basic Git configuration]]
+    - [[#using-ssh-urls-for-remote-repositories][Using SSH URLs for remote repositories]]
   - [[#magit-status-fullscreen][Magit status fullscreen]]
   - [[#magit-auto-complete][Magit auto-complete]]
-  - [[#magit-svn-plugin][Magit SVN plugin]]
+  - [[#magit-plugins][Magit Plugins]]
+    - [[#magit-delta][magit-delta]]
+    - [[#magit-gitflow][magit-gitflow]]
+    - [[#magit-svn][magit-svn]]
+    - [[#magit-todos][magit-todos]]
   - [[#global-git-commit-mode][Global git commit mode]]
-  - [[#git][Git]]
-  - [[#git-flow][Git-Flow]]
+  - [[#forge][Forge]]
+    - [[#magit-forge-configuration][Magit Forge configuration]]
+    - [[#ms-windows-support][MS Windows support]]
   - [[#org-integration][Org integration]]
 - [[#working-with-git][Working with Git]]
   - [[#magit][Magit]]
@@ -24,31 +32,54 @@
   - [[#interactive-rebase-buffer][Interactive rebase buffer]]
   - [[#quick-guide-for-recurring-use-cases-in-magit][Quick guide for recurring use cases in Magit]]
   - [[#git-blame-transient-state][Git Blame Transient State]]
-  - [[#git-flow-1][Git-Flow]]
+  - [[#git-flow][Git-Flow]]
   - [[#git-time-machine][Git time machine]]
   - [[#git-links-to-web-services][Git links to web services]]
   - [[#repository-list][Repository list]]
+  - [[#forge-1][Forge]]
 
 * Description
 This layers adds extensive support for [[http://git-scm.com/][git]] to Spacemacs.
 
 ** Features:
 - git repository management the indispensable [[http://magit.vc/][magit]] package
+- [[https://github.com/magit/forge/][forge]] add-on for magit.
 - [[https://github.com/jtatarik/magit-gitflow][git-flow]] add-on for magit.
 - quick in buffer history browsing with [[https://melpa.org/#/git-timemachine][git-timemachine]].
 - quick in buffer last commit message per line with [[https://github.com/syohex/emacs-git-messenger][git-messenger]]
 - colorize buffer line by age of commit with [[https://github.com/syohex/emacs-smeargle][smeargle]]
 - git grep with [[https://github.com/yasuyk/helm-git-grep][helm-git-grep]]
-- gitignore generator with [[https://github.com/jupl/helm-gitignore][helm-gitignore]]
 - org integration with magit via [[https://github.com/magit/orgit][orgit]]
 
-New to Magit? Checkout the [[https://magit.vc/about/][official intro]].
+New to Magit? Checkout the [[https://magit.vc/about/][official intro]] and [[https://practical.li/spacemacs/source-control/][Practicalli Spacemacs]]
+guide to configuring and using the Git and version control layers.
 
 * Install
 ** Layer
 To use this configuration layer, add it to your =~/.spacemacs=. You will need to
 add =git= to the existing =dotspacemacs-configuration-layers= list in this
 file.
+
+** Git
+Of course if your OS does not ship with git (!) you'll have to install it
+on your machine. You can download it from the [[http://git-scm.com/downloads][download page]].
+
+*** Basic Git configuration
+Define a git identity using the =git= commands in a terminal window
+replacing =username= and =name@domain.tld= with your own values
+
+#+BEGIN_SRC shell
+  git config --global user.name "username"
+  git config --global user.email "name@domain.tld"
+#+END_SRC
+
+*** Using SSH URLs for remote repositories
+[[https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key][Generate an SSH key]] to use SSH URLs to access remote repositories.
+Add the SSH key to your account on the remote service managing repository access.
+An SSH key removes the need to provide login details for each request from Magit
+to the remote repository service.
+- [[https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account][GitHub SSH key documentation]]
+- [[https://docs.gitlab.com/ee/ssh/#add-an-ssh-key-to-your-gitlab-account][GitLab SSH key documentation]]
 
 ** Magit status fullscreen
 To display the =magit status= buffer in fullscreen set the variable
@@ -63,43 +94,120 @@ To display the =magit status= buffer in fullscreen set the variable
 Magit auto-complete feature is enabled by default.
 For this feature to work best - setup [[#repository-list][magit repository list]].
 
-** Magit SVN plugin
-The magit SVN plugin shows commits which were not pushed to svn yet.
+** Magit Plugins
+*** magit-delta
+[[https://github.com/dandavison/magit-delta][magit-delta]] uses [[https://github.com/dandavison/delta][delta]] to display diffs, with extensive changes to its
+layout and styles.
+
+You need to [[https://github.com/dandavison/delta#installation][install delta]] first, and add the following to your =dotspacemacs/user-config=:
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers
+                '((git :variables git-enable-magit-delta-plugin t)))
+#+END_SRC
+
+*** magit-gitflow
+[[https://github.com/petervanderdoes/gitflow-avh][git-flow]] is a standardized branching pattern for git repositories with the aim
+of making things more manageable. While there are tools to assist with making
+this easier, these do nothing you couldn't do manually.
+
+After [[https://github.com/petervanderdoes/gitflow/wiki][installing]] =git-flow=, add the following to your =dotspacemacs/user-config=:
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers
+                '((git :variables git-enable-magit-gitflow-plugin t)))
+#+END_SRC
+
+*** magit-svn
+[[https://github.com/emacsorphanage/magit-svn][magit-svn]] shows commits which were not pushed to svn yet.
 Press ~!~ in *Magit* buffer to open the magit-svn-popup.
 There you can push to or rebase from svn.
 
-For convenience the magit SVN plugin can be activated directly in the Git
-layer by setting the variable =git-enable-magit-svn-plugin= to =t=.
+To enable =magit-svn= plugin, add the following to your =dotspacemacs/user-config=:
 
 #+BEGIN_SRC emacs-lisp
-  (defun dotspacemacs/user-init ()
-    (setq-default git-enable-magit-svn-plugin t))
+  (setq-default dotspacemacs-configuration-layers
+                '((git :variables git-enable-magit-svn-plugin t)))
 #+END_SRC
 
 | Key binding | Description          |
 |-------------+----------------------|
 | ~~~         | open magit-svn-popup |
 
+*** magit-todos
+[[https://github.com/alphapapa/magit-todos][magit-todos]] displays TODO-entries in source code comments and Org files in the Magit
+status buffer.
+
+To enable =magit-todos= plugin, add the following to your =dotspacemacs/user-config=:
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers
+                '((git :variables git-enable-magit-todos-plugin t)))
+#+END_SRC
+
 ** Global git commit mode
 Spacemacs can be used as the =$EDITOR= (or =$GIT_EDITOR=) for editing git
-commits messages. To enable this you have to add the following line to your
+commits messages. This requires the entire library to be loaded immediately
+which will cost some time, disable it if you run into performance issues.
+To enable it you have to add the following lines to your
 =dotspacemacs/user-config=:
 
 #+BEGIN_SRC emacs-lisp
+  (require 'git-commit)
   (global-git-commit-mode t)
 #+END_SRC
 
-** Git
-Of course if your OS does not ship with git (!) you'll have to install it
-on your machine. You can download it from the [[http://git-scm.com/downloads][download page]].
+** Forge
+Magit Forge can view and create issues & pull requests with forges
+(e.g. GitHub, GitLab)
 
-** Git-Flow
-Git-flow is a standardized branching pattern for git repositories with the aim
-of making things more manageable. While there are tools to assist with making
-this easier, these do nothing you couldn't do manually.
+Magit Forge requires a username for the respective forge and will prompt for a
+username if not found, writing it to =~/.gitconfig=
 
-Support requires installation of the git-flow extensions. Please reference their
-[[https://github.com/petervanderdoes/gitflow/wiki][installation page]] for assistance.
+Explicitly define a forge identity using the `git` command.
+
+For GitHub:
+
+#+BEGIN_SRC shell
+  git config --global github.user "username"
+#+END_SRC
+
+For GitLab:
+
+#+BEGIN_SRC shell
+  git config --global gitlab.user "username"
+#+END_SRC
+
+See the official [[https://magit.vc/manual/forge/Getting-Started.html#Getting-Started][Magit Forge]] and [[https://magit.vc/manual/ghub/Getting-Started.html][GHub Getting Started]] for general guides or follow
+a community written [[https://practical.li/spacemacs/source-control/forge-configuration.html][Spacemacs specific guide to configuring Magit Forge]].
+
+*** Magit Forge configuration
+For each forge (e.g. GitHub, GitLab), add a machine configuration to the
+PGP encrypted =~/.authinfo.gpg= file.
+Detailed instructions to [[https://practical.li/spacemacs/source-control/forge-configuration.html#create-an-encrypted-authinfogpg-file][create an encrypted .authinfo.gpg file with Spacemacs]]
+
+The machine configuration should use your forge username and personal access token
+GitHub token permissions: =repo=, =user= and =read:org=
+GitLab token permissions: =api=
+- [[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token][GitHub personal access token documentation]]
+- [[https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token][GitLab personal access token documentation]]
+
+#+BEGIN_SRC sh
+  machine api.github.com login forge-username^forge password 01personal02access03token
+#+END_SRC
+
+*** MS Windows support
+The =forge= package uses =emacsql= which requires a C compiler to be available
+on MS Windows, see issue [[https://github.com/skeeto/emacsql/issues/46]].
+
+For this reason the =forge= package is not installed on MS Windows by default.
+If you still want to install it (which means you do have a C compiler available
+in your PATH) then use the =dotspacemacs-additional-packages= variable in your
+dotfile:
+
+#+BEGIN_SRC emacs-lisp
+  (dotspacemacs-additional-packages '((forge :toggle t)))
+#+END_SRC
 
 ** Org integration
 See the commentary section of the package [[https://github.com/magit/orgit/blob/master/orgit.el#L28][here]].
@@ -115,11 +223,11 @@ Git commands (start with ~g~):
 | ~SPC g f f~ | view a file at a specific branch or commit          |
 | ~SPC g f l~ | commits log for current file                        |
 | ~SPC g f d~ | diff for current file                               |
+| ~SPC g f m~ | magit dispatch popup for file operations            |
 | ~SPC g H c~ | clear highlights                                    |
 | ~SPC g H h~ | highlight regions by age of commits                 |
 | ~SPC g H t~ | highlight regions by last updated time              |
 | ~SPC g i~   | initialize a new git repository                     |
-| ~SPC g I~   | open =helm-gitignore=                               |
 | ~SPC g L~   | open magit-repolist                                 |
 | ~SPC g s~   | open a =magit= status window                        |
 | ~SPC g S~   | stage current file                                  |
@@ -140,10 +248,14 @@ Spacemacs uses [[http://magit.vc/][magit]] to manage Git repositories.
 To open a =status buffer=, type in a buffer of a Git repository: ~SPC g s~.
 The central key binding hub of Magit is available on ~SPC g m~.
 
-Spacemacs uses [[https://github.com/justbur/evil-magit][evil-magit]] for key bindings in magit buffers (unless your editing
-style is set to emacs, in which case you get the default magit bindings), which
-are the standard magit key bindings with some minimal changes to make them
-comfortable for evil users.
+Spacemacs uses [[https://github.com/magit/forge/][forge]] for integration with remote forges, it is available from
+the =status buffer= with the ~@~ key binding. For information on setting up
+remotes check the manual's [[https://magit.vc/manual/forge/Getting-Started.html][Getting Started page]].
+
+Spacemacs uses [[https://github.com/emacs-evil/evil-collection/tree/master/modes/magit][evil-collection-magit]] for key bindings in magit buffers (unless
+your editing style is set to emacs, in which case you get the default magit
+bindings), which are the standard magit key bindings with some minimal changes
+to make them comfortable for evil users.
 
 Here are the often used bindings inside a =status buffer=:
 
@@ -331,3 +443,46 @@ The DIRECTORY should end up with a ~/~ to respect Emacs conventions.
 | ~gr~        | refresh the project list                            |
 
 For more information, look into [[http://magit.vc/manual/magit.html#Status-Buffer][Magit-User-Manual#Status-Buffer]]
+
+** Forge
+In a =magit-status= buffer (~SPC g s~):
+
+| Key binding | Description                                               |
+|-------------+-----------------------------------------------------------|
+| ~b N~       | create branch from pull-request                           |
+| ~b F~       | create and check out branch from pull-request             |
+| ~@ f f~     | fetch issues and pull-requests                            |
+| ~@ f n~     | fetch notifications                                       |
+| ~@ c p~     | create pull-request                                       |
+| ~@ c i~     | create issue                                              |
+| ~@ l n~     | list notifications                                        |
+| ~@ l p~     | list pull-requests                                        |
+| ~@ l i~     | list issues                                               |
+| ~f n~       | pull pull-requests and issues for the current repository  |
+| ~f N~       | pull all notifications for the current repository's forge |
+
+In a =forge-topic= buffer:
+(a topic is either an issue or pull request)
+
+| Key binding | Description                                     |
+|-------------+-------------------------------------------------|
+| ~SPC m a~   | assign people to topic                          |
+| ~SPC m b~   | browse topic (open in web browser)              |
+| ~SPC m c~   | create comment post to existing topic)          |
+| ~SPC m C~   | Checkout pull request (not for issues)          |
+| ~SPC m d~   | delete comment under cursor                     |
+| ~SPC m e~   | edit topic body                                 |
+| ~SPC m m~   | edit topic marks (mark is an unshared label)    |
+| ~SPC m M~   | create mark to use with topics                  |
+| ~SPC m n~   | edit personal note (adds to top of topic)       |
+| ~SPC m r~   | edit list of people to review an existing topic |
+| ~SPC m s~   | change topic state (open, closed, draft, etc.)  |
+| ~SPC m t~   | edit topic title                                |
+| ~SPC m u~   | copy URL of topic (add to kill ring)            |
+
+In a =forge-post= buffer (assuming the major mode leader key is ~,~)
+
+| Key binding            | Description |
+|------------------------+-------------|
+| ~SPC m c~ or ~SPC m ,~ | submit post |
+| ~SPC m k~ or ~SPC m k~ | cancel post |

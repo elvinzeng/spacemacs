@@ -2,6 +2,7 @@
 *.elc
 *.pyc
 *.stackdump
+*.flycheck_packages.el
 /*.zip
 .DS_Store
 .ac-php-conf.json
@@ -21,10 +22,13 @@
 .trello
 /.cask/
 /.my-keybindings.el.swp
+/devdocs
 /eww-bookmarks
 /history
+/image-dired
 /network-security.data
 /recentf
+/recentf~
 /session.*
 /srecode-map.el
 \#*
@@ -94,3 +98,6 @@ tags
 .tags
 !tags/
 gtags.files
+eln-cache/
+meghanada/
+vimish-fold/

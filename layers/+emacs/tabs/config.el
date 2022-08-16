@@ -1,57 +1,46 @@
 ;;; config.el --- tabs configuration File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(defvar tabs-navigation nil
-  "*Specify the scope of cyclic navigation through tabs.
-The following scopes are possible:
+(spacemacs|defc tabs-selected-tab-bar 'left
+  "When non-nil, display a bar next to the current selected tab in the given direction.
 
-- `tabs'
-    Navigate through visible tabs only.
-- `groups'
-    Navigate through tab groups only.
-- nil
-    Navigate through visible tabs, then through tab groups.")
+If Emacs is running in daemon mode, this is turned off regardless of the setting."
+  '(choice (const left) (const over) (const under)))
 
-(defvar tabs-gray-out-unselected nil
-  "When non nil, enable gray icons for unselected buffer.")
+(spacemacs|defc tabs-group-by-project t
+  "When non-nil, group tabs by projectile project.
+Default t. If non-nil calls (tabs-group-by-projectile-project)
+Otherwise calls (tabs-group-buffer-groups)"
+  '(boolean))
 
-(defvar tabs-height 22
-  "The height of tab")
+(spacemacs|defc tabs-headline-match t
+  "When non-nil, make headline use tabs-default-face. Default t.
+Calls (tabs-headline-match)"
+  '(boolean))
 
-(defvar tabs-show-icons t
-  "When non nil, show icon from all-the-icons")
+(spacemacs|defc tabs-auto-hide nil
+  "If non-nil hide tabs automatically after TABS-AUTO-HIDE-DELAY seconds."
+  '(boolean))
 
-(defvar tabs-set-modified-marker t
-  "When non nil, display a marker when buffer is modified")
-
-(defvar tabs-modified-marker "⚠"
-  "Display appearance of modified marker if enabled")
-
-(defvar tabs-show-navigation-buttons nil
-  "When non-nil, show buttons for backward/forward tabs")
-
-(defvar tabs-style "bar"
-  "Style of tab; available values are \"bar\", \"alternate\", \"box\", \"chamfer\", \"rounded\", \"slant\", \"wave\", \"zigzag\" ")
-
-(defvar tabs-group-by-project t
-  "When non-nil, group tabs by projectile project. Default t.
-   If non-nil calls (centaur-tabs-group-by-projectile-project)
-   Otherwise calls (centaur-tabs-group-buffer-groups)")
-
-(defvar tabs-headline-match t
-  "When non-nil, make headline use centaur-tabs-default-face. Default t. Calls (centaur-tabs-headline-match)")
-
-(defvar tabs-set-bar 'left
-  "When non-nil, display a bar to show currently selected tab.
-  There are three options:
-  - 'left: displays the bar at the left of the currently selected tab.
-  - 'under: displays the bar under the currently selected tab.
-  - 'over: displays the bar over the currently selected tab.")
+(spacemacs|defc tabs-auto-hide-delay 2
+  "Tabs auto hide delay in seconds."
+  '(float))

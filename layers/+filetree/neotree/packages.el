@@ -1,19 +1,31 @@
 ;;; packages.el --- Neotree Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defconst neotree-packages
   '(
     neotree
-    winum
-    ))
+    winum))
+
 
 (defun neotree/init-neotree ()
   (use-package neotree
@@ -81,7 +93,7 @@ Navigation^^^^             Actions^^         Visual actions/config^^^
         (evilified-state-evilify-map neotree-mode-map
           :mode neotree-mode
           :bindings
-          (kbd "TAB")  'neotree-stretch-toggle
+          (kbd "TAB") 'neotree-stretch-toggle
           (kbd "RET") 'spacemacs/neotree-expand-or-open
           (kbd "|") 'neotree-enter-vertical-split
           (kbd "-") 'neotree-enter-horizontal-split
@@ -101,6 +113,9 @@ Navigation^^^^             Actions^^         Visual actions/config^^^
           (kbd "q") 'neotree-hide
           (kbd "r") 'neotree-rename-node
           (kbd "R") 'neotree-change-root
+          (kbd "zz") 'evil-scroll-line-to-center
+          (kbd "zt") 'evil-scroll-line-to-top
+          (kbd "zb") 'evil-scroll-line-to-bottom
           (kbd "?") 'spacemacs/neotree-transient-state/body
           (kbd "s") 'neotree-hidden-file-toggle))
 
@@ -116,10 +131,11 @@ Navigation^^^^             Actions^^         Visual actions/config^^^
 (defun neotree/pre-init-winum ()
   (spacemacs|use-package-add-hook winum
     :post-config
-    ;; `0', `M-0' and `C-x w 0' are bound to `winum-select-window-0-or-10'
-    (define-key winum-keymap [remap winum-select-window-0-or-10] #'neotree-show)
-    ;; replace the which-key name
-    (push '((nil . "winum-select-window-0-or-10") . (nil . "neotree-show"))
-          which-key-replacement-alist)
-    (add-to-list 'winum-assign-functions
-                 #'spacemacs//winum-neotree-assign-func)))
+    (when (configuration-layer/package-used-p 'winum)
+      ;; `0', `M-0' and `C-x w 0' are bound to `winum-select-window-0-or-10'
+      (define-key winum-keymap [remap winum-select-window-0-or-10] #'neotree-show)
+      ;; replace the which-key name
+      (push '((nil . "winum-select-window-0-or-10") . (nil . "neotree-show"))
+            which-key-replacement-alist)
+      (add-to-list 'winum-assign-functions
+                   #'spacemacs//winum-neotree-assign-func))))

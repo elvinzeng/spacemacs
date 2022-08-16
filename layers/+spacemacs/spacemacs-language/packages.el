@@ -1,13 +1,25 @@
 ;;; packages.el --- Spacemacs Language Layer packages File
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (setq spacemacs-language-packages
       '((define-word :toggle (not (bound-and-true-p osx-use-dictionary-app)))
@@ -24,6 +36,11 @@
   (use-package google-translate
     :commands (spacemacs/set-google-translate-languages)
     :init
+    ;; fix search fail ',ttk'
+    ;; (see https://github.com/atykhonov/google-translate/issues/52#issuecomment-727920888)
+    (with-eval-after-load 'google-translate-tk
+      (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130)))
+
     (progn
       (defun spacemacs/set-google-translate-languages (&optional override-p)
         "Set source language for google translate.

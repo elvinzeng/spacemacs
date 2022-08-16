@@ -1,37 +1,56 @@
 ;;; packages.el --- Spacemacs Editing Layer packages File
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(setq spacemacs-editing-packages
-      '(aggressive-indent
-        avy
-        (bracketed-paste :toggle (version<= emacs-version "25.0.92"))
-        (clean-aindent-mode :toggle dotspacemacs-use-clean-aindent-mode)
-        editorconfig
-        eval-sexp-fu
-        expand-region
-        (hexl :location built-in)
-        hungry-delete
-        link-hint
-        lorem-ipsum
-        move-text
-        (origami :toggle (eq 'origami dotspacemacs-folding-method))
-        password-generator
-        pcre2el
-        smartparens
-        (evil-swap-keys :toggle dotspacemacs-swap-number-row)
-        (spacemacs-whitespace-cleanup :location local)
-        string-inflection
-        undo-tree
-        uuidgen
-        ws-butler))
+
+(defconst spacemacs-editing-packages
+  '(aggressive-indent
+    avy
+    (clean-aindent-mode :toggle dotspacemacs-use-clean-aindent-mode)
+    dired-quick-sort
+    drag-stuff
+    editorconfig
+    eval-sexp-fu
+    expand-region
+    (hexl :location built-in)
+    hungry-delete
+    link-hint
+    lorem-ipsum
+    (origami :toggle (eq 'origami dotspacemacs-folding-method))
+    password-generator
+    (persistent-scratch :toggle dotspacemacs-scratch-buffer-persistent)
+    pcre2el
+    (smartparens :toggle dotspacemacs-activate-smartparens-mode)
+    (evil-swap-keys :toggle dotspacemacs-swap-number-row)
+    (spacemacs-whitespace-cleanup :location (recipe :fetcher local))
+    string-edit
+    string-inflection
+    multi-line
+    undo-tree
+    (unkillable-scratch :toggle dotspacemacs-scratch-buffer-unkillable)
+    uuidgen
+    (vimish-fold :toggle (eq 'vimish dotspacemacs-folding-method))
+    (evil-vimish-fold :toggle (eq 'vimish dotspacemacs-folding-method))
+    (evil-easymotion :toggle (memq dotspacemacs-editing-style '(vim hybrid)))
+    ws-butler))
 
 ;; Initialization of packages
 (defun spacemacs-editing/init-aggressive-indent ()
@@ -70,7 +89,7 @@
         "xo" 'spacemacs/avy-open-url))
     :config
     (progn
-      (defun spacemacs/avy-goto-url()
+      (defun spacemacs/avy-goto-url ()
         "Use avy to go to an URL in the buffer."
         (interactive)
         (avy-jump "https?://"))
@@ -81,19 +100,54 @@
           (spacemacs/avy-goto-url)
           (browse-url-at-point))))))
 
-(defun spacemacs-editing/init-bracketed-paste ()
-  (use-package bracketed-paste
-    :defer t
-    :init
-    ;; Enable bracketed-paste for tty
-    (add-hook 'tty-setup-hook 'bracketed-paste-enable)))
-
 (defun spacemacs-editing/init-clean-aindent-mode ()
   (use-package clean-aindent-mode
     :config
     (progn
       (clean-aindent-mode)
       (add-hook 'prog-mode-hook 'spacemacs//put-clean-aindent-last t))))
+
+(defun spacemacs-editing/init-dired-quick-sort ()
+  (use-package dired-quick-sort
+    :defer t
+    :init
+    (spacemacs|add-transient-hook dired-mode-hook
+      (lambda ()
+        (let ((dired-quick-sort-suppress-setup-warning 'message))
+          (dired-quick-sort-setup))))
+    :config
+    (evil-define-key 'normal dired-mode-map "s" 'hydra-dired-quick-sort/body)))
+
+(defun spacemacs-editing/init-drag-stuff ()
+  (use-package drag-stuff
+    :defer t
+    :init
+    (progn
+      (spacemacs|diminish drag-stuff-mode)
+      (drag-stuff-mode t)
+      (spacemacs|define-transient-state drag-stuff
+        :title "Drag Stuff Transient State"
+        :doc "
+[_k_/_K_] up    [_h_/_H_] left   [_q_] quit
+[_j_/_J_] down  [_l_/_L_] right"
+        :bindings
+        ("j" drag-stuff-down)
+        ("J" drag-stuff-down)
+        ("<down>" drag-stuff-down)
+        ("k" drag-stuff-up)
+        ("K" drag-stuff-up)
+        ("<up>" drag-stuff-up)
+        ("h" drag-stuff-left)
+        ("H" drag-stuff-left)
+        ("<left>" drag-stuff-left)
+        ("l" drag-stuff-right)
+        ("L" drag-stuff-right)
+        ("<right>" drag-stuff-right)
+        ("q" nil :exit t))
+      (spacemacs/set-leader-keys
+        "x." 'spacemacs/drag-stuff-transient-state/body
+        "xK" 'spacemacs/drag-stuff-transient-state/drag-stuff-up
+        "xJ" 'spacemacs/drag-stuff-transient-state/drag-stuff-down))))
 
 (defun spacemacs-editing/init-editorconfig ()
   (use-package editorconfig
@@ -207,19 +261,6 @@
         "ilp" 'lorem-ipsum-insert-paragraphs
         "ils" 'lorem-ipsum-insert-sentences))))
 
-(defun spacemacs-editing/init-move-text ()
-  (use-package move-text
-    :defer t
-    :init
-    (spacemacs|define-transient-state move-text
-      :title "Move Text Transient State"
-      :bindings
-      ("J" move-text-down "move down")
-      ("K" move-text-up "move up"))
-    (spacemacs/set-leader-keys
-      "xJ" 'spacemacs/move-text-transient-state/move-text-down
-      "xK" 'spacemacs/move-text-transient-state/move-text-up)))
-
 (defun spacemacs-editing/init-origami ()
   (use-package origami
     :defer t
@@ -275,6 +316,54 @@
 ;; Note: The key binding for the fold transient state is defined in
 ;; evil config
 
+(defun spacemacs-editing/init-vimish-fold ()
+  (use-package vimish-fold
+    :ensure
+    :after evil))
+
+(defun spacemacs-editing/init-evil-vimish-fold ()
+  (use-package evil-vimish-fold
+    :ensure
+    :after vimish-fold
+    :init
+    (setq evil-vimish-fold-target-modes '(prog-mode conf-mode text-mode))
+    :config (global-evil-vimish-fold-mode)))
+
+(defun spacemacs-editing/init-evil-easymotion ()
+  (use-package evil-easymotion
+    :defer t
+    :init
+    (defun buffer-evil-avy-goto-char-timer ()
+      "Call jump to the given chars use avy"
+      (interactive)
+      (let ((current-prefix-arg t))
+        (evil-avy-goto-char-timer)))
+
+    (evilem-default-keybindings "gs")
+    (define-key evilem-map "a" (evilem-create #'evil-forward-arg))
+    (define-key evilem-map "A" (evilem-create #'evil-backward-arg))
+    (define-key evilem-map "o" (evilem-create #'evil-jump-out-args))
+    (define-key evilem-map "s" #'evil-avy-goto-char-2)
+    (define-key evilem-map "/" #'evil-avy-goto-char-timer)
+    (define-key evilem-map (kbd "SPC") #'buffer-evil-avy-goto-char-timer)
+
+    ;; Provide proper prefixes for which key
+    (which-key-add-keymap-based-replacements evil-motion-state-map
+      "gs"  "evil-easymotion")
+    (which-key-add-keymap-based-replacements evilem-map
+      "g" "misc"
+      "[" "section backward"
+      "]" "section forward")
+
+    ;; Use evil-search backend, instead of isearch
+    (evilem-make-motion evilem-motion-search-next #'evil-ex-search-next
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-previous #'evil-ex-search-previous
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-word-forward #'evil-ex-search-word-forward
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-word-backward #'evil-ex-search-word-backward
+                        :bind ((evil-ex-search-highlight-all nil)))))
 
 (defun spacemacs-editing/init-password-generator ()
   (use-package password-generator
@@ -290,9 +379,10 @@
         "ipn" 'password-generator-numeric))))
 
 (defun spacemacs-editing/post-init-pcre2el ()
-  (spacemacs/declare-prefix "xr" "regular expressions")
-  (spacemacs/declare-prefix "xre" "elisp")
-  (spacemacs/declare-prefix "xrp" "pcre")
+  (spacemacs/declare-prefix
+    "xr"  "regular expressions"
+    "xre" "elisp"
+    "xrp" "pcre")
   (spacemacs/set-leader-keys
     "xr/"  'rxt-explain
     "xr'"  'rxt-convert-to-strings
@@ -312,7 +402,7 @@
 (defun spacemacs-editing/init-smartparens ()
   (use-package smartparens
     :defer t
-    :commands (sp-split-sexp sp-newline sp-up-sexp)
+    :commands (sp-point-in-string-or-comment sp-forward-symbol sp-split-sexp sp-newline sp-up-sexp)
     :init
     (progn
       ;; settings
@@ -326,19 +416,22 @@
             sp-highlight-pair-overlay nil
             sp-highlight-wrap-overlay nil
             sp-highlight-wrap-tag-overlay nil)
-      (spacemacs/add-to-hooks (if dotspacemacs-smartparens-strict-mode
-                                  'smartparens-strict-mode
-                                'smartparens-mode)
+      (spacemacs/add-to-hooks #'spacemacs//activate-smartparens
                               '(prog-mode-hook comint-mode-hook))
       ;; enable smartparens-mode in `eval-expression'
       (add-hook 'minibuffer-setup-hook 'spacemacs//conditionally-enable-smartparens-mode)
       ;; toggles
       (spacemacs|add-toggle smartparens
-        :mode smartparens-mode
+        :status (or (bound-and-true-p smartparens-mode)
+                    (bound-and-true-p smartparens-strict-mode))
+        :on (spacemacs//activate-smartparens)
+        :off (spacemacs//deactivate-smartparens)
         :documentation "Enable smartparens."
         :evil-leader "tp")
       (spacemacs|add-toggle smartparens-globally
-        :mode smartparens-global-mode
+        :status (or smartparens-global-mode smartparens-global-strict-mode)
+        :on (spacemacs//activate-smartparens t)
+        :off (spacemacs//deactivate-smartparens t)
         :documentation "Enable smartparens globally."
         :evil-leader "t C-p")
       ;; key bindings
@@ -413,16 +506,53 @@
         "xiu" 'string-inflection-underscore
         "xiU" 'string-inflection-upcase))))
 
+(defun spacemacs-editing/init-string-edit ()
+  (use-package string-edit
+    :init
+    (spacemacs/set-leader-keys "xe" 'string-edit-at-point)
+    :config
+    (spacemacs/set-leader-keys-for-minor-mode 'string-edit-mode
+      "," 'string-edit-conclude
+      "c" 'string-edit-conclude
+      "a" 'string-edit-abort
+      "k" 'string-edit-abort)))
+
+(defun spacemacs-editing/init-multi-line ()
+  (use-package multi-line
+    :init
+    (progn
+      (spacemacs|define-transient-state multi-line
+        :title "Multi-line Transient State"
+        :doc "\n [_n_] cycle"
+        :bindings
+        ("n" multi-line))
+      (spacemacs/set-leader-keys
+        "xn" 'spacemacs/multi-line-transient-state/body))))
+
 (defun spacemacs-editing/init-undo-tree ()
   (use-package undo-tree
     :defer t
-    :init (setq undo-tree-visualizer-timestamps t
-                undo-tree-visualizer-diff t
-                ;; 10X bump of the undo limits to avoid issues with premature
-                ;; Emacs GC which truncages the undo history very aggresively
-                undo-limit 800000
-                undo-strong-limit 12000000
-                undo-outer-limit 120000000)
+    :init
+    (progn
+      (setq undo-tree-visualizer-timestamps t
+            undo-tree-visualizer-diff t
+            ;; See `vim-style-enable-undo-region'.
+            undo-tree-enable-undo-in-region t
+            ;; 10X bump of the undo limits to avoid issues with premature
+            ;; Emacs GC which truncages the undo history very aggresively
+            undo-limit 800000
+            undo-strong-limit 12000000
+            undo-outer-limit 120000000
+            undo-tree-history-directory-alist
+            `(("." . ,(let ((dir (expand-file-name "undo-tree-history" spacemacs-cache-directory)))
+                        (if (file-exists-p dir)
+                            (unless (file-accessible-directory-p dir)
+                              (warn "Cannot access directory `%s'.
+ Perhaps you don't have required permissions, or it's not a directory.
+ See variable `undo-tree-history-directory-alist'." dir))
+                          (make-directory dir))
+                        dir))))
+      (global-undo-tree-mode))
     :config
     (progn
       ;; restore diff window after quit.  TODO fix upstream
@@ -460,36 +590,56 @@
     :defer t
     :init
     (progn
-      (pcase dotspacemacs-swap-number-row
-        (`qwerty-us (setq evil-swap-keys-number-row-keys  '(("1" . "!")
-                                                            ("2" . "@")
-                                                            ("3" . "#")
-                                                            ("4" . "$")
-                                                            ("5" . "%")
-                                                            ("6" . "^")
-                                                            ("7" . "&")
-                                                            ("8" . "*")
-                                                            ("9" . "(")
-                                                            ("0" . ")"))))
-        (`qwertz-de (setq evil-swap-keys-number-row-keys  '(("1" . "!")
-                                                            ("2" . "\"")
-                                                            ("3" . "§")
-                                                            ("4" . "$")
-                                                            ("5" . "%")
-                                                            ("6" . "&")
-                                                            ("7" . "/")
-                                                            ("8" . "(")
-                                                            ("9" . ")")
-                                                            ("0" . "="))))
-        (`qwerty-ca-fr (setq evil-swap-keys-number-row-keys  '(("1" . "!")
-                                                               ("2" . "@")
-                                                               ("3" . "#")
-                                                               ("4" . "$")
-                                                               ("5" . "%")
-                                                               ("6" . "?")
-                                                               ("7" . "&")
-                                                               ("8" . "*")
-                                                               ("9" . "(")
-                                                               ("0" . ")"))))
-        (_ (message "dotspacemacs-swap-number-row %s is not supported." dotspacemacs-swap-number-row)))
+      (setq evil-swap-keys-number-row-keys
+            (pcase dotspacemacs-swap-number-row
+              ('qwerty-us '(("1" . "!")
+                            ("2" . "@")
+                            ("3" . "#")
+                            ("4" . "$")
+                            ("5" . "%")
+                            ("6" . "^")
+                            ("7" . "&")
+                            ("8" . "*")
+                            ("9" . "(")
+                            ("0" . ")")))
+              ('qwertz-de '(("1" . "!")
+                            ("2" . "\"")
+                            ("3" . "§")
+                            ("4" . "$")
+                            ("5" . "%")
+                            ("6" . "&")
+                            ("7" . "/")
+                            ("8" . "(")
+                            ("9" . ")")
+                            ("0" . "=")))
+              ('qwerty-ca-fr '(("1" . "!")
+                               ("2" . "@")
+                               ("3" . "#")
+                               ("4" . "$")
+                               ("5" . "%")
+                               ("6" . "?")
+                               ("7" . "&")
+                               ("8" . "*")
+                               ("9" . "(")
+                               ("0" . ")")))
+              (x (message "dotspacemacs-swap-number-row %s is not supported." x))))
       (add-hook 'prog-mode-hook #'evil-swap-keys-swap-number-row))))
+
+(defun spacemacs-editing/init-persistent-scratch ()
+  (use-package persistent-scratch
+    :defer t
+    :init
+    (progn
+      (setq persistent-scratch-save-file (concat spacemacs-cache-directory ".persistent-scratch")
+            persistent-scratch-autosave-interval 60
+            persistent-scratch-what-to-save '(point narrowing))
+      (add-hook 'spacemacs-scratch-mode-hook 'persistent-scratch-mode)
+      (persistent-scratch-autosave-mode t))))
+
+(defun spacemacs-editing/init-unkillable-scratch ()
+  (use-package unkillable-scratch
+    :defer t
+    :init
+    (progn
+      (setq unkillable-scratch-do-not-reset-scratch-buffer t)
+      (unkillable-scratch dotspacemacs-scratch-buffer-unkillable))))

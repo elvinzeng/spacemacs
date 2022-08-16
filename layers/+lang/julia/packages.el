@@ -1,13 +1,25 @@
 ;;; packages.el --- Julia layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Adam Beckmeyer <adam_git@thebeckmeyers.xyz>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defconst julia-packages
   '(
@@ -15,8 +27,7 @@
     flycheck
     julia-mode
     julia-repl
-    lsp-julia
-    ))
+    lsp-julia))
 
 (defun julia/init-julia-mode ()
   (use-package julia-mode
@@ -25,13 +36,11 @@
     (progn
       (add-hook 'julia-mode-hook #'spacemacs//julia-setup-buffer)
       (add-hook 'julia-mode-local-vars-hook #'spacemacs//julia-setup-backend)
-      (if (and (configuration-layer/layer-used-p 'ess)
-               julia-mode-enable-ess)
-          (add-to-list 'auto-mode-alist
-                       '("\\.jl\\'" . ess-julia-mode)))
-      (if (and (not (configuration-layer/layer-used-p 'ess))
-               julia-mode-enable-ess)
-          (message "`ess' layer is not installed. Please add `ess' layer to your dotfile.")))
+      (when julia-mode-enable-ess
+        (if (configuration-layer/layer-used-p 'ess)
+            (add-to-list 'auto-mode-alist
+                         '("\\.jl\\'" . ess-julia-mode))
+          (message "`ess' layer is not installed. Please add `ess' layer to your dotfile."))))
     :config
     (progn
       (spacemacs/declare-prefix-for-mode 'julia-mode "m=" "format")
@@ -92,7 +101,7 @@
     (progn
       (add-hook
        'julia-mode-hook
-       #'(lambda ()
+       (lambda ()
            (add-to-list 'evil-surround-pairs-alist '(?b . ("begin " . " end")))
            (add-to-list 'evil-surround-pairs-alist '(?q . ("quote " . " end")))
            (add-to-list 'evil-surround-pairs-alist '(?: . (":("     .    ")")))
@@ -100,6 +109,10 @@
 
 (defun julia/init-lsp-julia ()
   (use-package lsp-julia
+    :defer t
+    :init
+    (with-eval-after-load 'lsp-mode
+      (require 'lsp-julia))
     :config
     (progn
       (push 'xref-find-definitions spacemacs-jump-handlers-julia-mode))))

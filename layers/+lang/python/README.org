@@ -13,7 +13,7 @@
 - [[#backends][Backends]]
   - [[#anaconda][Anaconda]]
   - [[#language-server-protocol][Language Server Protocol]]
-    - [[#python-language-server][python-language-server]]
+    - [[#python-lsp-server][python-lsp-server]]
     - [[#microsoft-python-language-server][Microsoft python language server]]
     - [[#microsoft-pyright-language-server][Microsoft pyright language server]]
 - [[#additional-tools][Additional tools]]
@@ -25,17 +25,19 @@
   - [[#autoflake][autoflake]]
   - [[#pylookup][pylookup]]
   - [[#dap-mode-debugger-only-for-lsp-backend][dap-mode debugger (only for lsp backend)]]
+  - [[#notebook-and-code-cells][Notebook and code cells]]
 - [[#configuration][Configuration]]
   - [[#fill-column][Fill column]]
   - [[#sort-imports][Sort imports]]
   - [[#importmagic][Importmagic]]
-  - [[#pyvenv-pyenv-and-pipenv][Pyvenv, pyenv and pipenv]]
+  - [[#pyvenv-pyenv-pipenv-and-poetry][Pyvenv, pyenv, pipenv and poetry]]
 - [[#management-of-python-versions-and-virtual-environments][Management of Python versions and virtual environments]]
   - [[#manage-virtual-environments-with-pyvenv][Manage virtual environments with pyvenv]]
     - [[#automatic-activation-of-local-virtual-environment][Automatic activation of local virtual environment]]
   - [[#manage-multiple-python-versions-with-pyenv][Manage multiple Python versions with pyenv]]
     - [[#automatic-activation-of-local-pyenv-version][Automatic activation of local pyenv version]]
   - [[#manage-environments-and-packages-with-pipenv][Manage environments and packages with pipenv]]
+  - [[#manage-environments-and-packages-with-poetry][Manage environments and packages with Poetry]]
 - [[#key-bindings][Key bindings]]
   - [[#inferior-repl-process][Inferior REPL process]]
   - [[#running-python-script-in-shell][Running Python Script in shell]]
@@ -53,13 +55,13 @@ This layer adds support for the Python language.
 - Support for the following backends:
   - [[https://github.com/proofit404/anaconda-mode][anaconda]] (default),
   - [[https://github.com/emacs-lsp/lsp-python-ms][Language Server Protocol]] (experimental - 2 implementations),
-    - python-language-server
+    - python-lsp-server
     - Microsoft python language server
 - Auto-completion
 - Code Navigation
 - Documentation Lookup using [[https://github.com/proofit404/anaconda-mode][anaconda-mode]] and [[https://github.com/tsgates/pylookup][pylookup]]
 - Test Runners using [[https://github.com/syl20bnr/nose.el][nose.el]] or [[https://github.com/ionrock/pytest-el][pytest]]
-- Virtual Environment using [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] and [[https://github.com/yyuu/pyenv][pyenv]] as well as [[https://github.com/pypa/pipenv][pipenv]]
+- Virtual Environment using [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] and [[https://github.com/yyuu/pyenv][pyenv]] as well as [[https://github.com/pypa/pipenv][pipenv]] and [[https://github.com/galaunay/poetry.el][poetry]]
 - semantic mode is enabled
 - PEP8 compliant formatting via [[https://github.com/google/yapf][YAPF]] or [[https://github.com/ambv/black][black]]
 - PEP8 checks with [[https://pypi.python.org/pypi/flake8][flake8]] or [[https://pypi.python.org/pypi/pylint/1.6.4][pylint]]
@@ -69,6 +71,7 @@ This layer adds support for the Python language.
 - Fix a missing import statement with [[https://github.com/anachronic/importmagic.el][importmagic]]
 - Pip package manager with [[https://github.com/brotzeit/pippel][pippel]]
 - Interactive debugger using [[https://github.com/emacs-lsp/dap-mode][dap-mode]]
+- Support for ipython notebook and MATLAB-like cells using using [[https://github.com/astoff/code-cells.el][code-cells]]
 
 * Install
 ** Layer
@@ -101,10 +104,10 @@ Backend can be chosen on a per project basis using directory local variables
 
 The available options are:
 
-| symbol    | description                    |
-|-----------+--------------------------------|
-| 'anaconda | Default                        |
-| 'lsp      | python-language-server package |
+| symbol    | description               |
+|-----------+---------------------------|
+| 'anaconda | Default                   |
+| 'lsp      | python-lsp-server package |
 
 * Backends
 ** Anaconda
@@ -134,13 +137,13 @@ setting your =PYTHONPATH= as explained at
 ** Language Server Protocol
 The =lsp= backend can use either of the following language server implementations:
 
-| symbol   | description                              |
-|----------+------------------------------------------|
-| 'pyls    | python-language-server package (default) |
-| 'mspyls  | Microsoft python language server         |
-| 'pyright | Microsoft pyright language server        |
+| symbol   | description                         |
+|----------+-------------------------------------|
+| 'pylsp   | [[https://pypi.org/project/python-lsp-server/][python-lsp-server package]] (default) |
+| 'mspyls  | [[https://github.com/emacs-lsp/lsp-python-ms][Microsoft python language server]]    |
+| 'pyright | [[https://github.com/emacs-lsp/lsp-pyright][Microsoft pyright language server]]   |
 
-=pyls= is used by default - to use the Microsoft python language server, set the
+=pylsp= is used by default - to use the Microsoft python language server, set the
 =python-lsp-server= layer variable as follows:
 
 #+BEGIN_SRC elisp
@@ -153,27 +156,26 @@ To setup the pyright language server instead, use:
   (python :variables python-backend 'lsp python-lsp-server 'pyright)
 #+END_SRC
 
-*** python-language-server
-You just have to install python language server package:
+*** python-lsp-server
+You need to install python language server:
 
 #+BEGIN_SRC sh
-  pip install python-language-server[all]
+  pip install python-lsp-server
 #+END_SRC
 
-Additionally you can install the following other packages:
+You may also be interested in installing all optional dependencies with
 
 #+BEGIN_SRC sh
-  # for import sorting
-  pip install pyls-isort
-  # for mypy checking (python 3.4+ is needed)
-  pip install pyls-mypy
-  pip install pyls-black
+  pip install 'python-lsp-server[all]'
 #+END_SRC
+
+For more information on optional dependencies, as well as 3rd-party plugins, see
+[[https://github.com/python-lsp/python-lsp-server][python-lsp-server repository]].
 
 If you've installed the language server and related packages as development
 dependencies in a pipenv environment, you'll want to set the ~python-pipenv-activate~
 config variable to ~t~. This activates your pipenv before enabling the
-lsp backend.
+lsp backend. The same applies for ~python-poetry-activate~.
 
 *** Microsoft python language server
 Paraphrasing the instructions provided by the author of the =lsp-python-ms= package:
@@ -306,6 +308,15 @@ To use =dap-mode= for debugging do:
   pip install "ptvsd>=4.2"
 #+END_SRC
 
+** Notebook and code cells
+To use =code-cells-mode= with ipython notebook automatically you should install
+[[https://github.com/mwouts/jupytext][jupytext]]. Make sure that the =ipython-notebook= layer is not used.
+
+Then you can evaluate the current cell in a REPL process with ~SPC m s c~ or all
+the cells above with ~SPC m s a~.
+You can also move to the next cell with ~SPC m g F~ and to the previous cell
+with ~SPC m g B~.
+
 * Configuration
 ** Fill column
 If you want to customize the fill column value, use something like this inside
@@ -335,12 +346,13 @@ Install importmagic and epc for importmagic functionality.
   pip install importmagic epc
 #+END_SRC
 
-** Pyvenv, pyenv and pipenv
+** Pyvenv, pyenv, pipenv and poetry
 Sometimes, it is convenient to be able to use python virtual environments from
 other modes. For this reason, the python layer provides the variables
-=spacemacs--python-pyenv-modes=, =spacemacs--python-pyvenv-modes= and
-=spacemacs--python-pipenv-modes=. If you wish to be able to access these
-functionalities from other modes, in your user config section, do:
+=spacemacs--python-pyenv-modes=, =spacemacs--python-pyvenv-modes=,
+=spacemacs--python-poetry-modes= and =spacemacs--python-pipenv-modes=.
+If you wish to be able to access these functionalities from other modes,
+in your user config section, do:
 
 #+BEGIN_SRC elisp
   (add-to-list 'spacemacs--python-pipenv-mode 'your-mode)
@@ -361,9 +373,9 @@ by the [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] package. It provides
 
 | Key binding | Description                                     |
 |-------------+-------------------------------------------------|
-| ~SPC m V a~ | activate a virtual environment in any directory |
-| ~SPC m V d~ | deactivate active virtual environment           |
-| ~SPC m V w~ | work on virtual environment in =WORKON_HOME=    |
+| ~SPC m v a~ | activate a virtual environment in any directory |
+| ~SPC m v d~ | deactivate active virtual environment           |
+| ~SPC m v w~ | work on virtual environment in =WORKON_HOME=    |
 
 *** Automatic activation of local virtual environment
 By default Spacemacs uses the [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] package to manage virtual environments.
@@ -415,7 +427,7 @@ the pyenv version. The behavior can be set with the variable
 ** Manage environments and packages with pipenv
 [[https://pipenv.kennethreitz.org/en/latest/][Pipenv]] is the new standard tool to manage your virtual environments. It can act as
 a replacement for both =pyenv= and =venv= on a per-repository basis. An overview
-of how to use the tool is provided [[https://pipenv.kennethreitz.org/en/latest/basics/][here]].
+of how to use the tool is provided [[https://pipenv.pypa.io/en/latest/basics/][here]].
 
 Spacemacs integration for pipenv is provided by the [[https://github.com/pwalsh/pipenv.el][pipenv package]].
 It provides the following key bindings:
@@ -429,6 +441,20 @@ It provides the following key bindings:
 | ~SPC m v p s~ | open a shell buffer in the current environment with [[https://github.com/pwalsh/pipenv.el][pipenv]] |
 | ~SPC m v p u~ | uninstall a package from a virtual environment with [[https://github.com/pwalsh/pipenv.el][pipenv]] |
 
+** Manage environments and packages with Poetry
+Poetry is a tool for dependency management and packaging in Python.
+It allows you to declare the libraries your project depends on and it will
+manage (install/update) them for you.
+
+Spacemacs integration for Poetry is provided by the [[https://github.com/galaunay/poetry.el][poetry]] package.
+It provides the following key bindings:
+
+| Key binding   | Description                                                         |
+|---------------+---------------------------------------------------------------------|
+| ~SPC m v o d~ | De-activate the virtualenv associated to the current poetry project |
+| ~SPC m v o a~ | Activate the virtualenv associated to the current poetry project    |
+| ~SPC m v o t~ | Toggle the virtualenv associated to the current poetry project      |
+
 * Key bindings
 ** Inferior REPL process
 Start a Python or iPython inferior REPL process with ~SPC m s i~.
@@ -439,20 +465,21 @@ search path by activating a virtual environment.
 
 Send code to inferior process commands:
 
-| Key binding | Description                                      |
-|-------------+--------------------------------------------------|
-| ~SPC m s b~ | send buffer and keep code buffer focused         |
-| ~SPC m s B~ | send buffer and switch to REPL in insert mode    |
-| ~SPC m s e~ | send statement and keep code buffer focused      |
-| ~SPC m s E~ | send statement and switch to REPL in insert mode |
-| ~SPC m s f~ | send function and keep code buffer focused       |
-| ~SPC m s F~ | send function and switch to REPL in insert mode  |
-| ~SPC m s i~ | start inferior REPL process                      |
-| ~SPC m s l~ | send line and keep code buffer focused           |
-| ~SPC m s r~ | send region and keep code buffer focused         |
-| ~SPC m s R~ | send region and switch to REPL in insert mode    |
-| ~CTRL+j~    | next item in REPL history                        |
-| ~CTRL+k~    | previous item in REPL history                    |
+| Key binding | Description                                                  |
+|-------------+--------------------------------------------------------------|
+| ~SPC m s s~ | send region (or line when region not active) and show output |
+| ~SPC m s b~ | send buffer and keep code buffer focused                     |
+| ~SPC m s B~ | send buffer and switch to REPL in insert mode                |
+| ~SPC m s e~ | send statement and keep code buffer focused                  |
+| ~SPC m s E~ | send statement and switch to REPL in insert mode             |
+| ~SPC m s f~ | send function and keep code buffer focused                   |
+| ~SPC m s F~ | send function and switch to REPL in insert mode              |
+| ~SPC m s i~ | start inferior REPL process                                  |
+| ~SPC m s l~ | send line and keep code buffer focused                       |
+| ~SPC m s r~ | send region and keep code buffer focused                     |
+| ~SPC m s R~ | send region and switch to REPL in insert mode                |
+| ~CTRL+j~    | next item in REPL history                                    |
+| ~CTRL+k~    | previous item in REPL history                                |
 
 ** Running Python Script in shell
 To run a Python script like you would in the shell press ~SPC m c c~
@@ -536,6 +563,8 @@ Live coding is provided by the [[https://github.com/donkirkby/live-py-plugin][li
 | ~SPC m g u~              | navigate between usages with =anaconda-mode-find-references=                      |
 | ~SPC m h d~              | look for documentation using =helm-pydoc=                                         |
 | ~SPC m h h~              | quick documentation using anaconda                                                |
+| ~SPC m h p~              | quick documentation using pydoc (no-jedi, as =pydoc-at-point= seems broken)       |
+| ~SPC m h P~              | quick documentation using pydoc                                                   |
 | ~SPC m h H~              | open documentation in =firefox= using [[https://github.com/tsgates/pylookup][pylookup]]                                    |
 | ~SPC m S d~              | insert doc-string skeleton using [[https://github.com/naiquevin/sphinx-doc.el][sphinx-doc]]                                       |
 | ~SPC m v a~              | activate a virtual environment in any directory                                   |

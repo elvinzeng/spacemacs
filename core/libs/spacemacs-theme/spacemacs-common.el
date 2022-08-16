@@ -5,7 +5,7 @@
 ;; Author: Nasser Alshammari
 ;; URL: <https://github.com/nashamri/spacemacs-theme>
 ;;
-;; Version: 0.1
+;; Version: 0.2
 ;; Keywords: color, theme
 ;; Package-Requires: ((emacs "24"))
 
@@ -109,6 +109,7 @@ to 'auto, tags may not be properly aligned. "
         (bg2           (if (eq variant 'dark) (if (true-color-p) "#212026" "#1c1c1c") (if (true-color-p) "#efeae9" "#e4e4e4")))
         (bg3           (if (eq variant 'dark) (if (true-color-p) "#100a14" "#121212") (if (true-color-p) "#e3dedd" "#d0d0d0")))
         (bg4           (if (eq variant 'dark) (if (true-color-p) "#0a0814" "#080808") (if (true-color-p) "#d2ceda" "#bcbcbc")))
+        (bg-alt        (if (eq variant 'dark) (if (true-color-p) "#42444a" "#353535") (if (true-color-p) "#efeae9" "#e4e4e4")))
         (border        (if (eq variant 'dark) (if (true-color-p) "#5d4d7a" "#111111") (if (true-color-p) "#b3b9be" "#b3b9be")))
         (cblk          (if (eq variant 'dark) (if (true-color-p) "#cbc1d5" "#b2b2b2") (if (true-color-p) "#655370" "#5f5f87")))
         (cblk-bg       (if (eq variant 'dark) (if (true-color-p) "#2f2b33" "#262626") (if (true-color-p) "#e8e3f0" "#ffffff")))
@@ -207,13 +208,19 @@ to 'auto, tags may not be properly aligned. "
      `(tooltip ((,class (:background ,ttip-sl :foreground ,base :bold nil :italic nil :underline nil))))
      `(vertical-border ((,class (:foreground ,border))))
      `(warning ((,class (:foreground ,war))))
+     `(widget-button-pressed ((,class (:foreground ,green))))
 
 ;;;;; ace-window
      `(aw-leading-char-face ((,class (:foreground ,func :weight bold :height 2.0 :box (:line-width 1 :color ,keyword :style released-button)))))
 
 ;;;;; ahs
      `(ahs-face ((,class (:background ,highlight))))
+     `(ahs-face-unfocused ((,class (:background ,highlight))))
+     `(ahs-definition-face ((,class (:background ,highlight))))
+     `(ahs-definition-face-unfocused ((,class (:background ,highlight))))
      `(ahs-plugin-whole-buffer-face ((,class (:background ,mat :foreground ,bg1))))
+     `(ahs-plugin-default-face ((,class (:background ,highlight))))
+     `(ahs-plugin-default-face-unfocused ((,class (:background ,highlight))))
 
 ;;;;; anzu-mode
      `(anzu-mode-line ((,class (:foreground ,yellow :inherit bold))))
@@ -252,9 +259,9 @@ to 'auto, tags may not be properly aligned. "
      `(centaur-tabs-selected ((,class (:background ,bg1 :foreground ,base :weight bold))))
      `(centaur-tabs-unselected ((,class (:background ,bg2 :foreground ,base-dim :weight light))))
      `(centaur-tabs-selected-modified ((,class (:background ,bg1
-							    :foreground ,blue :weight bold))))
+                  :foreground ,blue :weight bold))))
      `(centaur-tabs-unselected-modified ((,class (:background ,bg2 :weight light
-							      :foreground ,blue))))
+                    :foreground ,blue))))
      `(centaur-tabs-active-bar-face ((,class (:background ,keyword))))
      `(centaur-tabs-modified-marker-selected ((,class (:inherit 'centaur-tabs-selected :foreground,keyword))))
      `(centaur-tabs-modified-marker-unselected ((,class (:inherit 'centaur-tabs-unselected :foreground,keyword))))
@@ -262,6 +269,7 @@ to 'auto, tags may not be properly aligned. "
 ;;;;; cider
      `(cider-enlightened ((,class (:background nil :box (:color ,yellow :line-width -1 :style nil) :foreground ,yellow))))
      `(cider-enlightened-local ((,class (:foreground ,yellow))))
+     `(cider-fringe-good-face ((,class (:foreground ,suc))))
      `(cider-instrumented-face ((,class (:background nil :box (:color ,red :line-width -1 :style nil) :foreground ,red))))
      `(cider-result-overlay-face ((,class (:background nil :box (:color ,blue :line-width -1 :style nil) :foreground ,blue))))
      `(cider-test-error-face ((,class (:background ,war :foreground ,bg1))))
@@ -280,7 +288,7 @@ to 'auto, tags may not be properly aligned. "
      `(company-tooltip ((,class (:background ,ttip-bg :foreground ,ttip))))
      `(company-tooltip-annotation ((,class (:foreground ,type))))
      `(company-tooltip-common ((,class (:background ,ttip-bg :foreground ,keyword))))
-     `(company-tooltip-common-selection ((,class (:foreground ,base))))
+     `(company-tooltip-common-selection ((,class (:foreground ,keyword))))
      `(company-tooltip-mouse ((,class (:inherit highlight))))
      `(company-tooltip-search ((,class (:inherit match))))
      `(company-tooltip-selection ((,class (:background ,ttip-sl :foreground ,base))))
@@ -299,9 +307,9 @@ to 'auto, tags may not be properly aligned. "
      `(diff-removed           ((,class :background nil :foreground ,red :extend t)))
 
 ;;;;; diff-hl
-     `(diff-hl-change ((,class :background ,blue-bg-s :foreground ,blue)))
-     `(diff-hl-delete ((,class :background ,red-bg-s :foreground ,red)))
-     `(diff-hl-insert ((,class :background ,green-bg-s :foreground ,green)))
+     `(diff-hl-insert ((,class :background ,green :foreground ,green)))
+     `(diff-hl-delete ((,class :background ,red :foreground ,red)))
+     `(diff-hl-change ((,class :background ,blue :foreground ,blue)))
 
 ;;;;; dired
      `(dired-directory ((,class (:foreground ,keyword :background ,bg1 :inherit bold))))
@@ -481,8 +489,8 @@ to 'auto, tags may not be properly aligned. "
 
 ;;;;; git-gutter-fr
      `(git-gutter-fr:added ((,class (:foreground ,green :inherit bold))))
-     `(git-gutter-fr:deleted ((,class (:foreground ,war :inherit bold))))
-     `(git-gutter-fr:modified ((,class (:foreground ,keyword :inherit bold))))
+     `(git-gutter-fr:deleted ((,class (:foreground ,red :inherit bold))))
+     `(git-gutter-fr:modified ((,class (:foreground ,blue :inherit bold))))
 
 ;;;;; git-timemachine
      `(git-timemachine-minibuffer-detail-face ((,class (:foreground ,blue :inherit bold :background ,blue-bg))))
@@ -553,7 +561,10 @@ to 'auto, tags may not be properly aligned. "
      `(highlight-indentation-face ((,class (:background ,comment-bg))))
 
 ;;;;; highlight-symbol
-     `(highlight-symbol-face ((,class (:background ,bg2))))
+     `(highlight-symbol-face ((,class (:background ,bg-alt))))
+
+;;;;; highlight-thing
+     `(highlight-thing       ((,class (:background ,bg-alt))))
 
 ;;;;; hydra
      `(hydra-face-blue ((,class (:foreground ,blue))))
@@ -578,13 +589,13 @@ to 'auto, tags may not be properly aligned. "
      `(info-title-4 ((,class (:height 1.2))))
 
 ;;;;; ivy
-     `(ivy-current-match ((,class (:background ,highlight :inherit bold))))
+     `(ivy-current-match ((,class (:background ,highlight :inherit bold :extend t))))
      `(ivy-minibuffer-match-face-1 ((,class (:inherit bold))))
      `(ivy-minibuffer-match-face-2 ((,class (:foreground ,head1 :underline t))))
      `(ivy-minibuffer-match-face-3 ((,class (:foreground ,head4 :underline t))))
      `(ivy-minibuffer-match-face-4 ((,class (:foreground ,head3 :underline t))))
      `(ivy-remote ((,class (:foreground ,cyan))))
-     
+
 ;;;;; ivy-posframe
      `(ivy-posframe ((,class (:background ,bg3))))
 
@@ -617,6 +628,12 @@ to 'auto, tags may not be properly aligned. "
 
 ;;;;; linum-relative
      `(linum-relative-current-face ((,class (:foreground ,comp))))
+
+;;;;; lsp
+     `(lsp-ui-doc-background ((,class (:background ,bg2))))
+     `(lsp-ui-doc-header ((,class (:foreground ,head1 :background ,head1-bg))))
+
+     `(lsp-ui-sideline-code-action ((,class (:foreground ,comp))))
 
 ;;;;; magit
      `(magit-blame-culprit ((,class :background ,yellow-bg :foreground ,yellow)))
@@ -735,7 +752,7 @@ to 'auto, tags may not be properly aligned. "
      `(org-block-end-line ((,class (:background ,cblk-ln-bg :foreground ,cblk-ln :extend t))))
      `(org-clock-overlay ((,class (:foreground ,comp))))
      `(org-code ((,class (:foreground ,cyan))))
-     `(org-column ((,class (:background ,highlight))))
+     `(org-column ((,class (:background ,highlight :inherit ,(if spacemacs-theme-org-height 'default)))))
      `(org-column-title ((,class (:background ,highlight))))
      `(org-date ((,class (:underline t :foreground ,var))))
      `(org-date-selected ((,class (:background ,func :foreground ,bg1))))
@@ -744,6 +761,8 @@ to 'auto, tags may not be properly aligned. "
      `(org-done ((,class (:foreground ,suc :inherit bold :background ,green-bg))))
      `(org-ellipsis ((,class (:foreground ,keyword))))
      `(org-footnote  ((,class (:underline t :foreground ,base))))
+     `(org-headline-done ((,class (:foreground ,aqua))))
+     `(org-headline-todo ((,class (:foreground ,meta))))
      `(org-hide ((,class (:foreground ,base))))
      `(org-kbd ((,class (:inherit region :foreground ,base :box (:line-width 1 :style released-button)))))
      `(org-level-1 ((,class (:inherit bold :bold ,(if spacemacs-theme-org-bold 'unspecified nil) :foreground ,head1 :height ,(if spacemacs-theme-org-height 1.3 1.0) :background ,(when spacemacs-theme-org-highlight head1-bg)))))
@@ -784,6 +803,12 @@ to 'auto, tags may not be properly aligned. "
      `(outline-7 ((,class (:inherit org-level-7))))
      `(outline-8 ((,class (:inherit org-level-8))))
 
+;;;;; parinfer
+     `(parinfer-pretty-parens:dim-paren-face ((,class (:foreground ,base-dim))))
+
+;;;;; parinfer-rust-mode
+     `(parinfer-rust-dim-parens ((,class (:foreground ,base-dim))))
+
 ;;;;; perspective
      `(persp-selected-face ((,class (:inherit bold :foreground ,func))))
 
@@ -822,6 +847,10 @@ to 'auto, tags may not be properly aligned. "
      `(rcirc-timestamp ((,class (:foreground ,keyword))))
      `(rcirc-track-keyword ((,class (:background ,green :foreground ,bg1))))
      `(rcirc-url ((,class (:inherit link))))
+
+;;;;; sh-mode
+     `(sh-heredoc ((,class :foreground ,str)))
+     `(sh-quoted-exec ((,class :foreground ,func)))
 
 ;;;;; shm
      `(shm-current-face ((,class (:background ,green-bg-s))))
@@ -913,6 +942,16 @@ to 'auto, tags may not be properly aligned. "
      `(treemacs-git-modified-face ((,class (:foreground ,blue :background ,blue-bg))))
      `(treemacs-git-untracked-face ((,class (:foreground ,aqua :background ,aqua-bg))))
 
+;;;;; tab-bar-mode
+     `(tab-bar ((,class (:foreground ,base :background ,bg1))))
+     `(tab-bar-tab ((,class (:foreground ,base :background ,bg1 :weight bold))))
+     `(tab-bar-tab-inactive ((,class (:foreground ,base-dim :background ,bg2 :weight light))))
+
+;;;;; tab-line-mode
+     `(tab-line ((,class (:foreground ,base :background ,bg1))))
+     `(tab-line-tab-current ((,class (:foreground ,base :background ,bg1 :weight bold))))
+     `(tab-line-tab-inactive ((,class (:foreground ,base-dim :background ,bg2 :weight light))))
+
 ;;;;; web-mode
      `(web-mode-builtin-face ((,class (:inherit ,font-lock-builtin-face))))
      `(web-mode-comment-face ((,class (:inherit ,font-lock-comment-face))))
@@ -997,7 +1036,9 @@ to 'auto, tags may not be properly aligned. "
                                ("FIXME"       . ,war)
                                ("XXX+"        . ,war)
                                ("\\?\\?\\?+"  . ,war)))
-
+;;;;; org
+     `(org-fontify-done-headline nil)
+     `(org-fontify-todo-headline nil)
 
 ;;;;; pdf-tools
     `(pdf-view-midnight-colors '(,base . ,bg1)))

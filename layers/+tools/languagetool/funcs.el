@@ -1,13 +1,25 @@
 ;;; funcs.el --- languagetool layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Robbert van der Helm <mail@robbertvanderhelm.nl>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defun spacemacs/languagetool-next-error (count)
   (interactive "p")
@@ -43,6 +55,8 @@
 (defun spacemacs//languagetool-detect ()
   "Detects whether the LanguageTool binary exists."
   (cond ((boundp 'langtool-java-classpath) t)
+        ((and (boundp 'langtool-http-server-host)
+              (boundp 'langtool-http-server-port)) t)
         ((boundp 'langtool-language-tool-jar)
          (if (file-readable-p langtool-language-tool-jar)
              t
@@ -58,10 +72,45 @@
     (when language
       ;; We'll assume the language is either a locale or a named language (i.e.
       ;; "en_GB" or "english")
-      (let* ((locale (or (cadr
-                          (assoc language ispell-dicts-name2locale-equivs-alist))
-                         language))
-             ;; ispell uses underscores in its locales, but LanguageTool expects a
-             ;; dash (e.g. "en_US" => "en-US")
-             (langtool-code (replace-regexp-in-string "_" "-" locale)))
+      (let* ((locale
+              (or
+               (cadr (assoc language ispell-dicts-name2locale-equivs-alist))
+               language))
+             ;; the translation of the dictionary name from ispell to
+             ;; languagetool is most of the time a simple replacement of
+             ;; underscore by dash except in some special-case
+             (special-case '(("es_ES" "es")
+                             ("es_AR" "es")
+                             ("es_BO" "es")
+                             ("es_CL" "es")
+                             ("es_CO" "es")
+                             ("es_CR" "es")
+                             ("es_CU" "es")
+                             ("es_DO" "es")
+                             ("es_EC" "es")
+                             ("es_GT" "es")
+                             ("es_HN" "es")
+                             ("es_NX" "es")
+                             ("es_NI" "es")
+                             ("es_PA" "es")
+                             ("es_PE" "es")
+                             ("es_PR" "es")
+                             ("es_PY" "es")
+                             ("es_SV" "es")
+                             ("es_UY" "es")
+                             ("es_VE" "es")
+                             ("fr_FR" "fr")
+                             ("fr_CA" "fr")
+                             ("fr_BE" "fr")
+                             ("fr_LU" "fr")
+                             ("fr_CH" "fr")
+                             ("it_IT" "it")
+                             ("it_CH" "it")
+                             ("nl_NL" "nl")
+                             ("nl_AW" "nl")
+                             ("sv_SE" "sv")))
+             (langtool-code
+              (or
+               (cadr (assoc locale special-case))
+               (replace-regexp-in-string "_" "-" locale))))
         langtool-code))))

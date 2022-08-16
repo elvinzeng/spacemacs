@@ -3,7 +3,7 @@
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
 
 ;; Author: Artur Malabarba <emacs@endlessparentheses.com>
-;; Version: 1.7.3
+;; Version: 1.7.4
 ;; Package-Requires: ((emacs "24.3"))
 ;; URL: https://github.com/Malabarba/spinner.el
 ;; Keywords: processes mode-line
@@ -127,7 +127,7 @@ vector, the spinner itself.")
 (defun spinner-make-progress-bar (width &optional char)
   "Return a vector of strings of the given WIDTH.
 The vector is a valid spinner type and is similar to the
-`progress-bar' spinner, except without the sorrounding brackets.
+`progress-bar' spinner, except without the surrounding brackets.
 CHAR is the character to use for the moving bar (defaults to =)."
   (let ((whole-string (concat (make-string (1- width) ?\s)
                               (make-string 4 (or char ?=))
@@ -136,7 +136,7 @@ CHAR is the character to use for the moving bar (defaults to =)."
                             (number-sequence (+ width 3) 0 -1)))))
 
 (defvar spinner-current nil
-  "Spinner curently being displayed on the `mode-line-process'.")
+  "Spinner currently being displayed on the `mode-line-process'.")
 (make-variable-buffer-local 'spinner-current)
 
 (defconst spinner--mode-line-construct
@@ -155,6 +155,7 @@ Each spinner can override this value.")
 The list of possible built-in spinner types is given by the
 `spinner-types' variable, but you can also use your own (see
 below).
+
 If TYPE is nil, the frames of this spinner are given by the first
 element of `spinner-types'.
 If TYPE is a symbol, it specifies an element of `spinner-types'.
@@ -195,16 +196,20 @@ own spinner animations."
 (defun spinner-create (&optional type buffer-local fps delay)
   "Create a spinner of the given TYPE.
 The possible TYPEs are described in `spinner--type-to-frames'.
+
 FPS, if given, is the number of desired frames per second.
 Default is `spinner-frames-per-second'.
+
 If BUFFER-LOCAL is non-nil, the spinner will be automatically
 deactivated if the buffer is killed.  If BUFFER-LOCAL is a
 buffer, use that instead of current buffer.
+
 When started, in order to function properly, the spinner runs a
 timer which periodically calls `force-mode-line-update' in the
-curent buffer.  If BUFFER-LOCAL was set at creation time, then
+current buffer.  If BUFFER-LOCAL was set at creation time, then
 `force-mode-line-update' is called in that buffer instead.  When
 the spinner is stopped, the timer is deactivated.
+
 DELAY, if given, is the number of seconds to wait after starting
 the spinner before actually displaying it. It is safe to cancel
 the spinner before this time, in which case it won't display at
@@ -250,8 +255,9 @@ stop the SPINNER's timer."
 
     (unless (ignore-errors (> (spinner--fps spinner) 0))
       (error "A spinner's FPS must be a positive number"))
-    (setf (spinner--counter spinner) (round (- (* (or (spinner--delay spinner) 0)
-                                           (spinner--fps spinner)))))
+    (setf (spinner--counter spinner)
+          (round (- (* (or (spinner--delay spinner) 0)
+                       (spinner--fps spinner)))))
     ;; Create timer.
     (let* ((repeat (/ 1.0 (spinner--fps spinner)))
            (time (timer-next-integral-multiple-of-time (current-time) repeat))
@@ -273,16 +279,20 @@ simply activate it.  This method is designed for minor modes, so
 they can use the spinner as part of their lighter by doing:
     '(:eval (spinner-print THE-SPINNER))
 To stop this spinner, call `spinner-stop' on it.
+
 If TYPE-OR-OBJECT is anything else, a buffer-local spinner is
 created with this type, and it is displayed in the
 `mode-line-process' of the buffer it was created it.  Both
 TYPE-OR-OBJECT and FPS are passed to `make-spinner' (which see).
 To stop this spinner, call `spinner-stop' in the same buffer.
+
 Either way, the return value is a function which can be called
 anywhere to stop this spinner.  You can also call `spinner-stop'
 in the same buffer where the spinner was created.
+
 FPS, if given, is the number of desired frames per second.
 Default is `spinner-frames-per-second'.
+
 DELAY, if given, is the number of seconds to wait until actually
 displaying the spinner. It is safe to cancel the spinner before
 this time, in which case it won't display at all."
@@ -324,4 +334,7 @@ active spinner."
 
 (provide 'spinner)
 
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; spinner.el ends here

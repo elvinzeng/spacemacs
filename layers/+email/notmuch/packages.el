@@ -1,13 +1,25 @@
 ;;; packages.el --- Notmuch Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defconst notmuch-packages
   '(
@@ -115,25 +127,29 @@
         :bindings
         (kbd "N") 'notmuch-tree-next-message
         (kbd "P") 'notmuch-tree-prev-message
-        (kbd "d") 'spacemacs/notmuch-message-delete-down
-        (kbd "D") 'spacemacs/notmuch-message-delete-up
+        (kbd "d") 'spacemacs/notmuch-tree-message-delete-down
+        (kbd "D") 'spacemacs/notmuch-tree-message-delete-up
         (kbd "n") 'notmuch-tree-next-matching-message
         (kbd "p") 'notmuch-tree-prev-matching-message
+        (kbd "M-d") 'notmuch-tree-scroll-message-window
+        (kbd "M-u") 'notmuch-tree-scroll-message-window-back
         (kbd "M") 'compose-mail-other-frame)
       (evilified-state-evilify-map notmuch-search-mode-map
         :mode notmuch-search-mode
         :bindings
         (kbd "a") 'spacemacs/notmuch-search-archive-thread-down
         (kbd "A") 'spacemacs/notmuch-search-archive-thread-up
-        (kbd "d") 'spacemacs/notmuch-message-delete-down
-        (kbd "D") 'spacemacs/notmuch-message-delete-up
+        (kbd "d") 'spacemacs/notmuch-search-message-delete-down
+        (kbd "D") 'spacemacs/notmuch-search-message-delete-up
         (kbd "J") 'notmuch-jump-search
         (kbd "L") 'notmuch-search-filter
         (kbd "gg") 'notmuch-search-first-thread
         (kbd "gr") 'notmuch-refresh-this-buffer
         (kbd "gR") 'notmuch-refresh-all-buffers
         (kbd "G") 'notmuch-search-last-thread
-        (kbd "M") 'compose-mail-other-frame))))
+        (kbd "M") 'compose-mail-other-frame)
+
+      (spacemacs|add-company-backends :backends notmuch-company :modes notmuch-message-mode))))
 
 (defun notmuch/pre-init-org ()
   (spacemacs|use-package-add-hook org

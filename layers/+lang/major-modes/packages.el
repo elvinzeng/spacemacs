@@ -1,18 +1,32 @@
 ;;; packages.el --- Major modes Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (setq major-modes-packages
       '(
         arduino-mode
         (ebuild-mode :location (recipe :fetcher github :repo "emacsmirror/ebuild-mode"))
+        evil-matchit
+        gemini-mode
         (hoon-mode :location (recipe :fetcher github :repo "urbit/hoon-mode.el"))
         (logcat :location (recipe :fetcher github :repo "dcolascione/logcat-mode"))
         matlab-mode
@@ -38,6 +52,17 @@
         "k" 'ebuild-mode-keyword
         "e" 'ebuild-run-command
         "a" 'ebuild-run-echangelog))))
+
+(defun major-modes/init-gemini-mode ()
+  (use-package gemini-mode
+    :init
+    (progn
+      (spacemacs/set-leader-keys-for-major-mode 'gemini-mode
+        "l" 'gemini-insert-link
+        "o" 'gemini-open-link-at-point
+        "RET" 'gemini-insert-list-item
+        "t" 'gemini-insert-time-stamp
+        "n" 'gemini-insert-tinylog-header))))
 
 (defun major-modes/init-hoon-mode ())
 
@@ -96,3 +121,6 @@
     :defer t
     :interpreter "\\(Wolfram\\|Mathematica\\)Script\\( -script\\)?"
     :mode "\\.wl\\'"))
+
+(defun major-modes/post-init-evil-matchit ()
+  (add-hook 'matlab-mode-hook 'turn-on-evil-matchit-mode))

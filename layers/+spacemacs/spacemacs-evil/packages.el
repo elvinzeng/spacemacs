@@ -1,18 +1,31 @@
 ;;; packages.el --- Spacemacs Evil Layer packages File
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (setq spacemacs-evil-packages
       '(
         evil-anzu
         evil-args
+        evil-collection
         evil-cleverparens
         evil-ediff
         evil-escape
@@ -26,16 +39,12 @@
         evil-matchit
         evil-numbers
         evil-surround
-        ;; Temporarily disabled, pending the resolution of
-        ;; https://github.com/7696122/evil-terminal-cursor-changer/issues/8
-        ;; evil-terminal-cursor-changer
         evil-textobj-line
         evil-tutor
         (evil-unimpaired :location (recipe :fetcher local))
         evil-visual-mark-mode
         evil-visualstar
         (hs-minor-mode :location built-in)
-        (linum-relative :toggle (version< emacs-version "26"))
         vi-tilde-fringe
         eldoc))
 
@@ -92,12 +101,31 @@
                :evil-leader-for-mode
                ,@(mapcar (lambda (x) (cons x "Ts"))
                          evil-lisp-safe-structural-editing-modes)))
-      (spacemacs|diminish evil-cleverparens-mode " 🆂" " [s]"))))
+      (spacemacs|diminish evil-cleverparens-mode " 🆂" " [s]"))
+    :config
+    ;; `evil-cp-change' should move the point, see https://github.com/luxbock/evil-cleverparens/pull/71
+    (evil-set-command-properties 'evil-cp-change :move-point t)))
 
 (defun spacemacs-evil/init-evil-ediff ()
   (use-package evil-ediff
     :after (ediff)
     :if (memq dotspacemacs-editing-style '(hybrid vim))))
+
+
+(defun spacemacs-evil/init-evil-collection ()
+  (use-package evil-collection
+    :after evil
+    :config
+    (setq evil-collection-mode-list spacemacs-evil-collection-allowed-list)
+    (setq evil-collection-want-unimpaired-p nil)
+    (evil-collection-init)
+    ;; replace `dired-goto-file' with equivalent helm and ivy functions:
+    ;; `spacemacs/helm-find-files' fuzzy matching and other features
+    ;; `spacemacs/counsel-find-file' more `M-o' actions
+    (with-eval-after-load 'dired
+      (evil-define-key 'normal dired-mode-map "J"
+        (cond ((configuration-layer/layer-used-p 'helm) 'spacemacs/helm-find-files)
+              ((configuration-layer/layer-used-p 'ivy) 'spacemacs/counsel-find-file))))))
 
 (defun spacemacs-evil/init-evil-escape ()
   (use-package evil-escape
@@ -196,12 +224,9 @@
     :defer t
     :init
     (progn
-      ;; Override the default keys, as they collide (with what ? :-))
-      (setq evil-lion-left-align-key nil
-            evil-lion-right-align-key nil)
-      (spacemacs/set-leader-keys
-        "xal" 'evil-lion-left
-        "xaL" 'evil-lion-right))
+      (evil-define-key '(normal visual) 'global
+        "gl" #'evil-lion-left
+        "gL" #'evil-lion-right))
     :config (evil-lion-mode)))
 
 (defun spacemacs-evil/init-evil-lisp-state ()
@@ -211,7 +236,21 @@
     (progn
       (add-hook 'prog-mode-hook 'spacemacs//load-evil-lisp-state)
       (setq evil-lisp-state-global t))
-    :config (spacemacs/set-leader-keys "k" evil-lisp-state-map)))
+    :config
+    (progn
+      (bind-map spacemacs-default-map
+        :prefix-cmd spacemacs-cmds
+        :evil-keys (dotspacemacs-leader-key)
+        :evil-states (lisp)
+        :override-minor-modes t
+        :override-mode-name spacemacs-leader-override-mode)
+
+      (spacemacs/set-leader-keys "k" evil-lisp-state-map)
+      (spacemacs/declare-prefix
+        "k" "lisp"
+        "kd" "delete"
+        "kD" "delete-backward"
+        "k`" "hybrid"))))
 
 ;; other commenting functions in funcs.el with keybinds in keybindings.el
 (defun spacemacs-evil/init-evil-nerd-commenter ()
@@ -324,13 +363,6 @@
     (progn
       (global-evil-surround-mode 1))))
 
-(defun spacemacs-evil/init-evil-terminal-cursor-changer ()
-  (use-package evil-terminal-cursor-changer
-    :if (not (display-graphic-p))
-    :init (setq evil-visual-state-cursor 'box
-                evil-insert-state-cursor 'bar
-                evil-emacs-state-cursor 'hbar)))
-
 (defun spacemacs-evil/init-evil-textobj-line ()
   ;; No laziness here, the line text object should be available right away.
   (use-package evil-textobj-line))
@@ -371,18 +403,6 @@
 
 (defun spacemacs-evil/init-hs-minor-mode ()
   (add-hook 'prog-mode-hook 'spacemacs//enable-hs-minor-mode))
-
-(defun spacemacs-evil/init-linum-relative ()
-  (use-package linum-relative
-    :commands (linum-relative-toggle linum-relative-on)
-    :init
-    (progn
-      (when (or (spacemacs/visual-line-numbers-p)
-                (spacemacs/relative-line-numbers-p))
-        (add-hook 'spacemacs-post-user-config-hook 'linum-relative-on))
-      (spacemacs/set-leader-keys "tr" 'spacemacs/linum-relative-toggle))
-    :config
-    (setq linum-relative-current-symbol "")))
 
 (defun spacemacs-evil/init-vi-tilde-fringe ()
   (spacemacs|do-after-display-system-init

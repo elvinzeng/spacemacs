@@ -1,28 +1,40 @@
 ;;; packages.el --- Chinese Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 ;; List of all packages to install and/or initialize. Built-in packages
 ;; which require an initialization must be listed explicitly in the list.
 (setq chinese-packages
       '(
-        (pyim :toggle (eq chinese-default-input-method 'pinyin))
-        (chinese-wbim :toggle (eq chinese-default-input-method 'wubi))
+        (pyim :toggle chinese-default-input-method)
+        (pyim-basedict :toggle (eq chinese-default-input-method 'pinyin))
+        (pyim-wbdict :toggle (member chinese-default-input-method '(wubi wubi86 wubi98)))
         (fcitx :toggle chinese-enable-fcitx)
         find-by-pinyin-dired
-        ace-pinyin
+        (ace-pinyin :toggle chinese-enable-avy-pinyin)
         pangu-spacing
         org
         (youdao-dictionary :toggle chinese-enable-youdao-dict)
-        chinese-conv
-        ))
+        chinese-conv))
 
 (defun chinese/init-fcitx ()
   (use-package fcitx
@@ -37,22 +49,39 @@
       (when chinese-fcitx-use-dbus
         (setq fcitx-use-dbus t)))))
 
-(defun chinese/init-chinese-wbim ()
-  "Initialize chinese-wubi"
-  (use-package chinese-wbim
-    :if (eq 'wubi chinese-default-input-method)
+(defun chinese/init-pyim ()
+  (use-package pyim
+    :if chinese-default-input-method
     :init
     (progn
-      (autoload 'chinese-wbim-use-package "chinese-wubi"
-        "Another emacs input method")
-      ;; Tooptip is not good enough, so disable it here.
-      (setq chinese-wbim-use-tooltip nil)
-      (register-input-method
-       "chinese-wubi" "euc-cn" 'chinese-wbim-use-package
-       "五笔" "汉字五笔输入法" "wb.txt")
-      (require 'chinese-wbim-extra)
-      (global-set-key ";" 'chinese-wbim-insert-ascii)
-      (setq default-input-method 'chinese-wubi))))
+      (setq pyim-page-tooltip t
+            pyim-directory (expand-file-name "pyim/" spacemacs-cache-directory)
+            pyim-dcache-directory (expand-file-name "dcache/" pyim-directory)
+            pyim-assistant-scheme-enable t
+            default-input-method "pyim")
+      (autoload 'pyim-dict-manager-mode "pyim-dicts-manager"
+        "Major mode for managing pyim dicts")
+      (evilified-state-evilify-map pyim-dict-manager-mode-map
+        :mode pyim-dict-manager-mode
+        :eval-after-load pyim-dict-manager))))
+
+(defun chinese/init-pyim-basedict ()
+  "Initialize pyim-basedict"
+  (use-package pyim-basedict
+    :if (eq chinese-default-input-method 'pinyin)
+    :config
+    (pyim-basedict-enable)))
+
+(defun chinese/init-pyim-wbdict ()
+  "Initialize pyim-wbdict"
+  (use-package pyim-wbdict
+    :if (member chinese-default-input-method '(wubi wubi86 wubi98))
+    :config
+    (progn
+      (setq pyim-default-scheme 'wubi)
+      (if (eq chinese-default-input-method 'wubi98)
+          (pyim-wbdict-v98-enable)
+        (pyim-wbdict-v86-enable)))))
 
 (defun chinese/init-youdao-dictionary ()
   (use-package youdao-dictionary
@@ -67,17 +96,6 @@
             (concat spacemacs-cache-directory ".youdao")
             ;; Enable Chinese word segmentation support
             youdao-dictionary-use-chinese-word-segmentation t))))
-
-(defun chinese/init-pyim ()
-  (use-package pyim
-    :if (eq 'pinyin chinese-default-input-method)
-    :init
-    (progn
-      (setq pyim-page-tooltip t
-            pyim-directory (expand-file-name "pyim/" spacemacs-cache-directory)
-            pyim-dcache-directory (expand-file-name "dcache/" pyim-directory)
-            default-input-method "pyim")
-      (evilified-state-evilify pyim-dm-mode pyim-dm-mode-map))))
 
 (defun chinese/init-find-by-pinyin-dired ()
   (use-package find-by-pinyin-dired
@@ -100,8 +118,8 @@
                  (spacemacs|hide-lighter pangu-spacing-mode)
                  ;; Always insert `real' space in org-mode.
                  (add-hook 'org-mode-hook
-                           '(lambda ()
-                              (set (make-local-variable 'pangu-spacing-real-insert-separtor) t))))))
+                           (lambda ()
+                              (setq-local pangu-spacing-real-insert-separtor t))))))
 
 (defun chinese/init-chinese-conv ()
   (use-package chinese-conv
