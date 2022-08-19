@@ -55,7 +55,9 @@ This function should only modify configuration layer settings."
              shell-default-height 30
              shell-default-shell 'ansi-term
              shell-default-term-shell "/bin/zsh"
-             shell-default-position 'bottom)
+             shell-default-position 'bottom
+             terminal-here-mac-terminal-command 'iterm2
+             )
      ;;  spell-checking
      (spell-checking :variables
                      ispell-program-name "aspell"
