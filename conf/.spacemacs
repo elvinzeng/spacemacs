@@ -53,7 +53,9 @@ This function should only modify configuration layer settings."
      org
      (shell :variables
              shell-default-height 30
-             shell-default-shell 'ansi-term
+             ;; shell-default-shell 'ansi-term
+             ;; brew install libvterm
+             shell-default-shell 'vterm
              shell-default-term-shell "/bin/zsh"
              shell-default-position 'bottom
              terminal-here-mac-terminal-command 'iterm2
