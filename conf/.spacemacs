@@ -69,7 +69,11 @@ This function should only modify configuration layer settings."
      syntax-checking
      version-control
      sql
-     python
+     (python :variables
+             python-format-on-save t
+             python-sort-imports-on-save t
+             python-shell-interpreter "python3"
+      )
      emoji
      (chinese :variables
               ;;chinese-enable-fcitx t
