@@ -721,18 +721,18 @@ before packages are loaded."
                                        ;; :family "Noto Sans Mono CJK SC"
                                        ;; :family "楷体-简"
                                        :family "Kaiti SC"
-                                       ;;:family "Noto Sans CJK SC"
-                                       ;;:family "Microsoft YaHei"
+                                       ;; :family "Noto Sans CJK SC"
+                                       ;; :family "Microsoft YaHei"
                                        :size 20
                                        )))
           ))
 
-    (setq org-html-validation-link nil)
+;;    (setq org-html-validation-link nil)
 
     ;; FIXME: workaround
     ;; https://github.com/syl20bnr/spacemacs/issues/11798
-    (when (version<= "9.2" (org-version))
-      (require 'org-tempo))
+;;    (when (version<= "9.2" (org-version))
+;;      (require 'org-tempo))
 
     ;;(spacemacs/toggle-transparency)
   )
