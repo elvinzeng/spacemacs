@@ -136,12 +136,14 @@ This function should only modify configuration layer settings."
      debug
      )
 
-   ;; List of additional packages that will be installed without being
-   ;; wrapped in a layer. If you need some configuration for these
-   ;; packages, then consider creating a layer. You can also put the
-   ;; configuration in `dotspacemacs/user-config'.
-   ;; To use a local version of a package, use the `:location' property:
-   ;; '(your-package :location "~/path/to/your-package/")
+
+   ;; List of additional packages that will be installed without being wrapped
+   ;; in a layer (generally the packages are installed only and should still be
+   ;; loaded using load/require/use-package in the user-config section below in
+   ;; this file). If you need some configuration for these packages, then
+   ;; consider creating a layer. You can also put the configuration in
+   ;; `dotspacemacs/user-config'. To use a local version of a package, use the
+   ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
                                       eterm-256color
@@ -463,14 +465,13 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
-   ;; (default nil) (Emacs 24.4+ only)
+   ;; (default t) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup t
 
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
-   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
-   ;; borderless fullscreen. (default nil)
+   ;; variable with `dotspacemacs-maximized-at-startup' to obtain fullscreen
+   ;; without external boxes. Also disables the internal border. (default nil)
    dotspacemacs-undecorated-at-startup nil
-   dotspacemacs-maximized-at-startup t
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
@@ -481,6 +482,11 @@ It should only modify the values of Spacemacs settings."
    ;; the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
+
+   ;; A value from the range (0..100), in increasing opacity, which describes the
+   ;; transparency level of a frame background when it's active or selected. Transparency
+   ;; can be toggled through `toggle-background-transparency'. (default 90)
+   dotspacemacs-background-transparency 90
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -598,7 +604,7 @@ It should only modify the values of Spacemacs settings."
    ;; Color highlight trailing whitespace in all prog-mode and text-mode derived
    ;; modes such as c++-mode, python-mode, emacs-lisp, html-mode, rst-mode etc.
    ;; (default t)
-   dotspacemacs-show-trailing-whitespace t 
+   dotspacemacs-show-trailing-whitespace t
 
    ;; Delete whitespace while saving buffer. Possible values are `all'
    ;; to aggressively delete empty line and long sequences of whitespace,
