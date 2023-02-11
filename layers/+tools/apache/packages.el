@@ -1,8 +1,8 @@
-;;; config.el --- Shell Scripts Layer Configuration File for Spacemacs
+;;; packages.el --- apache layer packages file for Spacemacs.
 ;;
 ;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
-;; Author: Sylvain Benner <sylvain.benner@gmail.com>
+;; Author: Nathaniel Waisbrot <code@waisbrot.net>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
@@ -21,17 +21,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-;; variables
+(defconst apache-packages '(apache-mode))
 
-(spacemacs|define-jump-handlers sh-mode)
-
-(defvar shell-scripts-backend (when (configuration-layer/layer-used-p 'lsp) 'lsp)
-  "The backend to use for IDE features.
-When `lsp' layer is used, defaults to `lsp'.")
-
-(defvar shell-scripts-format-on-save nil
-  "If non-nil, automatically format code with shfmt on save.")
-
-(defcustom shell-scripts-shfmt-args ()
-  "Arguments passed to shfmt."
-  :type '(list string))
+(defun apache/init-apache-mode()
+  (use-package apache-mode :defer t))
