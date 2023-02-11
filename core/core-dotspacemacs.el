@@ -20,7 +20,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+(require 'core-load-paths)
 (require 'core-customization)
 
 (defconst dotspacemacs-template-directory
@@ -197,6 +197,18 @@ in `dotspacemacs-themes'.")
            (const emacs) (cons symbol sexp)
            (const hybrid) (cons symbol sexp))
   'spacemacs-dotspacemacs-init)
+
+(defun spacemacs//support-evilified-buffer-p ()
+  "Returns non-nil if buffers should use evilified states."
+  (or (eq dotspacemacs-editing-style 'vim)
+      (and (eq dotspacemacs-editing-style 'hybrid)
+           hybrid-style-enable-evilified-state)))
+
+(defun spacemacs//support-hjkl-navigation-p ()
+  "Returns non-nil if navigation keys should be evilified."
+  (or (eq dotspacemacs-editing-style 'vim)
+      (and (eq dotspacemacs-editing-style 'hybrid)
+           hybrid-style-enable-hjkl-bindings)))
 
 (spacemacs|defc dotspacemacs-startup-banner 'official
   "Specify the startup banner. Default value is `official', it displays
@@ -460,7 +472,7 @@ to disable fullscreen animations on macOS."
   'boolean
   'spacemacs-dotspacemacs-init)
 
-(spacemacs|defc dotspacemacs-maximized-at-startup nil
+(spacemacs|defc dotspacemacs-maximized-at-startup t
   "If non nil the frame is maximized when Emacs starts up (Emacs 24.4+ only).
 Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil."
   'boolean
@@ -482,6 +494,13 @@ can be toggled through `toggle-transparency'."
   "A value from the range (0..100), in increasing opacity, which describes the
 transparency level of a frame when it's inactive or deselected. Transparency
 can be toggled through `toggle-transparency'."
+  'integer
+  'spacemacs-dotspacemacs-init)
+
+(spacemacs|defc dotspacemacs-background-transparency 90
+  "A value from the range (0..100), in increasing opacity, which describes the
+transparency level of a frame background when it's active or selected. Transparency
+can be toggled through `toggle-background-transparency'."
   'integer
   'spacemacs-dotspacemacs-init)
 
@@ -871,19 +890,18 @@ Called with `C-u C-u' skips `dotspacemacs/user-config' _and_ preliminary tests."
   (when (configuration-layer/package-used-p 'spaceline)
     (spacemacs//restore-buffers-powerline)))
 
-(defun dotspacemacs/get-variable-string-list ()
-  "Return a list of all the dotspacemacs variables as strings."
-  (all-completions "" obarray
-                   (lambda (x)
-                     (and (boundp x)
-                          (not (keywordp x))
-                          ;; avoid private variables to show up
-                          (not (string-match-p "--" (symbol-name x)))
-                          (string-prefix-p "dotspacemacs" (symbol-name x))))))
+(eval-and-compile
+  (defun dotspacemacs/get-variable-string-list ()
+    "Return a list of all the dotspacemacs variables as strings."
+    (all-completions "dotspacemacs" obarray
+                     (lambda (x)
+                       (and (boundp x)
+                            ;; avoid private variables to show up
+                            (not (string-match-p "--" (symbol-name x)))))))
 
-(defun dotspacemacs/get-variable-list ()
-  "Return a list of all dotspacemacs variable symbols."
-  (mapcar 'intern (dotspacemacs/get-variable-string-list)))
+  (defun dotspacemacs/get-variable-list ()
+    "Return a list of all dotspacemacs variable symbols."
+    (mapcar 'intern (dotspacemacs/get-variable-string-list))))
 
 (defmacro dotspacemacs|symbol-value (symbol)
   "Return the value of SYMBOL corresponding to a dotspacemacs variable.
