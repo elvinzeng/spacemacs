@@ -655,13 +655,13 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-    (setq configuration-layer-elpa-archives
+    ;; (setq configuration-layer-elpa-archives
         ;; '(("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
         ;;   ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
         ;;   ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
         ;;   ("nongnu"       . "https://elpa.nongnu.org/nongnu/")
         ;;   )
-    )
+    ;; )
 
 
     ;; apt-get install ncurses-term
@@ -713,7 +713,8 @@ before packages are loaded."
             (set-fontset-font (frame-parameter nil 'font)
                               charset (font-spec
                                        ;; :family "Noto Sans Mono CJK SC"
-                                       :family "楷体-简"
+                                       ;; :family "楷体-简"
+                                       :family "Kaiti SC"
                                        ;;:family "Noto Sans CJK SC"
                                        ;;:family "Microsoft YaHei"
                                        :size 20
