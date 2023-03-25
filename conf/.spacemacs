@@ -50,7 +50,15 @@ This function should only modify configuration layer settings."
                treemacs-use-git-mode 'deferred
                treemacs-lock-width t
                )
-     org
+     (org :variables
+          org-todo-dependencies-strategy 'naive-auto
+          ;; org-enable-notifications t
+          ;; org-start-notification-daemon-on-startup t
+          ;; alert-default-style 'notifications
+          org-enable-github-support t
+          org-enable-bootstrap-support t
+          org-enable-hugo-support t
+      )
      (shell :variables
              shell-default-height 30
              ;; shell-default-shell 'ansi-term
