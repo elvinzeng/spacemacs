@@ -81,6 +81,9 @@ This function should only modify configuration layer settings."
              python-format-on-save t
              python-sort-imports-on-save t
              python-shell-interpreter "python3"
+             python-backend 'lsp
+             python-lsp-server 'pyright
+             python-test-runner '(nose pytest)
       )
      emoji
      (chinese :variables
