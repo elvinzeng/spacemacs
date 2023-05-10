@@ -42,7 +42,6 @@
     color-theme-sanityinc-tomorrow
     cyberpunk-theme
     dakrone-theme
-    darkburn-theme
     darkmine-theme
     darkokai-theme
     darktooth-theme
@@ -51,8 +50,8 @@
     dracula-theme
     espresso-theme
     exotica-theme
-    eziam-theme
-    farmhouse-theme
+    eziam-themes
+    farmhouse-themes
     flatland-theme
     flatui-theme
     gandalf-theme
@@ -71,7 +70,7 @@
     light-soap-theme
     lush-theme
     madhat2r-theme
-    majapahit-theme
+    majapahit-themes
     material-theme
     minimal-theme
     modus-themes

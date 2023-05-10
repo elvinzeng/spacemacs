@@ -27,7 +27,6 @@
     geiser
     ggtags
     counsel-gtags
-    helm-gtags
     (geiser-chez    :toggle (memq 'chez    scheme-implementations))
     (geiser-chibi   :toggle (memq 'chibi   scheme-implementations))
     (geiser-chicken :toggle (memq 'chicken scheme-implementations))
@@ -41,7 +40,7 @@
 
 (defun scheme/post-init-company ()
   ;; Geiser provides completion as long as company mode is loaded.
-  (spacemacs|add-company-backends :modes scheme-mode :backends geiser-company-backend))
+  (spacemacs|add-company-backends :modes scheme-mode :backends company-capf))
 
 (defun scheme/pre-init-evil-cleverparens ()
   (spacemacs|use-package-add-hook evil-cleverparens
@@ -147,9 +146,6 @@
 
 (defun scheme/post-init-counsel-gtags ()
   (spacemacs/counsel-gtags-define-keys-for-mode 'scheme-mode))
-
-(defun scheme/post-init-helm-gtags ()
-  (spacemacs/helm-gtags-define-keys-for-mode 'scheme-mode))
 
 (defun scheme/init-geiser-chez ()
   (use-package geiser-chez

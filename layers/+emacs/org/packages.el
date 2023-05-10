@@ -33,7 +33,7 @@
     htmlize
     ;; ob, org, org-agenda and org-contacts are installed by `org-contrib'
     (ob :location built-in)
-    (org :location elpa :min-version "9.5")
+    (org :location elpa :min-version "9.6.1")
     (org-agenda :location built-in)
     (org-wild-notifier
                 :toggle org-enable-notifications)
@@ -50,6 +50,7 @@
     org-download
     (org-jira :toggle org-enable-jira-support)
     org-mime
+    (org-modern :toggle org-enable-modern-support)
     org-pomodoro
     org-present
     org-cliplink
@@ -121,11 +122,11 @@
     :defer t
     :init
     (progn
-      (defun spacemacs//org-babel-do-load-languages ()
-        "Load all the languages declared in `org-babel-load-languages'."
+      (define-advice org-babel-execute-src-block (:before (&rest _) load-lang)
         (org-babel-do-load-languages 'org-babel-load-languages
-                                     org-babel-load-languages))
-      (add-hook 'org-mode-hook 'spacemacs//org-babel-do-load-languages)
+                                     org-babel-load-languages)
+        (advice-remove 'org-babel-execute-src-block
+                       'org-babel-execute-src-block@load-lang))
       ;; Fix redisplay of inline images after a code block evaluation.
       (add-hook 'org-babel-after-execute-hook 'spacemacs/ob-fix-inline-images))))
 
@@ -256,6 +257,8 @@ Will work on both org-mode and any mode that accepts plain html."
         "fu" 'org-feed-update-all
 
         "a" 'org-agenda
+        "[" 'org-agenda-file-to-front
+        "]" 'org-remove-file
 
         "p" 'org-priority
 
@@ -522,11 +525,11 @@ Will work on both org-mode and any mode that accepts plain html."
 Headline^^            Visit entry^^               Filter^^                    Date^^                  Toggle mode^^        View^^             Clock^^        Other^^
 --------^^---------   -----------^^------------   ------^^-----------------   ----^^-------------     -----------^^------  ----^^---------    -----^^------  -----^^-----------
 [_ht_] set status     [_SPC_] in other window     [_ft_] by tag               [_ds_] schedule         [_tf_] follow        [_vd_] day         [_cI_] in      [_gr_] reload
-[_hk_] kill           [_TAB_] & go to location    [_fr_] refine by tag        [_dS_] un-schedule      [_tl_] log           [_vw_] week        [_cO_] out     [_._]  go to today
-[_hr_] refile         [_RET_] & del other windows [_fc_] by category          [_dd_] set deadline     [_ta_] archive       [_vt_] fortnight   [_cq_] cancel  [_gd_] go to date
-[_hA_] archive        [_o_]   link                [_fh_] by top headline      [_dD_] remove deadline  [_tr_] clock report  [_vm_] month       [_cj_] jump    ^^
-[_h:_] set tags       ^^                          [_fx_] by regexp            [_dt_] timestamp        [_ti_] clock issues  [_vy_] year        ^^             ^^
-[_hp_] set priority   ^^                          [_fd_] delete all filters   [_+_]  do later         [_td_] diaries       [_vn_] next span   ^^             ^^
+[_hk_] kill           [_TAB_] & go to location    [_fc_] by category          [_dS_] un-schedule      [_tl_] log           [_vw_] week        [_cO_] out     [_._]  go to today
+[_hr_] refile         [_RET_] & del other windows [_fh_] by top headline      [_dd_] set deadline     [_ta_] archive       [_vt_] fortnight   [_cq_] cancel  [_gd_] go to date
+[_hA_] archive        [_o_]   link                [_fx_] by regexp            [_dD_] remove deadline  [_tr_] clock report  [_vm_] month       [_cj_] jump    ^^
+[_h:_] set tags       ^^                          [_fd_] delete all filters   [_dt_] timestamp        [_ti_] clock issues  [_vy_] year        ^^             ^^
+[_hp_] set priority   ^^                          ^^                          [_+_]  do later         [_td_] diaries       [_vn_] next span   ^^             ^^
 ^^                    ^^                          ^^                          [_-_]  do earlier       ^^                   [_vp_] prev span   ^^             ^^
 ^^                    ^^                          ^^                          ^^                      ^^                   [_vr_] reset       ^^             ^^
 [_q_] quit
@@ -582,7 +585,6 @@ Headline^^            Visit entry^^               Filter^^                    Da
         ("fc" org-agenda-filter-by-category)
         ("fd" org-agenda-filter-remove-all)
         ("fh" org-agenda-filter-by-top-headline)
-        ("fr" org-agenda-filter-by-tag-refine)
         ("ft" org-agenda-filter-by-tag)
         ("fx" org-agenda-filter-by-regexp)
 
@@ -740,6 +742,17 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (spacemacs/set-leader-keys-for-major-mode 'org-mode
         "em" 'org-mime-org-buffer-htmlize
         "es" 'org-mime-org-subtree-htmlize))))
+
+(defun org/init-org-modern ()
+  (use-package org-modern
+      :defer t
+      :init
+      (progn
+        (add-hook 'org-mode-hook 'org-modern-mode)
+        (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+        (spacemacs/set-leader-keys-for-major-mode 'org-mode
+            "Tm" 'org-modern-mode))))
 
 (defun org/init-org-pomodoro ()
   (use-package org-pomodoro
@@ -908,8 +921,8 @@ Headline^^            Visit entry^^               Filter^^                    Da
 
 (defun org/init-org-trello ()
   (use-package org-trello
-    :after org
-    :config
+    :defer t
+    :init
     (progn
       (spacemacs/declare-prefix-for-mode 'org-mode "mmt" "trello")
       (spacemacs/declare-prefix-for-mode 'org-mode "mmtd" "sync down")
@@ -928,7 +941,9 @@ Headline^^            Visit entry^^               Filter^^                    Da
 (defun org/init-org-roam ()
   (use-package org-roam
     :defer t
-    :hook (after-init . org-roam-setup)
+    ;; Do not enable automatic db update until after user had a chance to setup
+    ;; org-roam. See https://github.com/syl20bnr/spacemacs/issues/15724
+    ;; :hook (after-init . org-roam-setup)
     :init
     (progn
       (spacemacs/declare-prefix

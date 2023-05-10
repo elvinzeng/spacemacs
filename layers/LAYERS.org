@@ -209,6 +209,7 @@
   - [[#theming][Theming]]
 - [[#tools][Tools]]
   - [[#ansible][Ansible]]
+  - [[#apache][Apache]]
   - [[#bm][Bm]]
   - [[#cfengine][CFEngine]]
   - [[#chrome][Chrome]]
@@ -370,17 +371,17 @@ Features:
 ** Compleseus
 [[file:+completion/compleseus/README.org][+completion/compleseus/README.org]]
 
-This layer adds a new way of completion provided by the following core packages:
-- =consult=
-- =embark=
-- =marginalia=
-- =orderless=
-- =selectrum= or =vertico=
+This layer implements completion provided by combining the following packages:
+- =selectrum= or =vertico=: vertical completion user interface
+- =consult=: useful commands using ~completing-read~
+- =embark=: provides minibuffer actions
+- =marginalia=: annotations to completion candidates
+- =orderless=: filtering enhancements
 
-This is an WIP and only supports emacs 27 or later. Please contribute.
+It only supports emacs 27 or later.
 
 Features:
-- Same features as =ivy= or =helm=
+- Similar features like =ivy= or =helm=
 
 ** Helm
 [[file:+completion/helm/README.org][+completion/helm/README.org]]
@@ -2741,6 +2742,15 @@ Features:
 - Syntax highlighting for Ansible-flavored YAML and Jinja2 templates.
 - Auto-completion via =company-ansible=.
 - Integration of =ansible-vault= into emacs for automatic encryption/decryption of files.
+
+** Apache
+[[file:+tools/apache/README.org][+tools/apache/README.org]]
+
+This layer adds support for configuring the [[https://httpd.apache.org/][Apache]] web server.
+
+Features:
+- Syntax highlighting of apache configuration files via [[https://github.com/emacs-php/apache-mode][apache-mode]].
+- Syntax-aware indentation
 
 ** Bm
 [[file:+tools/bm/README.org][+tools/bm/README.org]]

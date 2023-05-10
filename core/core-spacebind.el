@@ -20,11 +20,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+(require 'core-load-paths)
 (require 'core-keybindings)
 
 (defvar spacebind--eager-bind t
-  "If true bind keys right after `spacmeacs|spacebind' macro-expanse.
+  "If true bind keys right after `spacemacs|spacebind' macro-expanse.
 Otherwise binding happens at the next event loop.")
 
 ;;;; Binding stacks

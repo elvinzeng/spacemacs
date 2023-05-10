@@ -49,7 +49,6 @@
     counsel-gtags
     (flycheck-rtags :requires (flycheck rtags))
     ggtags
-    helm-gtags
     (helm-rtags :requires (helm rtags))
     (ivy-rtags :requires (ivy rtags))
     rtags
@@ -107,6 +106,7 @@
 
 (defun c-c++/init-clang-format ()
   (use-package clang-format
+    :defer t
     :init (spacemacs//c-c++-setup-clang-format)))
 
 (defun c-c++/post-init-company ()
@@ -211,10 +211,6 @@
     :post-init
     (dolist (mode c-c++-modes)
       (spacemacs/setup-helm-cscope mode))))
-
-(defun c-c++/post-init-helm-gtags ()
-  (dolist (mode c-c++-modes)
-    (spacemacs/helm-gtags-define-keys-for-mode mode)))
 
 (defun c-c++/init-helm-rtags ()
   (use-package helm-rtags
