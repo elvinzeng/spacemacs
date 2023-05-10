@@ -127,7 +127,8 @@
       (let ((map company-active-map))
         (define-key map (kbd "C-/")   'company-search-candidates)
         (define-key map (kbd "C-M-/") 'company-filter-candidates)
-        (define-key map (kbd "C-d")   'company-show-doc-buffer))
+        (define-key map (kbd "C-d")   'company-show-doc-buffer)
+        (define-key map (kbd "C-b")   'company-other-backend))
       (add-hook 'spacemacs-editing-style-hook 'spacemacs//company-active-navigation)
       ;; ensure that the correct bindings are set at startup
       (spacemacs//company-active-navigation dotspacemacs-editing-style))))
@@ -204,9 +205,9 @@
       (add-hook 'company-box-selection-hook
                 (lambda (selection frame) (company-box-doc--hide frame)))
       (cl-case auto-completion-enable-help-tooltip
-        ('manual (define-key company-active-map
+        (manual (define-key company-active-map
                    (kbd "M-h") #'company-box-doc-manually))
-        ('t (setq company-box-doc-enable t))))))
+        (t (setq company-box-doc-enable t))))))
 
 (defun auto-completion/init-company-posframe ()
   (use-package company-posframe
@@ -271,7 +272,7 @@
       (spacemacs/set-leader-keys "is" 'spacemacs/ivy-yas))))
 
 (defun auto-completion/post-init-smartparens ()
-  (with-eval-after-load 'smartparens
+  (with-eval-after-load 'hippie-exp
     (add-hook 'yas-before-expand-snippet-hook
               #'spacemacs//smartparens-disable-before-expand-snippet)
     (add-hook 'yas-after-exit-snippet-hook

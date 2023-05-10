@@ -21,8 +21,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(require 'cl-lib)
-
 (defun spacemacs//run-local-vars-mode-hook ()
   "Run a hook for the major-mode after the local variables have been processed."
   (run-hooks (intern (format "%S-local-vars-hook" major-mode))))
@@ -779,7 +777,8 @@ ones created by `magit' and `dired'."
 (defun spacemacs/copy-file-name ()
   "Copy and show the file name of the current buffer."
   (interactive)
-  (if-let (file-name (file-name-nondirectory (spacemacs--file-path)))
+  (if-let* ((file-path (spacemacs--file-path))
+            (file-name (file-name-nondirectory file-path)))
       (progn
         (kill-new file-name)
         (message "%s" file-name))
@@ -861,11 +860,11 @@ then apply that major mode to the new buffer."
   (interactive)
   (let ((newbuf (generate-new-buffer "untitled")))
     (cl-case split
-      ('left  (split-window-horizontally))
-      ('below (spacemacs/split-window-vertically-and-switch))
-      ('above (split-window-vertically))
-      ('right (spacemacs/split-window-horizontally-and-switch))
-      ('frame (select-frame (make-frame))))
+      (left  (split-window-horizontally))
+      (below (spacemacs/split-window-vertically-and-switch))
+      (above (split-window-vertically))
+      (right (spacemacs/split-window-horizontally-and-switch))
+      (frame (select-frame (make-frame))))
     ;; Prompt to save on `save-some-buffers' with positive PRED
     (with-current-buffer newbuf
       (setq-local buffer-offer-save t)
@@ -1098,7 +1097,7 @@ the `kill-matching-buffers` for grateful killing. The optional 2nd argument
 indicates whether to kill internal buffers too.
 
 Returns the count of killed buffers."
-  (let* ((buffers (remove-if-not
+  (let* ((buffers (cl-remove-if-not
                    (lambda (buffer)
                      (let ((name (buffer-name buffer)))
                        (and name (not (string-equal name ""))
