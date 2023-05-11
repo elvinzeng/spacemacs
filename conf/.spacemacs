@@ -104,12 +104,22 @@ This function should only modify configuration layer settings."
                org-plantuml-jar-path "~/bin/plantuml.jar"
                plantuml-default-exec-mode 'jar
                org-confirm-babel-evaluate nil
+               plantuml-java-command 
       )
      ;;lua
      shell-scripts
      yaml
      ;;  windows-scripts
-     typescript
+     (typescript :variables
+                 typescript-fmt-on-save t
+                 typescript-backend 'lsp
+                 ;; typescript-backend 'tide
+                 typescript-fmt-tool 'typescript-formatter
+                 ;; 'tide is default value
+                 ;; typescript-fmt-tool 'tide
+                 ;; By default lsp will explicitly set itself as the linter, if you don't want that, then set the variable typescript-lsp-linter to nil.
+                 ;; typescript-lsp-linter nil
+      )
      pandoc
      lsp
      (go :variables
@@ -740,10 +750,9 @@ before packages are loaded."
 
 ;;    (setq org-html-validation-link nil)
 
-    ;; FIXME: workaround
     ;; https://github.com/syl20bnr/spacemacs/issues/11798
-;;    (when (version<= "9.2" (org-version))
-;;      (require 'org-tempo))
+    (when (version<= "9.2" (org-version))
+      (require 'org-tempo))
 
     ;;(spacemacs/toggle-transparency)
   )
