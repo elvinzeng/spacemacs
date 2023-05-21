@@ -104,7 +104,7 @@ This function should only modify configuration layer settings."
                org-plantuml-jar-path "~/bin/plantuml.jar"
                plantuml-default-exec-mode 'jar
                org-confirm-babel-evaluate nil
-               plantuml-java-command 
+               ;; plantuml-java-command 
       )
      ;;lua
      shell-scripts
