@@ -349,6 +349,7 @@ It should only modify the values of Spacemacs settings."
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;;dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
    ;; all-the-icons-install-fonts
+   ;;dotspacemacs-mode-line-theme '(doom :separator wave :separator-scale 1.5)
    dotspacemacs-mode-line-theme '(doom :separator wave :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
@@ -656,11 +657,13 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
     (setq configuration-layer-elpa-archives
-        '(("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+        '(
+          ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
           ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
           ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
           ("nongnu"       . "https://elpa.nongnu.org/nongnu/")
-          ))
+          )
+        )
 
     ;; apt-get install ncurses-term
     (add-hook 'term-mode-hook #'eterm-256color-mode) 
