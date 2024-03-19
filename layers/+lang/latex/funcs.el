@@ -1,6 +1,6 @@
 ;;; funcs.el --- Auctex Layer Functions File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -68,10 +68,9 @@
 
 (defun latex/build ()
   (interactive)
-  (progn
-    (let ((TeX-save-query nil))
-      (TeX-save-document (TeX-master-file)))
-    (TeX-command latex-build-command 'TeX-master-file -1)))
+  (let ((TeX-save-query nil))
+    (TeX-save-document (TeX-master-file)))
+  (TeX-command latex-build-command 'TeX-master-file -1))
 ;; (setq build-proc (TeX-command latex-build-command 'TeX-master-file -1))
 ;; ;; Sometimes, TeX-command returns nil causing an error in set-process-sentinel
 ;; (when build-proc
