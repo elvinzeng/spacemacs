@@ -1,6 +1,6 @@
 ;;; packages.el --- vimscript Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -43,13 +43,12 @@
     :mode "_vimrc\\'"
     :defer t
     :init
-    (progn
-      (defun spacemacs//vimrc-mode-hook ()
-        "Hooked function for `vimrc-mode-hook'."
-        (highlight-numbers-mode -1)
-        (rainbow-delimiters-mode-disable)
-        (spacemacs//vimscript-setup-backend))
-      (add-hook 'vimrc-mode-hook 'spacemacs//vimrc-mode-hook))))
+    (defun spacemacs//vimrc-mode-hook ()
+      "Hooked function for `vimrc-mode-hook'."
+      (highlight-numbers-mode -1)
+      (rainbow-delimiters-mode-disable)
+      (spacemacs//vimscript-setup-backend))
+    (add-hook 'vimrc-mode-hook 'spacemacs//vimrc-mode-hook)))
 
 (defun vimscript/init-dactyl-mode ()
   (use-package dactyl-mode
