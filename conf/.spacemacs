@@ -780,6 +780,8 @@ before packages are loaded."
       (define-key copilot-completion-map (kbd "C-<tab>") 'copilot-accept-completion-by-word))
 
     (add-hook 'prog-mode-hook 'copilot-mode)
+
+    (setq-default copilot-indent-offset-warning-disable t)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
