@@ -352,7 +352,7 @@ It should only modify the values of Spacemacs settings."
 ;; #+OPTIONS: ^:nil
 
 ;; "
-      dotspacemacs-initial-scratch-message "#+TITLE: Draft
+      dotspacemacs-initial-scratch-message "#+TITLE: Scrach
 #+AUTHOR: Elvin Zeng
 #+STARTUP: indent
 #+OPTIONS:
