@@ -231,6 +231,38 @@
     (doom-xcode                       . doom-themes)
     (doom-zenburn                     . doom-themes)
     (dorsey                           . sublime-themes)
+    (ef-arbutus                       . ef-themes)
+    (ef-autumn                        . ef-themes)
+    (ef-bio                           . ef-themes)
+    (ef-cherie                        . ef-themes)
+    (ef-cyprus                        . ef-themes)
+    (ef-dark                          . ef-themes)
+    (ef-day                           . ef-themes)
+    (ef-deuteranopia-dark             . ef-themes)
+    (ef-deuteranopia-light            . ef-themes)
+    (ef-dream                         . ef-themes)
+    (ef-duo-dark                      . ef-themes)
+    (ef-duo-light                     . ef-themes)
+    (ef-elea-dark                     . ef-themes)
+    (ef-elea-light                    . ef-themes)
+    (ef-frost                         . ef-themes)
+    (ef-kassio                        . ef-themes)
+    (ef-light                         . ef-themes)
+    (ef-maris-dark                    . ef-themes)
+    (ef-maris-light                   . ef-themes)
+    (ef-melissa-dark                  . ef-themes)
+    (ef-melissa-light                 . ef-themes)
+    (ef-night                         . ef-themes)
+    (ef-reverie                       . ef-themes)
+    (ef-rosa                          . ef-themes)
+    (ef-spring                        . ef-themes)
+    (ef-summer                        . ef-themes)
+    (ef-symbiosis                     . ef-themes)
+    (ef-trio-dark                     . ef-themes)
+    (ef-trio-light                    . ef-themes)
+    (ef-tritanopia-dark               . ef-themes)
+    (ef-tritanopia-light              . ef-themes)
+    (ef-winter                        . ef-themes)
     (eziam-dark                       . eziam-themes)
     (eziam-dusk                       . eziam-themes)
     (eziam-light                      . eziam-themes)
@@ -346,7 +378,11 @@ package name does not match theme name + `-theme' suffix.")
 Default theme is the car of `dotspacemacs-themes'.
 If FALLBACK-THEME is non-nil it must be a package name which will be loaded if
 THEME cannot be applied."
-  (spacemacs/load-theme (car dotspacemacs-themes) fallback-theme disable))
+  ;; This function is called before all packages are necessarily activated, so
+  ;; just activate the necessary one now, if available.
+  (let ((default-theme (car dotspacemacs-themes)))
+    (spacemacs//activate-theme-package default-theme)
+    (spacemacs/load-theme default-theme fallback-theme disable)))
 
 (defun spacemacs/load-theme (theme &optional fallback-theme disable)
   "Apply user theme.
@@ -357,17 +393,6 @@ THEME."
   (let ((theme-name (spacemacs//get-theme-name theme)))
     (condition-case err
         (progn
-          ;; Load theme
-          (unless (or (memq theme-name (custom-available-themes))
-                      (eq 'default theme-name))
-            (let ((pkg-dir (spacemacs//get-theme-package-directory theme))
-                  (pkg-name (spacemacs/get-theme-package-name theme-name)))
-              (when pkg-dir
-                ;; package activate should be enough, but not all themes
-                ;; have add themselves to `custom-theme-load-path' in autoload.
-                ;; (for example, moe-theme).
-                (add-to-list 'custom-theme-load-path pkg-dir)
-                (package-activate pkg-name))))
           (when disable
             (mapc 'disable-theme custom-enabled-themes))
           (unless (eq 'default theme-name)
@@ -447,6 +472,8 @@ When BACKWARD is non-nil, or with universal-argument, cycle backwards."
     (call-interactively 'spacemacs/helm-themes))
    ((configuration-layer/layer-used-p 'ivy)
     (call-interactively 'counsel-load-theme))
+   ((configuration-layer/layer-used-p 'compleseus)
+    (call-interactively 'consult-theme))
    (t (call-interactively 'load-theme))))
 
 (defun spacemacs/post-theme-init (theme)
@@ -469,5 +496,28 @@ has been changed to THEME."
         (add-to-list 'dotspacemacs--additional-theme-packages theme2)))))
 (add-hook 'configuration-layer-pre-load-hook
           'spacemacs//add-theme-packages-to-additional-packages)
+
+(defun spacemacs//activate-theme-package (theme)
+  "Activate theme package THEME."
+  (let ((theme-name (spacemacs//get-theme-name theme)))
+    (unless (memq theme-name (cons 'default (custom-available-themes)))
+      (let ((pkg-dir (spacemacs//get-theme-package-directory theme))
+            (pkg-name (spacemacs/get-theme-package-name theme-name)))
+        (when pkg-dir
+          ;; `package-activate' should be enough, but not all themes add
+          ;; themselves to `custom-theme-load-path' in autoload.  (for
+          ;; example, moe-theme).
+          ;;
+          ;; Also, if a theme is :location local, autoloads do not happen,
+          ;; so this is needed for those packages.
+          (add-to-list 'custom-theme-load-path pkg-dir)
+          (package-activate pkg-name))))))
+
+(defun spacemacs//activate-theme-packages ()
+  "Activate all theme packages from `dotspacemacs-themes'."
+  (dolist (theme dotspacemacs-themes)
+    (spacemacs//activate-theme-package theme)))
+
+(add-hook 'configuration-layer-post-load-hook #'spacemacs//activate-theme-packages)
 
 (provide 'core-themes-support)

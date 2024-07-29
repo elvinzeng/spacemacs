@@ -146,13 +146,18 @@
       "fr"  'LaTeX-fill-region       ;; C-c C-q C-r
       "fs"  'LaTeX-fill-section      ;; C-c C-q C-s
       "pb"  'preview-buffer
+      "pB"  'preview-clearout-buffer
       "pc"  'preview-clearout
       "pd"  'preview-document
+      "pD"  'preview-clearout-document
       "pe"  'preview-environment
       "pf"  'preview-cache-preamble
       "pp"  'preview-at-point
+      "pP"  'preview-clearout-at-point
       "pr"  'preview-region
+      "pR"  'preview-clearout
       "ps"  'preview-section
+      "pS"  'preview-clearout-section
       "xB"  'latex/font-medium
       "xr"  'latex/font-clear
       "xfa" 'latex/font-calligraphic
@@ -228,8 +233,7 @@
       (concat prefix "T")    'reftex-toc-recenter
       (concat prefix "v")    'reftex-view-crossref)))
 
-(defun latex/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'latex-mode))
+(defun latex/post-init-counsel-gtags nil)
 
 (defun latex/post-init-ggtags ()
   (add-hook 'latex-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))

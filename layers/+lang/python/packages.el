@@ -60,8 +60,6 @@
     ;; packages for anaconda backend
     anaconda-mode
     (company-anaconda :requires company)
-    ;; packages for Microsoft LSP backend
-    (lsp-python-ms :requires lsp-mode)
     ;; packages for Microsoft's pyright language server
     (lsp-pyright :requires lsp-mode)))
 
@@ -164,8 +162,7 @@
     :post-init
     (spacemacs/setup-helm-cscope 'python-mode)))
 
-(defun python/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'python-mode))
+(defun python/post-init-counsel-gtags nil)
 
 (defun python/post-init-ggtags ()
   (add-hook 'python-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
@@ -180,7 +177,11 @@
   (use-package importmagic
     :defer t
     :init
-    (add-hook 'python-mode-hook 'importmagic-mode)
+    (add-hook 'python-mode-hook
+              #'(lambda ()
+                  ;; skip temp buffer which bufer-name begin with space
+                  (unless (eq ?\s (string-to-char (buffer-name)))
+                    (importmagic-mode))))
     (spacemacs|diminish importmagic-mode " ⓘ" " [i]")
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
       "rf" 'importmagic-fix-symbol-at-point)))
@@ -402,6 +403,10 @@
       "sF" 'spacemacs/python-shell-send-defun-switch
       "sf" 'spacemacs/python-shell-send-defun
       "si" 'spacemacs/python-start-or-switch-repl
+      "sK" 'spacemacs/python-shell-send-block-switch
+      "sk" 'spacemacs/python-shell-send-block
+      "sn" 'spacemacs/python-shell-restart
+      "sN" 'spacemacs/python-shell-restart-switch
       "sR" 'spacemacs/python-shell-send-region-switch
       "sr" 'spacemacs/python-shell-send-region
       "sl" 'spacemacs/python-shell-send-line
@@ -492,28 +497,6 @@ fix this issue."
                (eq 'yapf python-formatter))
       (add-hook 'python-mode-hook 'yapf-mode))
     :config (spacemacs|hide-lighter yapf-mode)))
-
-(defun python/init-lsp-python-ms ()
-  (use-package lsp-python-ms
-    :if (eq python-lsp-server 'mspyls)
-    :ensure nil
-    :defer t
-    :config
-    (when python-lsp-git-root
-      ;; Use dev version of language server checked out from github
-      (setq lsp-python-ms-dir
-            (expand-file-name (concat python-lsp-git-root
-                                      "/output/bin/Release/")))
-      (message "lsp-python-ms: Using version at `%s'" lsp-python-ms-dir)
-      ;; Use a precompiled exe
-      (setq lsp-python-ms-executable (concat lsp-python-ms-dir
-                                             (pcase system-type
-                                               ('gnu/linux "linux-x64/publish/")
-                                               ('darwin "osx-x64/publish/")
-                                               ('windows-nt "win-x64/publish/"))
-                                             "Microsoft.Python.LanguageServer"
-                                             (and (eq system-type 'windows-nt)
-                                                  ".exe"))))))
 
 (defun python/init-lsp-pyright ()
   (use-package lsp-pyright

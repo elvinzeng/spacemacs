@@ -29,6 +29,7 @@
     (edebug :location built-in)
     eldoc
     elisp-def
+    elisp-demos
     elisp-slime-nav
     (emacs-lisp :location built-in)
     evil
@@ -160,6 +161,16 @@
   (use-package elisp-def
     :defer t))
 
+(defun emacs-lisp/init-elisp-demos ()
+  (use-package elisp-demos
+    :defer t
+    :init
+    (advice-add 'describe-function-1
+                :after #'elisp-demos-advice-describe-function-1)
+    (advice-add 'helpful-update
+                :after #'elisp-demos-advice-helpful-update)
+    :commands (elisp-demos-add-demo elisp-demos-find-demo)))
+
 (defun emacs-lisp/init-elisp-slime-nav ()
   ;; Elisp go-to-definition with M-. and back again with M-,
   (use-package elisp-slime-nav
@@ -185,10 +196,16 @@
     :config (spacemacs|hide-lighter elisp-slime-nav-mode)))
 
 (defun emacs-lisp/init-emacs-lisp ()
+
+  ;; Format buffers automatically if required
+  (spacemacs//make-elisp-buffers-format-on-save-maybe)
+
+  ;; Set default keybindings in the repl and elisp mode
   (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
     (spacemacs/declare-prefix-for-mode mode "mc" "compile")
     (spacemacs/declare-prefix-for-mode mode "me" "eval")
     (spacemacs/declare-prefix-for-mode mode "mt" "tests")
+    (spacemacs/declare-prefix-for-mode mode "m=" "format")
     (spacemacs/set-leader-keys-for-major-mode mode
       "cc" 'emacs-lisp-byte-compile
       "e$" 'lisp-state-eval-sexp-end-of-line
@@ -200,6 +217,7 @@
       "el" 'lisp-state-eval-sexp-end-of-line
       "gG" 'spacemacs/nav-find-elisp-thing-at-point-other-window
       ","  'lisp-state-toggle-lisp-state
+      "==" 'spacemacs/indent-region-or-buffer
       "tb" 'spacemacs/ert-run-tests-buffer
       "tq" 'ert)))
 
@@ -301,8 +319,7 @@
   (use-package flycheck-elsa
     :hook (emacs-lisp-mode . flycheck-elsa-setup)))
 
-(defun emacs-lisp/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'emacs-lisp-mode))
+(defun emacs-lisp/post-init-counsel-gtags nil)
 
 (defun emacs-lisp/post-init-ggtags ()
   (add-hook 'emacs-lisp-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
@@ -324,7 +341,6 @@
                srefactor-lisp-one-line)
     :init
     (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
-      (spacemacs/declare-prefix-for-mode mode "m=" "srefactor")
       (spacemacs/set-leader-keys-for-major-mode mode
         "=b" 'srefactor-lisp-format-buffer
         "=d" 'srefactor-lisp-format-defun
