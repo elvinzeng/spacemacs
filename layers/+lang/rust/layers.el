@@ -24,3 +24,5 @@
 (when (and (boundp 'rust-backend)
            (eq rust-backend 'lsp))
   (configuration-layer/declare-layer-dependencies '(lsp)))
+
+(configuration-layer/declare-layer-dependencies '(toml))

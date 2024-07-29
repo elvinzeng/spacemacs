@@ -82,9 +82,7 @@
   (require 'evil)
   (evil-mode 1)
 
-  (when (and (fboundp 'evil-set-undo-system)
-             (configuration-layer/package-used-p 'undo-tree))
-    (evil-set-undo-system 'undo-tree))
+  (customize-set-variable 'evil-undo-system dotspacemacs-undo-system)
 
   ;; Use evil as a default jump handler
   (add-to-list 'spacemacs-default-jump-handlers 'evil-goto-definition)
@@ -146,6 +144,9 @@
   (when vim-style-visual-line-move-text
     (define-key evil-visual-state-map "J" 'drag-stuff-down)
     (define-key evil-visual-state-map "K" 'drag-stuff-up))
+
+  ;; Fix broken artist-mode under evil-mode
+  (advice-add 'artist-mode :around #'spacemacs/toggle-evil-mouse-drag-for-artist-mode)
 
   (when vim-style-enable-undo-region
     (define-key evil-visual-state-map (kbd "u") 'undo))
@@ -612,7 +613,7 @@ Press \\[which-key-toggle-persistent] to hide."
                      (hybrid-mode -1)
                      (spacemacs/declare-prefix "tEh" "hybrid (hybrid-mode)"))
                    (holy-mode)
-                   (spacemacs/declare-prefix "tEe" "vim (evil-mode"))
+                   (spacemacs/declare-prefix "tEe" "vim (evil-mode)"))
         :off (progn (holy-mode -1)
                     (spacemacs/declare-prefix "tEe" "emacs (holy-mode)"))
         :off-message "evil-mode enabled."
