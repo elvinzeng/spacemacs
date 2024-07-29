@@ -766,7 +766,7 @@ before packages are loaded."
     (when (version<= "9.2" (org-version))
       (require 'org-tempo))
 
-    ;;(spacemacs/toggle-transparency)
+    (spacemacs/toggle-transparency)
 
     ;; accept completion from copilot and fallback to company
     (with-eval-after-load 'company
