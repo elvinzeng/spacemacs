@@ -51,7 +51,8 @@ This function should only modify configuration layer settings."
      markdown
      ;;neotree
      (treemacs :variables
-               treemacs-use-git-mode 'deferred
+               ;; treemacs-use-git-mode 'deferred
+               treemacs-use-git-mode 'extended
                treemacs-lock-width t
                )
      (org :variables
