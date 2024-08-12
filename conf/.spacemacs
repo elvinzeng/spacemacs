@@ -370,7 +370,7 @@ It should only modify the values of Spacemacs settings."
                          idea-darkula
                          monokai
                          intellij
-                         github-modern
+                         ;; github-modern
                          spacemacs-dark
                          spacemacs-light)
 
