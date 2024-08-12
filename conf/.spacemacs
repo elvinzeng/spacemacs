@@ -42,10 +42,10 @@ This function should only modify configuration layer settings."
      helm
      auto-completion
      (auto-completion :variables
-               auto-completion-enable-help-tooltip t
-               auto-completion-use-company-box t
-               auto-completion-enable-sort-by-usage t
-     )
+                      auto-completion-enable-help-tooltip t
+                      auto-completion-use-company-box t
+                      auto-completion-enable-sort-by-usage t
+                      )
      better-defaults
      emacs-lisp
      git
@@ -54,17 +54,18 @@ This function should only modify configuration layer settings."
      (treemacs :variables
                treemacs-use-git-mode 'deferred
                treemacs-lock-width t
+               treemacs-use-all-the-icons-theme t
                )
      org
      (shell :variables
-             shell-default-height 30
-             ;; shell-default-shell 'ansi-term
-             ;; brew install libvterm
-             shell-default-shell 'vterm
-             shell-default-term-shell "/bin/zsh"
-             shell-default-position 'bottom
-             terminal-here-mac-terminal-command 'iterm2
-             )
+            shell-default-height 30
+            ;; shell-default-shell 'ansi-term
+            ;; brew install libvterm
+            shell-default-shell 'vterm
+            shell-default-term-shell "/bin/zsh"
+            shell-default-position 'bottom
+            terminal-here-mac-terminal-command 'iterm2
+            )
      ;;  spell-checking
      (spell-checking :variables
                      ispell-program-name "aspell"
@@ -78,11 +79,11 @@ This function should only modify configuration layer settings."
              python-format-on-save t
              python-sort-imports-on-save t
              python-shell-interpreter "python3"
-      )
+             )
      emoji
      (chinese :variables
               ;;chinese-enable-fcitx t
-      )
+              )
      c-c++
      csv
      (html :variables
@@ -91,14 +92,14 @@ This function should only modify configuration layer settings."
            scss-enable-lsp t
            html-enable-lsp t
            web-fmt-tool 'web-beautify
-      )
+           )
      ;;java
      (plantuml :variables
                plantuml-jar-path "~/bin/plantuml.jar"
                org-plantuml-jar-path "~/bin/plantuml.jar"
                plantuml-default-exec-mode 'jar
                org-confirm-babel-evaluate nil
-      )
+               )
      ;;lua
      shell-scripts
      yaml
@@ -320,13 +321,13 @@ It should only modify the values of Spacemacs settings."
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
-;;    dotspacemacs-initial-scratch-message "#+TITLE: Scratch
-;; #+AUTHOR: Elvin Zeng
-;; #+STARTUP: indent
-;; #+OPTIONS: ^:nil
+   ;;    dotspacemacs-initial-scratch-message "#+TITLE: Scratch
+   ;; #+AUTHOR: Elvin Zeng
+   ;; #+STARTUP: indent
+   ;; #+OPTIONS: ^:nil
 
-;; "
-      dotspacemacs-initial-scratch-message "#+TITLE: Scratch
+   ;; "
+   dotspacemacs-initial-scratch-message "#+TITLE: Scratch
 #+AUTHOR: Elvin Zeng
 #+STARTUP: indent
 #+OPTIONS:
@@ -529,7 +530,7 @@ It should only modify the values of Spacemacs settings."
    ;;dotspacemacs-line-numbers nil
    dotspacemacs-line-numbers '(
                                :enabled-for-modes go-mode vue-mode js-mode html-mode css-mode
-                              :size-limit-kb 1000)
+                               :size-limit-kb 1000)
 
 
    ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
@@ -604,7 +605,7 @@ It should only modify the values of Spacemacs settings."
    ;; Color highlight trailing whitespace in all prog-mode and text-mode derived
    ;; modes such as c++-mode, python-mode, emacs-lisp, html-mode, rst-mode etc.
    ;; (default t)
-   dotspacemacs-show-trailing-whitespace t 
+   dotspacemacs-show-trailing-whitespace t
 
    ;; Delete whitespace while saving buffer. Possible values are `all'
    ;; to aggressively delete empty line and long sequences of whitespace,
@@ -653,7 +654,7 @@ default it calls `spacemacs/load-spacemacs-env' which loads the environment
 variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
 See the header of this file for more information."
   (spacemacs/load-spacemacs-env)
-)
+  )
 
 (defun dotspacemacs/user-init ()
   "Initialization for user code:
@@ -661,19 +662,19 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-    (setq configuration-layer-elpa-archives
-        '(
-          ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-          ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-          ("nongnu"       . "https://elpa.nongnu.org/nongnu/")
-          )
-        )
+  ;; (setq configuration-layer-elpa-archives
+  ;;       '(
+  ;;         ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+  ;;         ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+  ;;         ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+  ;;         ("nongnu"       . "https://elpa.nongnu.org/nongnu/")
+  ;;         )
+  ;;       )
 
-    ;; apt-get install ncurses-term
-    (add-hook 'term-mode-hook #'eterm-256color-mode) 
+  ;; apt-get install ncurses-term
+  (add-hook 'term-mode-hook #'eterm-256color-mode)
 
-    (setq package-check-signature nil)
+  (setq package-check-signature nil)
   )
 
 (defun dotspacemacs/user-load ()
@@ -689,51 +690,51 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-    ;; Set escape keybinding to "jk"
-    (setq-default evil-escape-key-sequence "jk")
-    (setq-default evil-escape-delay 0.2)
-    (add-hook 'spacemacs-buffer-mode-hook (lambda ()
-                                        (set (make-local-variable 'mouse-1-click-follows-link) nil)))
+  ;; Set escape keybinding to "jk"
+  (setq-default evil-escape-key-sequence "jk")
+  (setq-default evil-escape-delay 0.2)
+  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
+                                          (set (make-local-variable 'mouse-1-click-follows-link) nil)))
 
-    (add-hook 'after-change-major-mode-hook (lambda ()
-                                              (when (eq major-mode 'go-mode)
-                                                (progn
-                                                  (set-fill-column 120)
-                                                  (spacemacs/toggle-fill-column-indicator-on)
-                                                  (message "keep it simple and stupid")))))
-    (add-hook 'after-change-major-mode-hook (lambda ()
-                                              (when (eq major-mode 'org-mode)
-                                                (progn
-                                                  (org-toggle-pretty-entities)
-                                                  ))))
+  (add-hook 'after-change-major-mode-hook (lambda ()
+                                            (when (eq major-mode 'go-mode)
+                                              (progn
+                                                (set-fill-column 120)
+                                                (spacemacs/toggle-fill-column-indicator-on)
+                                                (message "keep it simple and stupid")))))
+  (add-hook 'after-change-major-mode-hook (lambda ()
+                                            (when (eq major-mode 'org-mode)
+                                              (progn
+                                                (org-toggle-pretty-entities)
+                                                ))))
 
-    (if (display-graphic-p)
-        (progn
-          (setq-default dotspacemacs-default-font '(
-                                                    "Source Code Pro for Powerline"
-                                                    :size 16
-                                                    :weight normal
-                                                    :width normal
-                                                    ))
-          (dolist (charset '(kana han symbol cjk-misc bopomofo))
-            (set-fontset-font (frame-parameter nil 'font)
-                              charset (font-spec
-                                       ;; :family "Noto Sans Mono CJK SC"
-                                       :family "楷体-简"
-                                       ;;:family "Noto Sans CJK SC"
-                                       ;;:family "Microsoft YaHei"
-                                       :size 20
-                                       )))
-          ))
+  (if (display-graphic-p)
+      (progn
+        (setq-default dotspacemacs-default-font '(
+                                                  "Source Code Pro for Powerline"
+                                                  :size 16
+                                                  :weight normal
+                                                  :width normal
+                                                  ))
+        (dolist (charset '(kana han symbol cjk-misc bopomofo))
+          (set-fontset-font (frame-parameter nil 'font)
+                            charset (font-spec
+                                     ;; :family "Noto Sans Mono CJK SC"
+                                     :family "楷体-简"
+                                     ;;:family "Noto Sans CJK SC"
+                                     ;;:family "Microsoft YaHei"
+                                     :size 20
+                                     )))
+        ))
 
-    (setq org-html-validation-link nil)
+  (setq org-html-validation-link nil)
 
-    ;; FIXME: workaround
-    ;; https://github.com/syl20bnr/spacemacs/issues/11798
-    (when (version<= "9.2" (org-version))
-      (require 'org-tempo))
+  ;; FIXME: workaround
+  ;; https://github.com/syl20bnr/spacemacs/issues/11798
+  (when (version<= "9.2" (org-version))
+    (require 'org-tempo))
 
-    ;;(spacemacs/toggle-transparency)
+  ;;(spacemacs/toggle-transparency)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -743,97 +744,97 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(connection-local-criteria-alist
-   '(((:application tramp :machine "localhost")
-      tramp-connection-local-darwin-ps-profile)
-     ((:application tramp :machine "RDKFJVVV19")
-      tramp-connection-local-darwin-ps-profile)
-     ((:application tramp)
-      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
- '(connection-local-profile-alist
-   '((tramp-connection-local-darwin-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . tramp-ps-time)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-busybox-ps-profile
-      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (user . string)
-       (group . string)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (ttname . string)
-       (time . tramp-ps-time)
-       (nice . number)
-       (etime . tramp-ps-time)
-       (args)))
-     (tramp-connection-local-bsd-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (group . string)
-       (comm . 52)
-       (state . string)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . number)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-default-shell-profile
-      (shell-file-name . "/bin/sh")
-      (shell-command-switch . "-c"))
-     (tramp-connection-local-default-system-profile
-      (path-separator . ":")
-      (null-device . "/dev/null"))))
- '(package-selected-packages
-   '(company-box frame-local company-quickhelp persistent-scratch writeroom-mode vterm tango-plus-theme solarized-theme organic-green-theme lsp-ui jazz-theme helm-lsp eziam-theme dracula-theme doom-themes doom-modeline color-theme-sanityinc-tomorrow ccls rust-mode lsp-mode package-lint treemacs-projectile treemacs-magit treemacs-evil dap-mode lsp-treemacs bui treemacs pfuture yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen unfill toc-org tide typescript-mode tagedit symon string-inflection sql-indent spaceline-all-the-icons all-the-icons memoize spaceline powerline smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-delimiters pytest pyim pyim-basedict xr pyenv-mode py-isort pug-mode popwin plantuml-mode pippel pipenv pyvenv pip-requirements persp-mode password-generator paradox spinner pangu-spacing pandoc-mode ox-pandoc overseer orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-bullets org-brain org-ql peg ov org-super-agenda ts open-junk-file neotree nameless mwim multi-term move-text monokai-theme mmm-mode markdown-toc markdown-mode magit-svn magit-gitflow magit-popup macrostep lorem-ipsum livid-mode skewer-mode live-py-mode link-hint json-navigator hierarchy json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc intellij-theme insert-shebang indent-guide importmagic epc ctable concurrent deferred impatient-mode simple-httpd idea-darkula-theme hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make helm-gitignore request helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haml-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gnuplot gitignore-mode github-modern-theme gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md fuzzy flyspell-correct-helm flyspell-correct flycheck-rtags flycheck-pos-tip pos-tip flycheck-gometalinter flycheck-bashate flycheck flx-ido flx fish-mode find-by-pinyin-dired fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit git-commit with-editor transient evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emojify ht emoji-cheat-sheet-plus emmet-mode elisp-slime-nav editorconfig dumb-jump disaster diff-hl define-word cython-mode csv-mode counsel-projectile projectile counsel swiper ivy pkg-info epl company-web web-completion-data company-tern dash-functional tern company-statistics company-shell company-rtags rtags company-go go-mode company-emoji company-c-headers company-anaconda company column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode browse-at-remote auto-yasnippet yasnippet auto-highlight-symbol auto-dictionary auto-compile packed anaconda-mode pythonic f dash s aggressive-indent ace-window ace-pinyin pinyinlib ace-link ace-jump-helm-line helm avy helm-core ac-ispell auto-complete popup which-key use-package pcre2el org-plus-contrib hydra lv font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(highlight-parentheses-highlight ((nil (:weight ultra-bold))) t))
-)
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(connection-local-criteria-alist
+     '(((:application tramp :machine "localhost")
+        tramp-connection-local-darwin-ps-profile)
+       ((:application tramp :machine "RDKFJVVV19")
+        tramp-connection-local-darwin-ps-profile)
+       ((:application tramp)
+        tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+   '(connection-local-profile-alist
+     '((tramp-connection-local-darwin-ps-profile
+        (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+        (tramp-process-attributes-ps-format
+         (pid . number)
+         (euid . number)
+         (user . string)
+         (egid . number)
+         (comm . 52)
+         (state . 5)
+         (ppid . number)
+         (pgrp . number)
+         (sess . number)
+         (ttname . string)
+         (tpgid . number)
+         (minflt . number)
+         (majflt . number)
+         (time . tramp-ps-time)
+         (pri . number)
+         (nice . number)
+         (vsize . number)
+         (rss . number)
+         (etime . tramp-ps-time)
+         (pcpu . number)
+         (pmem . number)
+         (args)))
+       (tramp-connection-local-busybox-ps-profile
+        (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+        (tramp-process-attributes-ps-format
+         (pid . number)
+         (user . string)
+         (group . string)
+         (comm . 52)
+         (state . 5)
+         (ppid . number)
+         (pgrp . number)
+         (ttname . string)
+         (time . tramp-ps-time)
+         (nice . number)
+         (etime . tramp-ps-time)
+         (args)))
+       (tramp-connection-local-bsd-ps-profile
+        (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+        (tramp-process-attributes-ps-format
+         (pid . number)
+         (euid . number)
+         (user . string)
+         (egid . number)
+         (group . string)
+         (comm . 52)
+         (state . string)
+         (ppid . number)
+         (pgrp . number)
+         (sess . number)
+         (ttname . string)
+         (tpgid . number)
+         (minflt . number)
+         (majflt . number)
+         (time . tramp-ps-time)
+         (pri . number)
+         (nice . number)
+         (vsize . number)
+         (rss . number)
+         (etime . number)
+         (pcpu . number)
+         (pmem . number)
+         (args)))
+       (tramp-connection-local-default-shell-profile
+        (shell-file-name . "/bin/sh")
+        (shell-command-switch . "-c"))
+       (tramp-connection-local-default-system-profile
+        (path-separator . ":")
+        (null-device . "/dev/null"))))
+   '(package-selected-packages
+     '(company-box frame-local company-quickhelp persistent-scratch writeroom-mode vterm tango-plus-theme solarized-theme organic-green-theme lsp-ui jazz-theme helm-lsp eziam-theme dracula-theme doom-themes doom-modeline color-theme-sanityinc-tomorrow ccls rust-mode lsp-mode package-lint treemacs-projectile treemacs-magit treemacs-evil dap-mode lsp-treemacs bui treemacs pfuture yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen unfill toc-org tide typescript-mode tagedit symon string-inflection sql-indent spaceline-all-the-icons all-the-icons memoize spaceline powerline smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-delimiters pytest pyim pyim-basedict xr pyenv-mode py-isort pug-mode popwin plantuml-mode pippel pipenv pyvenv pip-requirements persp-mode password-generator paradox spinner pangu-spacing pandoc-mode ox-pandoc overseer orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-bullets org-brain org-ql peg ov org-super-agenda ts open-junk-file neotree nameless mwim multi-term move-text monokai-theme mmm-mode markdown-toc markdown-mode magit-svn magit-gitflow magit-popup macrostep lorem-ipsum livid-mode skewer-mode live-py-mode link-hint json-navigator hierarchy json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc intellij-theme insert-shebang indent-guide importmagic epc ctable concurrent deferred impatient-mode simple-httpd idea-darkula-theme hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make helm-gitignore request helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haml-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gnuplot gitignore-mode github-modern-theme gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md fuzzy flyspell-correct-helm flyspell-correct flycheck-rtags flycheck-pos-tip pos-tip flycheck-gometalinter flycheck-bashate flycheck flx-ido flx fish-mode find-by-pinyin-dired fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit git-commit with-editor transient evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emojify ht emoji-cheat-sheet-plus emmet-mode elisp-slime-nav editorconfig dumb-jump disaster diff-hl define-word cython-mode csv-mode counsel-projectile projectile counsel swiper ivy pkg-info epl company-web web-completion-data company-tern dash-functional tern company-statistics company-shell company-rtags rtags company-go go-mode company-emoji company-c-headers company-anaconda company column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode browse-at-remote auto-yasnippet yasnippet auto-highlight-symbol auto-dictionary auto-compile packed anaconda-mode pythonic f dash s aggressive-indent ace-window ace-pinyin pinyinlib ace-link ace-jump-helm-line helm avy helm-core ac-ispell auto-complete popup which-key use-package pcre2el org-plus-contrib hydra lv font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(highlight-parentheses-highlight ((nil (:weight ultra-bold))) t))
+  )
