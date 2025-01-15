@@ -770,6 +770,8 @@ before packages are loaded."
 
   ;; (spacemacs/toggle-transparency)
 
+  (setq-default python-shell-interpreter "python3")
+
   ;; accept completion from copilot and fallback to company
   (with-eval-after-load 'company
     ;; disable inline previews
