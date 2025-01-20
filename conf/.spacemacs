@@ -165,6 +165,7 @@ This function should only modify configuration layer settings."
      themes-megapack
      major-modes
      debug
+     templates
      )
 
 
@@ -777,6 +778,8 @@ before packages are loaded."
 
   (setq-default python-shell-interpreter "python3")
 
+  (setq auto-insert-query nil)
+
   ;; accept completion from copilot and fallback to company
   (with-eval-after-load 'company
     ;; disable inline previews
@@ -946,7 +949,8 @@ This function is called at the very end of Spacemacs initialization."
                  use-package uuidgen vi-tilde-fringe volatile-highlights vterm
                  web-beautify web-completion-data web-mode which-key
                  window-purpose winum with-editor writeroom-mode ws-butler xr
-                 xterm-color yaml-mode yapfify yasnippet yasnippet-snippets)))
+                 xterm-color yaml-mode yapfify yasnippet yasnippet-snippets
+                 yatemplate)))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
