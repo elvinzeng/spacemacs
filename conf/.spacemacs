@@ -736,10 +736,16 @@ before packages are loaded."
 
   (add-hook 'after-change-major-mode-hook
             (lambda ()
-              (when (or (eq major-mode 'go-mode)
-                        (eq major-mode 'python-mode))
+              (when (eq major-mode 'go-mode)
                 (progn
                   (set-fill-column 120)
+                  (spacemacs/toggle-fill-column-indicator-on)
+                  (message "keep it simple and stupid")))))
+  (add-hook 'after-change-major-mode-hook
+            (lambda ()
+              (when (eq major-mode 'python-mode)
+                (progn
+                  (set-fill-column 88)
                   (spacemacs/toggle-fill-column-indicator-on)
                   (message "keep it simple and stupid")))))
   (add-hook 'after-change-major-mode-hook (lambda ()
