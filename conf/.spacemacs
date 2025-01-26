@@ -81,7 +81,7 @@ This function should only modify configuration layer settings."
                      ispell-change-dictionary "american"
                      spell-checking-enable-by-default nil
                      )
-     syntax-checking
+     (syntax-checking)
      version-control
      sql
      (python :variables
@@ -92,8 +92,9 @@ This function should only modify configuration layer settings."
              python-shell-interpreter "python3"
              python-backend 'lsp
              python-lsp-server 'pyright
-             python-test-runner '(nose pytest)
+             python-test-runner '(pytest)
              ;; python-fill-column 99
+             ;; python-poetry-activate t
              )
      emoji
      (chinese :variables
@@ -774,6 +775,39 @@ before packages are loaded."
                                      )))
         ))
 
+  (require 'poetry)
+  (poetry-tracking-mode 1)
+
+  ;; Define a function to set up Flycheck for Python
+  (defun my-flycheck-python-setup ()
+    "Set up Flycheck for Python mode."
+    (setq-local flycheck-disabled-checkers '(python-pycompile python-pylint python-mypy lsp))
+    (setq-local flycheck-checker 'python-pyright)
+
+    ;; Add flake8 as a next checker after pyright
+    (flycheck-add-next-checker 'python-pyright 'python-flake8 'append)
+
+    ;; Select pyright as the main checker for this buffer
+    (flycheck-select-checker 'python-pyright)
+
+    ;; Ensure Flycheck is enabled
+    (flycheck-mode 1)
+
+    ;; Schedule timers for Python buffers only
+    (let ((current-buffer (current-buffer)) ;; Capture the current buffer
+          (intervals '(5 10 20 30)))        ;; List of intervals
+      (dolist (interval intervals)
+        (run-at-time interval nil
+                     (lambda ()
+                       (when (buffer-live-p current-buffer) ;; Check if the buffer still exists
+                         (with-current-buffer current-buffer
+                           (when (derived-mode-p 'python-mode) ;; Check if it's still a Python buffer
+                             (flycheck-select-checker 'python-pyright)))))))))
+
+  ;; Add the setup function to python-mode-hook
+  (add-hook 'python-mode-hook #'my-flycheck-python-setup)
+
+
   ;;    (setq org-html-validation-link nil)
 
   ;; https://github.com/syl20bnr/spacemacs/issues/11798
@@ -781,8 +815,6 @@ before packages are loaded."
     (require 'org-tempo))
 
   ;; (spacemacs/toggle-transparency)
-
-  (setq-default python-shell-interpreter "python3")
 
   (setq auto-insert-query nil)
 
@@ -956,7 +988,16 @@ This function is called at the very end of Spacemacs initialization."
                  web-beautify web-completion-data web-mode which-key
                  window-purpose winum with-editor writeroom-mode ws-butler xr
                  xterm-color yaml-mode yapfify yasnippet yasnippet-snippets
-                 yatemplate)))
+                 yatemplate))
+   '(safe-local-variable-values
+     '((eval let*
+             ((venv-path
+               (string-trim (shell-command-to-string "poetry env info --path")))
+              (flake8-bin (concat venv-path "/bin/flake8")))
+             (setq flycheck-python-flake8-executable flake8-bin))
+       (typescript-backend . tide) (typescript-backend . lsp)
+       (javascript-backend . tide) (javascript-backend . tern)
+       (javascript-backend . lsp))))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
