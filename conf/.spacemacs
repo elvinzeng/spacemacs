@@ -778,7 +778,6 @@ before packages are loaded."
   (require 'poetry)
   (poetry-tracking-mode 1)
 
-  ;; Define a function to set up Flycheck for Python
   (defun my-flycheck-python-setup ()
     "Set up Flycheck for Python mode."
     (setq-local flycheck-disabled-checkers '(python-pycompile python-pylint python-mypy lsp))
@@ -793,16 +792,17 @@ before packages are loaded."
     ;; Ensure Flycheck is enabled
     (flycheck-mode 1)
 
-    ;; Schedule timers for Python buffers only
-    (let ((current-buffer (current-buffer)) ;; Capture the current buffer
-          (intervals '(5 10 20 30)))        ;; List of intervals
+    ;; Capture the buffer reference
+    (let ((target-buffer (current-buffer)) ;; Save the current buffer
+          (intervals '(5 10 20 30)))       ;; List of intervals
       (dolist (interval intervals)
-        (run-at-time interval nil
-                     (lambda ()
-                       (when (buffer-live-p current-buffer) ;; Check if the buffer still exists
-                         (with-current-buffer current-buffer
-                           (when (derived-mode-p 'python-mode) ;; Check if it's still a Python buffer
-                             (flycheck-select-checker 'python-pyright)))))))))
+        (run-with-timer interval nil
+                        (lambda ()
+                          ;; Use the captured buffer explicitly
+                          (when (buffer-live-p target-buffer) ;; Check if buffer is still alive
+                            (with-current-buffer target-buffer ;; Switch to the correct buffer
+                              (when (derived-mode-p 'python-mode) ;; Ensure it's still Python mode
+                                (flycheck-select-checker 'python-pyright)))))))))
 
   ;; Add the setup function to python-mode-hook
   (add-hook 'python-mode-hook #'my-flycheck-python-setup)
