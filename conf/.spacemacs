@@ -167,6 +167,7 @@ This function should only modify configuration layer settings."
      major-modes
      debug
      templates
+     dap
      )
 
 
