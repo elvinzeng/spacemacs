@@ -32,13 +32,11 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(rust
+   '(
+     (rust :variables
+           lsp-rust-analyzer-cargo-auto-reload t
+           rustic-format-on-save t)
      ;;php
-     ;; ----------------------------------------------------------------
-     ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
-     ;; `M-m f e R' (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
      helm
      (auto-completion :variables
                       auto-completion-enable-help-tooltip t
