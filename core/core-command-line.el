@@ -1,6 +1,6 @@
 ;;; core-command-line.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -28,9 +28,6 @@
 (defvar spacemacs-sync-packages t
   "If non-nil packages are synchronized when the configuration layer system is
 loaded.")
-
-(defvar spacemacs-force-dump nil
-  "If non-nil then force a redump of Emacs.")
 
 (defun spacemacs//parse-command-line (args)
   "Handle Spacemacs specific command line arguments.
@@ -69,8 +66,6 @@ arguments is that we want to process these arguments as soon as possible."
            (setq spacemacs-force-resume-layouts t))
           ("--no-package-sync"
            (setq spacemacs-sync-packages nil))
-          ("--force-dump"
-           (setq spacemacs-force-dump t))
           (_ (push arg new-args))))
       (setq i (1+ i)))
     (nreverse new-args)))

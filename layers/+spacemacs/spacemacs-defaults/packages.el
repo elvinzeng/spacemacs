@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Defaults Layer packages File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -33,19 +33,16 @@
                           (eq 'hybrid dotspacemacs-editing-style)))
     (dired :location built-in)
     (dired-x :location built-in)
-    (image-dired :location built-in)
     (display-line-numbers :location built-in)
     (electric-indent-mode :location built-in)
     (ediff :location built-in)
     (eldoc :location built-in)
     (hi-lock :location built-in)
+    (image-dired :location built-in)
     (image-mode :location built-in)
     (imenu :location built-in)
     (package-menu :location built-in)
-    ;; page-break-lines is shipped with spacemacs core
-    (page-break-lines :location built-in)
-    (proced :location built-in)
-    (process-menu :location built-in)
+    (page-break-lines :location local)
     quickrun
     (recentf :location built-in)
     (savehist :location built-in)
@@ -210,15 +207,20 @@
     :config
     ;; show org ediffs unfolded
     (add-hook 'ediff-prepare-buffer-hook 'spacemacs//ediff-buffer-outline-show-all)
-    ;; restore window layout when done
-    (add-hook 'ediff-quit-hook #'winner-undo)
+    ;; save window layout before starting...
+    (add-hook 'ediff-before-setup-hook #'spacemacs//ediff-save-window-configuration)
+    ;; ... and restore window layout when done
+    ;;
+    ;; Append to `ediff-quit-hook' so that this runs after `ediff-cleanup-mess'.
+    ;; This avoids interfering with ediff's own cleanup, since it depends on the
+    ;; ediff control buffer still being current.
+    (add-hook 'ediff-quit-hook #'spacemacs//ediff-restore-window-configuration 50)
     (when (fboundp 'spacemacs//ediff-delete-temp-files)
       (add-hook 'kill-emacs-hook #'spacemacs//ediff-delete-temp-files))))
 
 (defun spacemacs-defaults/init-eldoc ()
   (use-package eldoc
-    :defer (spacemacs/defer)
-    :init (spacemacs|require-when-dumping 'eldoc)
+    :defer t
     :config
     ;; enable eldoc in `eval-expression'
     (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
@@ -334,9 +336,9 @@
     (define-advice display-line-numbers--turn-on (:before-while (&rest _) spacemacs//enable-line-numbers)
       (spacemacs/enable-line-numbers-p))
     (when dotspacemacs-line-numbers
-      ;; delay the initialization of number lines when opening Spacemacs
-      ;; normally. If opened via the command line with a file to visit then
-      ;; load it immediately
+      ;; delay the initialization of line numbers when opening Spacemacs
+      ;; normally. If opened via the command line with a file to visit then load
+      ;; it immediately
       (add-hook 'emacs-startup-hook
                 (lambda ()
                   (if (string-equal "*scratch*" (buffer-name))
@@ -355,21 +357,6 @@
   (global-page-break-lines-mode t)
   (spacemacs|hide-lighter page-break-lines-mode))
 
-(defun spacemacs-defaults/init-proced ()
-  (use-package proced
-    :defer t
-    :config
-    (evilified-state-evilify-map proced-mode-map
-      :mode proced-mode
-      :bindings
-      "gr" 'revert-buffer)))
-
-(defun spacemacs-defaults/init-process-menu ()
-  (evilified-state-evilify-map process-menu-mode-map
-    :mode process-menu-mode
-    :bindings
-    "gr" 'revert-buffer))
-
 (defun spacemacs-defaults/init-quickrun ()
   (use-package quickrun
     :defer t
@@ -380,14 +367,12 @@
 
 (defun spacemacs-defaults/init-recentf ()
   (use-package recentf
-    :defer (spacemacs/defer)
+    :defer t
     :commands (recentf-save-list)
     :init
-    (spacemacs|require-when-dumping 'recentf)
-    (when (spacemacs/defer)
-      (add-hook 'find-file-hook (lambda () (unless recentf-mode
-                                             (recentf-mode)
-                                             (recentf-track-opened-file)))))
+    (add-hook 'find-file-hook (lambda () (unless recentf-mode
+                                           (recentf-mode)
+                                           (recentf-track-opened-file))))
     ;; Do not leave dangling timers when reloading the configuration.
     (when (and (boundp 'recentf-auto-save-timer)
                (timerp recentf-auto-save-timer))

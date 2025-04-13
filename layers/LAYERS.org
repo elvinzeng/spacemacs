@@ -838,15 +838,14 @@ Features:
   - cus-edit
   - dired
   - dired-x
-  - display-line-numbers (only in Emacs 26.x and newer)
+  - display-line-numbers
   - electric-indent-mode
-  - easypg
   - ediff
   - eldoc
   - hi-lock
+  - image-dired
   - image-mode
   - imenu
-  - occur-mode
   - package-menu
   - page-break-lines
   - process-menu
@@ -861,6 +860,7 @@ Features:
   - visual-line-mode
   - whitespace
   - winner
+  - xref
   - zone
 
 ** Spacemacs-editing
@@ -891,8 +891,8 @@ Features:
 - Support for sorting (press ~s~) via [[https://gitlab.com/xuhdev/dired-quick-sort][=dired-quick-sort=]]
 - Support for [[https://github.com/PythonNut/evil-easymotion][=evil-easymotion=]] if the editing style is =vim= or =hybrid=.
 - Support for cycling between multi line block styles via [[https://github.com/IvanMalison/multi-line/][=multi-line=]].
-- Support for editing strings inplace via [[https://github.com/magnars/string-edit.el][=string-edit=]]
-- Presents undo history as a tree via [[https://gitlab.com/tsc25/undo-tree/-/blob/master/undo-tree.el][=undo-tree=]]
+- Support for editing strings inplace via [[https://github.com/magnars/string-edit.el][=string-edit=]].
+- Presents undo history as a tree via [[https://github.com/casouri/vundo][=vundo=]] or [[https://gitlab.com/tsc25/undo-tree/-/blob/master/undo-tree.el][=undo-tree=]].
 
 ** Spacemacs-editing-visual
 [[file:+spacemacs/spacemacs-editing-visual/README.org][+spacemacs/spacemacs-editing-visual/README.org]]
@@ -2228,7 +2228,7 @@ Features:
 - Test Runners using [[https://github.com/ionrock/pytest-el][pytest]] or [[https://github.com/syl20bnr/nose.el][nose.el]]
 - Virtual Environment using [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] and [[https://github.com/yyuu/pyenv][pyenv]] as well as [[https://github.com/pypa/pipenv][pipenv]] and [[https://github.com/galaunay/poetry.el][poetry]]
 - semantic mode is enabled
-- PEP8 compliant formatting via [[https://github.com/google/yapf][YAPF]] or [[https://github.com/ambv/black][black]]
+- PEP8 compliant formatting via [[https://github.com/google/yapf][YAPF]], [[https://github.com/ambv/black][black]], or [[https://github.com/astral-sh/ruff][ruff]]
 - PEP8 checks with [[https://pypi.python.org/pypi/flake8][flake8]] or [[https://pypi.python.org/pypi/pylint/1.6.4][pylint]]
 - Suppression of unused import with [[https://github.com/myint/autoflake][autoflake]]
 - Use the ~%~ key to jump between blocks with [[https://github.com/redguardtoo/evil-matchit][evil-matchit]]
@@ -2876,6 +2876,7 @@ This layer adds support for basic language server protocol packages speaking
 
 Features:
 - Provide LSP support using eglot.
+- Provide Flycheck integration using [[https://github.com/flycheck/flycheck-eglot][flycheck-eglot]]
 
 ** Eww
 [[file:+web/eww/README.org][+web/eww/README.org]]

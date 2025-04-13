@@ -27,6 +27,7 @@
   - [[#i-want-to-learn-elisp-where-do-i-start-][I want to learn elisp, where do I start ?]]
 - [[#how-do-i][How do I]]
   - [[#install-a-package-not-provided-by-a-layer][Install a package not provided by a layer?]]
+  - [[#change-the-package-archives-or-package-archive-priorities][Change the =package-archives= or =package-archive-priorities=?]]
   - [[#how-to-override-a-layer-package][How to override a layer package?]]
   - [[#disable-a-package-completely][Disable a package completely?]]
   - [[#disable-a-package-only-for-a-specific-major-mode][Disable a package only for a specific major-mode?]]
@@ -86,13 +87,13 @@ To install packages that does not belong to any Spacemacs layers, you can:
   which will prevent Spacemacs from removing the packages you installed
   manually.
 
-To create a new configuration layer see the [[https://github.com/syl20bnr/spacemacs/blob/master/doc/QUICK_START.org][quick start guide]] for more info.
+To create a new configuration layer see the [[https://github.com/syl20bnr/spacemacs/blob/develop/doc/QUICK_START.org][quick start guide]] for more info.
 
 ** Environment variables or PATH are not set properly
 If you use Emacs GUI and don't launch if from a terminal then edit the
 environment variables in the =env= file. You can open this file with
 ~SPC f e e~. More information in the =Environment variables= section of the
-[[https://github.com/syl20bnr/spacemacs/blob/master/doc/DOCUMENTATION.org][documentation]].
+[[https://github.com/syl20bnr/spacemacs/blob/develop/doc/DOCUMENTATION.org][documentation]].
 
 ** How to fix =error: Package 'package-build-' is unavailable=?
 This may occur due to heavy network traffic. You can fix it by setting the
@@ -268,6 +269,22 @@ Spacemacs provides a variable in the =dotspacemacs/layers= function in
 =.spacemacs= called =dotspacemacs-additional-packages=. Just add a package name
 to the list and it will be installed when you reload your configuration with
 ~SPC f e R~, or at the next Spacemacs launch.
+
+** Change the =package-archives= or =package-archive-priorities=?
+Set the values of =configuration-layer-elpa-archives= and
+=package-archive-priorities= inside =dotspacemacs/user-init=.
+
+#+BEGIN_SRC emacs-lisp
+  (defun dotspacemacs/user-init ()
+    (setq configuration-layer-elpa-archives
+          '(("melpa" . "https://melpa.org/packages/")
+            ("gnu" . "https://elpa.gnu.org/packages/")
+            ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+    (setq package-archive-priorities
+          '(("melpa" . 4)
+            ("nongnu" . 2)
+            ("gnu" . 1))))
+#+END_SRC
 
 ** How to override a layer package?
 To replace a package that is installed and configured by a layer, without
@@ -634,7 +651,7 @@ The Spacemacs user maybe feel it's slow during startup or slow to opening a
 seperately, while a Spacemacs-base distribution maybe installes more than 100
 packages, and the ~load-path~ will has more than 100 entries with packages
 paths on the head, emacs builtin paths on the tail. Then a simple
-src_elisp{(require 'org)} will trigger the emacs walks through the ~load-path~
+~src_elisp{(require 'org)}~ will trigger the emacs walks through the ~load-path~
 from the head to the tail to seach =org.dll=, =org.dll.gz=, =org.elc=,
 =org.elc.gz=, =org.el=, =org.el.gz=, that will be more than 600 (100*6)
 attemptions to open the desired files, but Windows system slow on the open-file
@@ -655,4 +672,3 @@ Spacemacs implemented the ~load-hints~ feature, controled by the
 ~load-hints~ feature, then executing the function
 ~spacemacs//package-regenerate-autoloads~ and restart the Spacemacs to try this
 feature to observer it speedups the Spacemacs or not on the Windows OS.
-

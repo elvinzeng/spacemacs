@@ -1,6 +1,6 @@
 ;;; packages.el --- Latex Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -69,7 +69,8 @@
     (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
     (add-hook 'LaTeX-mode-hook #'spacemacs//latex-setup-backend)
     (when latex-refresh-preview
-      (add-hook 'doc-view-mode-hook 'auto-revert-mode))
+      (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer))
     :config
     ;; otherwise `, p` preview commands doesn't work
     (require 'preview)

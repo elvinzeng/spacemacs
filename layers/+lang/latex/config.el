@@ -1,6 +1,6 @@
 ;;; config.el --- Latex Layer Configuration File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -74,7 +74,10 @@ Allowed values are defined in `TeX-engine-alist'. The default allowed values are
   "Whether to use `TeX-fold-mode' or not in tex/latex buffers.")
 
 (defvar latex-enable-magic nil
-  "Whether to enable \"magic\" symbols in the buffer.")
+  "Whether to enable \"magic\" symbols in the buffer.
+
+Note that enabling this can have a negative impact on performance,
+especially when `magic-latex-enable-pretty-symbols' is t (the default).")
 
 (defvar latex-nofill-env '("equation"
                            "equation*"
@@ -88,4 +91,4 @@ Allowed values are defined in `TeX-engine-alist'. The default allowed values are
   "List of environment names in which `auto-fill-mode' will be inhibited.")
 
 (defvar latex-refresh-preview nil
-  "Whether non-nil, refresh the preview buffer when file changes.")
+  "When non-nil, refresh the preview buffer after recompilation.")

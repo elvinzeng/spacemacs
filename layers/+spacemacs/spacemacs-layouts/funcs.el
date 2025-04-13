@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs Layouts Layer functions File -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -44,8 +44,8 @@
 (defun spacemacs//layout-wait-for-modeline (&rest _)
   "Assure the mode-line is loaded before restoring the layouts."
   (advice-remove 'persp-load-state-from-file 'spacemacs//layout-wait-for-modeline)
-  (when (and (configuration-layer/package-used-p 'spaceline)
-             (memq (spacemacs/get-mode-line-theme-name) '(spacemacs all-the-icons custom)))
+  (when (and (configuration-layer/layer-used-p 'spacemacs-modeline)
+             (spacemacs//enable-spaceline-p))
     (require 'spaceline-config)))
 
 (defun spacemacs//current-layout-name ()
@@ -986,14 +986,14 @@ Accepts a list of VARIABLE, DEFAULT-VALUE pairs.
                                     (-map 'car
                                           spacemacs--layout-local-variables))))
     ;; save the current layout
-    (spacemacs-ht-set! spacemacs--layout-local-map
-             (spacemacs//current-layout-name)
+    (puthash (spacemacs//current-layout-name)
              (--map (cons it (symbol-value it))
-                    layout-local-vars))
+                    layout-local-vars)
+             spacemacs--layout-local-map)
     ;; load the default values into the new layout
     (--each layout-local-vars
       (set it (alist-get it spacemacs--layout-local-variables)))
     ;; override with the previously bound values for the new layout
-    (--when-let (spacemacs-ht-get spacemacs--layout-local-map persp-name)
+    (--when-let (gethash persp-name spacemacs--layout-local-map)
       (-each it
         (-lambda ((var . val)) (set var val))))))

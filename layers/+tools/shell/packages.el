@@ -1,6 +1,6 @@
 ;;; packages.el --- shell packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -45,8 +45,14 @@
     terminal-here
     vi-tilde-fringe
     window-purpose
-    (multi-vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))
-    (vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))))
+    (multi-vterm
+     :toggle (and shell-enable-vterm-support
+                  module-file-suffix
+                  (not (spacemacs/system-is-mswindows))))
+    (vterm
+     :toggle (and shell-enable-vterm-support
+                  module-file-suffix
+                  (not (spacemacs/system-is-mswindows))))))
 
 
 (defun shell/init-comint ()

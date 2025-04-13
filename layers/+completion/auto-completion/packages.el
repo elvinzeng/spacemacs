@@ -1,6 +1,6 @@
 ;;; packages.el --- Auto-completion Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -77,7 +77,7 @@
     (add-to-list 'completion-styles 'initials t)
     (define-key ac-completing-map (kbd "C-j") 'ac-next)
     (define-key ac-completing-map (kbd "C-k") 'ac-previous)
-    (define-key ac-completing-map (kbd "<S-tab>") 'ac-previous)
+    (define-key ac-completing-map (kbd "S-<tab>") 'ac-previous)
     (spacemacs|diminish auto-complete-mode " ⓐ" " a")))
 
 (defun auto-completion/init-auto-yasnippet ()
@@ -148,11 +148,11 @@
     :commands company-quickhelp-manual-begin
     :init
     (spacemacs|do-after-display-system-init
-     (with-eval-after-load 'company
-       (setq company-frontends (delq 'company-echo-metadata-frontend company-frontends))
-       (define-key company-active-map (kbd "M-h") #'company-quickhelp-manual-begin)
-       (unless (eq auto-completion-enable-help-tooltip 'manual)
-         (company-quickhelp-mode))))))
+      (with-eval-after-load 'company
+        (setq company-frontends (delq 'company-echo-metadata-frontend company-frontends))
+        (define-key company-active-map (kbd "M-h") #'company-quickhelp-manual-begin)
+        (unless (eq auto-completion-enable-help-tooltip 'manual)
+          (company-quickhelp-mode))))))
 
 (defun auto-completion/init-company-box ()
   (use-package company-box
@@ -322,7 +322,6 @@
      'spacemacs/force-yasnippet-off '(term-mode-hook
                                       shell-mode-hook
                                       eshell-mode-hook))
-    (spacemacs|require-when-dumping 'yasnippet)
     (spacemacs/add-to-hooks 'spacemacs/load-yasnippet '(prog-mode-hook
                                                         markdown-mode-hook
                                                         org-mode-hook))

@@ -1,6 +1,6 @@
 ;;; packages.el --- Source Control Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -40,22 +40,11 @@
     :defer t
     :commands (vc-ignore)
     :init
+    (spacemacs/set-leader-keys "gv" vc-prefix-map)
     (spacemacs/declare-prefix "gv" "version-control")
-    (spacemacs/set-leader-keys
-      "gvv" 'vc-next-action
-      "gvg" 'vc-annotate
-      "gvD" 'vc-root-diff
-      "gve" 'vc-ediff
-      "gvd" 'vc-dir
-      "gv+" 'vc-update
-      "gvh" 'vc-region-history
-      "gvi" 'vc-register
-      "gvI" 'vc-ignore
-      "gvu" 'vc-revert
-      "gvl" 'vc-print-log
-      "gvL" 'vc-print-root-log
-      "gvr" 'vc-resolve-conflicts)
     :config
+    (define-key vc-prefix-map "e" #'vc-ediff)
+    (define-key vc-prefix-map "R" #'vc-resolve-conflicts)
     (with-eval-after-load 'vc-dir
       (evilified-state-evilify-map vc-dir-mode-map
         :mode vc-dir-mode
@@ -156,8 +145,8 @@
       (run-with-idle-timer 1 nil 'diff-hl-margin-mode))
     :config
     (spacemacs|do-after-display-system-init
-     (setq diff-hl-side (if (eq version-control-diff-side 'left)
-                            'left 'right)))))
+      (setq diff-hl-side (if (eq version-control-diff-side 'left)
+                             'left 'right)))))
 
 (defun version-control/post-init-evil-unimpaired ()
   (define-key evil-normal-state-map (kbd "[ h") 'spacemacs/vcs-previous-hunk)
@@ -191,8 +180,8 @@
     :defer t
     :init
     (spacemacs|do-after-display-system-init
-     (with-eval-after-load 'git-gutter
-       (require 'git-gutter-fringe)))
+      (with-eval-after-load 'git-gutter
+        (require 'git-gutter-fringe)))
     (setq git-gutter-fr:side (if (eq version-control-diff-side 'left)
                                  'left-fringe 'right-fringe))))
 

@@ -1,6 +1,6 @@
 ;;; core-spacemacs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -54,7 +54,6 @@
 (require 'core-use-package-ext)
 (require 'core-spacebind)
 (require 'core-compilation)
-(require 'core-dumper)
 
 (defvar spacemacs-post-user-config-hook nil
   "Hook run after dotspacemacs/user-config")
@@ -77,21 +76,16 @@ the final step of executing code in `emacs-startup-hook'.")
     (when (file-directory-p dir)
       (dolist (pkg-dir (directory-files dir t "\\`[^.]"))
         (when-let* (((file-directory-p pkg-dir))
-                   (pkg-desc (package-load-descriptor pkg-dir)))
+                    (pkg-desc (package-load-descriptor pkg-dir)))
           (let ((default-directory pkg-dir))
             (mapc 'delete-file (file-expand-wildcards "*-autoloads.el" )))
           (package-generate-autoloads
            (package-desc-name pkg-desc) pkg-dir))))))
 
 (defun spacemacs//lookup-load-hints (file)
-  "Findout the `load-hints' items for the file."
-  (if-let* ((load-hints)
-            ((not (member (substring file 0 1) '("/" "~")))))
-      (seq-some
-       (lambda (row)
-         (when (member file (cdr row))                 ; prefix match
-           (car row)))
-       load-hints)))
+  "Findout the `load-hints' item for the FILE."
+  (unless (file-name-absolute-p file)
+    (car-safe (seq-find (lambda (row) (member file (cdr row))) load-hints))))
 
 (defun spacemacs//activate-load-hints ()
   "Enable the `load-hints' support for Spacemacs."
@@ -123,7 +117,7 @@ the final step of executing code in `emacs-startup-hook'.")
     (let ((feature (nth 0 args))
           (filename (nth 1 args))
           (noerror (nth 2 args)))
-      (when-let* (((and filename load-hints))
+      (when-let* (((not filename))
                   (name (symbol-name feature))
                   (path (spacemacs//lookup-load-hints name)))
         (setq filename (expand-file-name name path)))
@@ -202,8 +196,7 @@ the final step of executing code in `emacs-startup-hook'.")
     (unless (frame-parameter nil 'fullscreen)
       (toggle-frame-maximized))
     (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-  (spacemacs|unless-dumping
-    (dotspacemacs|call-func dotspacemacs/user-init "Calling dotfile user init..."))
+  (dotspacemacs|call-func dotspacemacs/user-init "Calling dotfile user init...")
   ;; Given the loading process of Spacemacs we have no choice but to set the
   ;; custom settings twice:
   ;; - once at the very beginning of startup (here)
@@ -244,23 +237,12 @@ the final step of executing code in `emacs-startup-hook'.")
   (spacemacs/load-default-theme)
   ;; font
   (spacemacs|do-after-display-system-init
-   ;; If you are thinking to remove this call to `message', think twice. You'll
-   ;; break the life of several Spacemacser using Emacs in daemon mode. Without
-   ;; this, their chosen font will not be set on the *first* instance of
-   ;; emacsclient, at least if different than their system font. You don't
-   ;; believe me? Go ahead, try it. After you'll have notice that this was true,
-   ;; increase the counter bellow so next people will give it more confidence.
-   ;; Counter = 1
-   (let ((init-file-debug)) ;; without this font size is ignored in daemon
-     (when (daemonp)
-       (setq init-file-debug t))
-    (spacemacs-buffer/message "Setting the font..."))
-   (unless (spacemacs/set-default-font dotspacemacs-default-font)
-     (spacemacs-buffer/warning
-      "Cannot find any of the specified fonts (%s)! Font settings may not be correct."
-      (if (listp (car dotspacemacs-default-font))
-          (mapconcat 'car dotspacemacs-default-font ", ")
-        (car dotspacemacs-default-font)))))
+    (unless (spacemacs/set-default-font dotspacemacs-default-font)
+      (spacemacs-buffer/warning
+       "Cannot find any of the specified fonts (%s)! Font settings may not be correct."
+       (if (listp (car dotspacemacs-default-font))
+           (mapconcat 'car dotspacemacs-default-font ", ")
+         (car dotspacemacs-default-font)))))
   ;; spacemacs init
   (setq inhibit-startup-screen t)
 
@@ -289,20 +271,25 @@ the final step of executing code in `emacs-startup-hook'.")
   (dotspacemacs/maybe-install-dotfile))
 
 (defun spacemacs//setup-ido-vertical-mode ()
-  "Setup `ido-vertical-mode'."
-  (require 'ido-vertical-mode)
-  (ido-vertical-mode t)
-  (add-hook
-   'ido-setup-hook
-   ;; think about hacking directly `ido-vertical-mode' source in libs instead.
-   (defun spacemacs//ido-vertical-natural-navigation ()
-     ;; more natural navigation keys: up, down to change current item
-     ;; left to go up dir
-     ;; right to open the selected item
-     (define-key ido-completion-map (kbd "<up>") 'ido-prev-match)
-     (define-key ido-completion-map (kbd "<down>") 'ido-next-match)
-     (define-key ido-completion-map (kbd "<left>") 'ido-delete-backward-updir)
-     (define-key ido-completion-map (kbd "<right>") 'ido-exit-minibuffer))))
+  "Setup `ido-vertical-mode' for the setup wizard.
+
+Does nothing until `ido' is loaded, since most Spacemacs invocations
+don't actually need ido (it is only used for the dotfile setup wizard
+`dotspacemacs/maybe-install-dotfile')."
+  (with-eval-after-load 'ido
+    (require 'ido-vertical-mode)
+    (ido-vertical-mode t)
+    (add-hook
+     'ido-setup-hook
+     ;; think about hacking directly `ido-vertical-mode' source in libs instead.
+     (defun spacemacs//ido-vertical-natural-navigation ()
+       ;; more natural navigation keys: up, down to change current item
+       ;; left to go up dir
+       ;; right to open the selected item
+       (define-key ido-completion-map (kbd "<up>") 'ido-prev-match)
+       (define-key ido-completion-map (kbd "<down>") 'ido-next-match)
+       (define-key ido-completion-map (kbd "<left>") 'ido-delete-backward-updir)
+       (define-key ido-completion-map (kbd "<right>") 'ido-exit-minibuffer)))))
 
 (defun display-startup-echo-area-message ()
   "Change the default welcome message of minibuffer to another one."
@@ -322,8 +309,7 @@ defer call using `spacemacs-post-user-config-hook'."
      spacemacs-compiled-files)))
 
 (defun spacemacs/setup-startup-hook ()
-  "Add post init processing.
-Note: the hooked function is not executed when in dumped mode."
+  "Add post init processing."
   (add-hook
    'emacs-startup-hook
    (defun spacemacs/startup-hook ()
@@ -358,7 +344,7 @@ Note: the hooked function is not executed when in dumped mode."
        (spacemacs/load-theme spacemacs--delayed-user-theme
                              spacemacs--fallback-theme t))
      (spacemacs-buffer//startup-hook)
-     (configuration-layer/display-summary emacs-start-time)
+     (configuration-layer/display-summary)
      (spacemacs/check-for-new-version nil spacemacs-version-check-interval)
      (spacemacs-buffer/goto-link-line)
      (setq spacemacs-initialized t)

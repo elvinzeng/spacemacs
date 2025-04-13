@@ -1,6 +1,6 @@
 ;;; config.el --- Spacemacs Defaults Layer configuration File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -69,6 +69,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Highlight and allow to open http link at point in programming buffers
 ;; goto-address-prog-mode only highlights links in strings and comments
 (add-hook 'prog-mode-hook 'goto-address-prog-mode)
+;; In text-mode, highlight with goto-address-mode
+(add-hook 'text-mode-hook 'goto-address-mode)
 ;; Highlight and follow bug references in comments and strings
 (add-hook 'prog-mode-hook 'bug-reference-prog-mode)
 
@@ -253,6 +255,7 @@ variables (see `savehist-mode' and `savehist-additional-variables')."
 
 ;; cache files
 (setq tramp-persistency-file-name (concat spacemacs-cache-directory "tramp"))
+(setq request-storage-directory (concat spacemacs-cache-directory "request/"))
 
 ;; seems pointless to warn. There's always undo.
 (put 'narrow-to-region 'disabled nil)

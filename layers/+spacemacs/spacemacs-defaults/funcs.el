@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs Defaults Layer functions File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -284,7 +284,7 @@ persistent which-key) are kept or minimized too."
 
 (defun spacemacs/useful-buffer-p (buffer)
   "Return non-nil if BUFFER should be offered when switching buffers."
-  (let ((buf-name (buffer-name buffer)))
+  (when-let* ((buf-name (buffer-name buffer)))
     (or (provided-mode-derived-p (buffer-local-value 'major-mode buffer) 'comint-mode)
         (cl-loop for useful-regexp in spacemacs-useful-buffers-regexp
                  thereis (string-match-p useful-regexp buf-name))
@@ -745,25 +745,6 @@ suppress this warning.")))
       (buffer-disable-undo)
       (fundamental-mode))))
 
-(defun spacemacs/delete-window (&optional arg)
-  "Delete the current window.
-If the universal prefix argument is used then kill the buffer too."
-  (interactive "P")
-  (if (equal '(4) arg)
-      (kill-buffer-and-window)
-    (delete-window)))
-
-;; our own implementation of kill-this-buffer from menu-bar.el
-(defun spacemacs/kill-this-buffer (&optional arg)
-  "Kill the current buffer.
-If the universal prefix argument is used then kill also the window."
-  (interactive "P")
-  (if (window-minibuffer-p)
-      (abort-recursive-edit)
-    (if (equal '(4) arg)
-        (kill-buffer-and-window)
-      (kill-buffer))))
-
 ;; found at http://emacswiki.org/emacs/KillingBuffers
 (defun spacemacs/kill-other-buffers (&optional arg)
   "Kill all other buffers.
@@ -817,17 +798,8 @@ not typically change the buffer displayed by a dedicated window."
 (defun spacemacs--directory-path ()
   "Retrieve the directory path of the current buffer.
 
-If the buffer is not visiting a file, use the `list-buffers-directory' variable
-as a fallback to display the directory, useful in buffers like the ones created
-by `magit' and `dired'.
-
-Returns:
-  - A string containing the directory path in case of success.
-  - nil in case the current buffer does not have a directory."
-  (when-let* ((directory-name (if-let* ((file-name (buffer-file-name)))
-                                  (file-name-directory file-name)
-                                list-buffers-directory)))
-    (file-truename directory-name)))
+The return value is always an expanded absolute path."
+  (file-truename default-directory))
 
 (defun spacemacs--file-path ()
   "Retrieve the file path of the current buffer.
@@ -860,11 +832,7 @@ Returns:
             (+ (current-column) (if column-number-indicator-zero-based 0 1)))))
 
 (defun spacemacs/copy-directory-path ()
-  "Copy and show the directory path of the current buffer.
-
-If the buffer is not visiting a file, use the `list-buffers-directory'
-variable as a fallback to display the directory, useful in buffers like the
-ones created by `magit' and `dired'."
+  "Copy and show the `default-directory' of the current buffer."
   (interactive)
   (if-let* ((directory-path (spacemacs--directory-path)))
       (progn
@@ -880,8 +848,7 @@ otherwise the listed directory's path."
   (interactive)
   (if-let* ((file-path (or (spacemacs--file-path)
                            (and (derived-mode-p 'dired-mode)
-                                (dired-get-filename nil t))
-                           (spacemacs--directory-path))))
+                                (dired-get-filename nil t)))))
       (progn
         (kill-new file-path)
         (message "%s" file-path))
@@ -956,7 +923,7 @@ variable."
   "ediff the current `dotfile' with the template."
   (interactive)
   (ediff-files (dotspacemacs/location)
-               (concat dotspacemacs-template-directory ".spacemacs.template")))
+               (concat dotspacemacs-template-directory "dotspacemacs-template.el")))
 
 (defun spacemacs//ediff-buffer-outline-show-all ()
   "Try `outline-show-all' for ediff buffers."
@@ -973,6 +940,16 @@ variable."
         (ignore-errors
           (with-current-buffer b
             (ediff-delete-temp-files)))))))
+
+(defvar spacemacs//ediff-saved-window-configuration nil)
+
+(defun spacemacs//ediff-save-window-configuration ()
+  (setq spacemacs//ediff-saved-window-configuration
+        (current-window-configuration)))
+
+(defun spacemacs//ediff-restore-window-configuration ()
+  (when spacemacs//ediff-saved-window-configuration
+    (set-window-configuration spacemacs//ediff-saved-window-configuration)))
 
 (defun spacemacs/new-empty-buffer (&optional split)
   "Create a new buffer called: \"untitled\".

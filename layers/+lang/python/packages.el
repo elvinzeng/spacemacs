@@ -1,6 +1,6 @@
 ;;; packages.el --- Python Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -50,6 +50,7 @@
     (pytest :toggle (memq 'pytest (flatten-list (list python-test-runner))))
     (python :location built-in)
     pyvenv
+    (ruff-format :toggle (eq 'ruff python-formatter))
     semantic
     sphinx-doc
     smartparens
@@ -387,7 +388,7 @@
       "'"  'spacemacs/python-start-or-switch-repl
       "cc" 'spacemacs/python-execute-file
       "cC" 'spacemacs/python-execute-file-focus
-      "db" 'spacemacs/python-toggle-breakpoint
+      "dt" 'spacemacs/python-toggle-breakpoint
       "gb" 'xref-go-back
       "ri" 'spacemacs/python-remove-unused-imports
       "sB" 'spacemacs/python-shell-send-buffer-switch
@@ -475,6 +476,14 @@
     (when python-format-on-save
       (add-hook 'python-mode-hook 'yapf-mode))
     :config (spacemacs|hide-lighter yapf-mode)))
+
+(defun python/init-ruff-format ()
+  (use-package ruff-format
+    :defer t
+    :init
+    (when python-format-on-save
+      (add-hook 'python-mode-hook 'ruff-format-on-save-mode))
+    :config (spacemacs|hide-lighter ruff-format-on-save-mode)))
 
 (defun python/init-lsp-pyright ()
   (use-package lsp-pyright

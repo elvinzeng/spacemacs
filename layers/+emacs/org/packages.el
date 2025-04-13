@@ -1,6 +1,6 @@
 ;;; packages.el --- Org Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -41,11 +41,7 @@
     (org-vcard :toggle org-enable-org-contacts-support)
     (org-brain :toggle org-enable-org-brain-support)
     (org-expiry :location built-in)
-    ;; temporarily point org-journal to dalanicolai fork until dalanicolai's
-    ;; PR's https://github.com/bastibe/org-journal/pulls get merged
-    (org-journal
-     :location (recipe :fetcher github :repo "dalanicolai/org-journal")
-     :toggle org-enable-org-journal-support)
+    (org-journal :toggle org-enable-org-journal-support)
     org-download
     (org-jira :toggle org-enable-jira-support)
     org-mime
@@ -128,10 +124,9 @@
 
 (defun org/init-org ()
   (use-package org
-    :defer (spacemacs/defer)
+    :defer t
     :commands (orgtbl-mode)
     :init
-    (spacemacs|require-when-dumping 'org)
     (setq org-clock-persist-file (concat spacemacs-cache-directory
                                          "org-clock-save.el")
           org-id-locations-file (concat spacemacs-cache-directory
@@ -182,9 +177,7 @@
           "c" 'org-capture-finalize
           "k" 'org-capture-kill
           "r" 'org-capture-refile)
-        ;; Evil bindins seem not to be applied until at least one
-        ;; Evil state is executed
-        (evil-normal-state))
+        (evil-normalize-keymaps))
       ;; Must be done everytime we run org-capture otherwise it will
       ;; be ignored until insert mode is entered.
       (add-hook 'org-capture-mode-hook 'spacemacs//org-capture-start))
@@ -513,7 +506,8 @@ Will work on both org-mode and any mode that accepts plain html."
       "ip" 'org-agenda-set-property
       "iP" 'org-agenda-priority
       "it" 'org-agenda-set-tags
-      "sr" 'org-agenda-refile)
+      "sr" 'org-agenda-refile
+      "TT" 'org-agenda-todo)
     (spacemacs|define-transient-state org-agenda
       :title "Org-agenda transient state"
       :on-enter (setq which-key-inhibit t)

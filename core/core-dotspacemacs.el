@@ -1,6 +1,6 @@
 ;;; core-dotspacemacs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -29,6 +29,10 @@
 (defconst dotspacemacs-template-directory
   (concat spacemacs-core-directory "templates/")
   "Templates directory.")
+
+(defconst dotspacemacs-template-file
+  (concat dotspacemacs-template-directory "dotspacemacs-template.el")
+  "Path to .spacemacs template file.")
 
 (defconst dotspacemacs-test-results-buffer "*dotfile-test-results*"
   "Name of the buffer to display dotfile test results.")
@@ -80,28 +84,6 @@ their configuration.")
 or `spacemacs'."
   '(choice (const spacemacs-base) (const spacemacs))
   'spacemacs-dotspacemacs-layers)
-
-(spacemacs|defc dotspacemacs-enable-emacs-pdumper nil
-  "If non-nil then enable support for the portable dumper. You'll need
-to compile Emacs 27 from source following the instructions in file
-EXPERIMENTAL.org at the root of the git repository."
-  'boolean
-  'spacemacs-dotspacemacs-init)
-
-(spacemacs|defc dotspacemacs-emacs-pdumper-executable-file "emacs"
-  "File path pointing to emacs 27 or later executable."
-  'string
-  'spacemacs-dotspacemacs-init)
-
-(spacemacs|defc dotspacemacs-emacs-dumper-dump-file
-  (format "spacemacs-%s.pdmp" emacs-version)
-  "Name of the Spacemacs dump file. This is the file will be created by the
-portable dumper in the cache directory under dumps sub-directory.
-To load it when starting Emacs add the parameter `--dump-file'
-when invoking Emacs 27.1 executable on the command line, for instance:
-./emacs --dump-file=$HOME/.emacs.d/.cache/dumps/spacemacs-27.1.pdmp"
-  'string
-  'spacemacs-dotspacemacs-init)
 
 (spacemacs|defc dotspacemacs-gc-cons '(100000000 0.1)
   "Set `gc-cons-threshold' and `gc-cons-percentage' when startup finishes.
@@ -235,9 +217,18 @@ Spacemacs buffer."
   'spacemacs-dotspacemacs-init)
 
 (spacemacs|defc dotspacemacs-startup-buffer-show-icons nil
-  "If non-nil, show file icons for entries and headings on spacemacs buffer.
-This has no effect in terminal or if \"all-the-icons\" is not installed."
-  'boolean
+  "If non-nil, show file icons for entries and headings on spacemacs
+buffer, it requires \"nerd-icons\" package been installed.
+
+For graphic frame, it also requires a nerd font been installed (Execute
+the `nerd-icons-install-fonts' to install the font file).
+
+For terminal frame, it requires a nerd font avaliable on Terminal
+(Please make sure your terminal working with nerd font first then try
+this feature).
+
+Set the value to quoted `display-graphic-p' for graphic frame only."
+  '(choice boolean (const all))
   'spacemacs-dotspacemacs-init)
 
 (spacemacs|defc dotspacemacs-scratch-mode 'text-mode
@@ -341,7 +332,7 @@ pressing `<leader> m`. Set it to `nil` to disable it."
   'spacemacs-dotspacemacs-init)
 
 (spacemacs|defc dotspacemacs-major-mode-emacs-leader-key
-  (if window-system "<M-return>" "C-M-m")
+  (if window-system "M-<return>" "C-M-m")
   "Major mode leader key accessible in `emacs state' and `insert state'"
   'string
   'spacemacs-dotspacemacs-init)
@@ -919,9 +910,7 @@ Called with `C-u C-u' skips `dotspacemacs/user-config' _and_ preliminary tests."
                       (dotspacemacs//read-editing-style-config
                        dotspacemacs-editing-style))
                 (dotspacemacs/call-user-env)
-                ;; try to force a redump when reloading the configuration
-                (let ((spacemacs-force-dump t))
-                  (configuration-layer/load))
+                (configuration-layer/load)
                 (if (member arg '((4) (16)))
                     (message (concat "Done (`dotspacemacs/user-config' "
                                      "function has been skipped)."))
@@ -931,9 +920,7 @@ Called with `C-u C-u' skips `dotspacemacs/user-config' _and_ preliminary tests."
                   (message "Done.")))
             (switch-to-buffer-other-window dotspacemacs-test-results-buffer)
             (spacemacs-buffer/warning "Some tests failed, check `%s' buffer"
-                                      dotspacemacs-test-results-buffer))))))
-  (when (configuration-layer/package-used-p 'spaceline)
-    (spacemacs//restore-buffers-powerline)))
+                                      dotspacemacs-test-results-buffer)))))))
 
 (eval-and-compile
   (defun dotspacemacs/get-variable-string-list ()
@@ -959,17 +946,14 @@ If SYMBOL value is `display-graphic-p' then return the result of
   dotspacemacs-filepath)
 
 (defun dotspacemacs/copy-template ()
-  "Copy `.spacemacs.template' in home directory. Ask for confirmation
-before copying the file if the destination already exists."
+  "Copy `dotspacemacs-template.el' to `dotspacemacs-filepath'.
+
+Ask for confirmation before copying the file if the destination already exists."
   (interactive)
-  (let* ((copy? (if (file-exists-p dotspacemacs-filepath)
-                    (y-or-n-p
-                     (format "%s already exists. Do you want to overwrite it ? "
-                             dotspacemacs-filepath)) t)))
-    (when copy?
-      (copy-file (concat dotspacemacs-template-directory ".spacemacs.template")
-                 dotspacemacs-filepath t)
-      (message "%s has been installed." dotspacemacs-filepath))))
+  (copy-file dotspacemacs-template-file dotspacemacs-filepath 1)
+  (message "%s has been installed." dotspacemacs-filepath))
+
+(defvar ido-max-window-height)
 
 (defun dotspacemacs//ido-completing-read (prompt candidates)
   "Call `ido-completing-read' with a CANDIDATES alist where the key is
@@ -1014,9 +998,7 @@ If ARG is non nil then ask questions to the user before installing the dotfile."
                    (,(concat "A minimalist distribution that you can build on "
                              "(spacemacs-base)")
                     spacemacs-base)))))))))
-    (with-current-buffer (find-file-noselect
-                          (concat dotspacemacs-template-directory
-                                  ".spacemacs.template"))
+    (with-current-buffer (find-file-noselect dotspacemacs-template-file)
       (dolist (p preferences)
         (goto-char (point-min))
         (re-search-forward (car p))
@@ -1120,8 +1102,7 @@ If ARG is non nil then ask questions to the user before installing the dotfile."
 Loads default .spacemacs template and suspends pruning of orphan packages.
 Informs users of error and prompts for default editing style for use during
 error recovery."
-  (load (concat dotspacemacs-template-directory
-                ".spacemacs.template"))
+  (load dotspacemacs-template-file)
   (define-advice dotspacemacs/layers (:after (&rest _) error-recover-preserve-packages)
     (setq-default dotspacemacs-install-packages 'used-but-keep-unused)
     (advice-remove 'dotspacemacs/layers #'dotspacemacs/layers@error-recover-preserve-packages))

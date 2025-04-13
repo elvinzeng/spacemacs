@@ -1,6 +1,6 @@
 ;;; packages.el --- Colors Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -43,8 +43,8 @@
     (nyan-mode)
     ;; explicitly re-enable the cat for the first GUI client
     (spacemacs|do-after-display-system-init
-     (nyan-mode -1)
-     (nyan-mode))
+      (nyan-mode -1)
+      (nyan-mode))
 
     (spacemacs|add-toggle nyan-cat-progress-bar
       :mode nyan-mode

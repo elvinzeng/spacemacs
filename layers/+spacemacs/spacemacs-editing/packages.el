@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Editing Layer packages File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -111,21 +111,12 @@
   (use-package dired-quick-sort
     :defer t
     :init
-    (spacemacs|add-transient-hook dired-mode-hook
-      (lambda ()
-        (let ((dired-quick-sort-suppress-setup-warning 'message))
-          (dired-quick-sort-setup))))
+    (define-advice dired-noselect (:before (&rest _) quick-sort-setup)
+      (let ((dired-quick-sort-suppress-setup-warning 'message))
+        (dired-quick-sort-setup))
+      (advice-remove 'dired-noselect 'dired-noselect@quick-sort-setup))
     :config
-    (evil-define-key 'normal dired-mode-map "s" 'hydra-dired-quick-sort/body)
-    ;; workaround for https://gitlab.com/xuhdev/dired-quick-sort/-/issues/14
-    (define-advice dired-sort-toggle (:before ())
-      "Recover `dired-actual-switches' with `dired-listing-switches' when long
-      option \"--sort=...\" exists, and convert \"--sort=time\" to \"-t\"."
-      (when (string-match-p "--sort=" dired-actual-switches)
-        (setq dired-actual-switches
-              (concat dired-listing-switches
-                      (when (string-match-p "--sort=time" dired-actual-switches)
-                        " -t")))))))
+    (evil-define-key 'normal dired-mode-map "s" 'hydra-dired-quick-sort/body)))
 
 (defun spacemacs-editing/init-drag-stuff ()
   (use-package drag-stuff

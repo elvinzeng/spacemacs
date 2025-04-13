@@ -1,6 +1,6 @@
 ;;; core-display-init.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -60,6 +60,7 @@ See `spacemacs|do-after-display-system-init'."
 
 Otherwise, enqueue it until after the first graphical frame is
 created."
+  (declare (indent defun))
   `(spacemacs--call-after-display-system-init (lambda () ,@body)))
 
 (provide 'core-display-init)

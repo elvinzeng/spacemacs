@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Evil Layer packages File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -25,13 +25,14 @@
       '(
         evil-anzu
         evil-args
-        evil-collection
+        (evil-collection :toggle (not (eq dotspacemacs-editing-style 'emacs)))
         evil-cleverparens
         (evil-escape :location (recipe :fetcher github
                                        :repo "smile13241324/evil-escape"))
         evil-exchange
         evil-goggles
-        evil-iedit-state
+        (evil-iedit-state :location (recipe :fetcher github
+                                            :repo "smile13241324/evil-iedit-state"))
         evil-indent-plus
         evil-lion
         evil-lisp-state
@@ -119,10 +120,9 @@
     ;; replace `dired-goto-file' with equivalent helm and ivy functions:
     ;; `spacemacs/helm-find-files' fuzzy matching and other features
     ;; `spacemacs/counsel-find-file' more `M-o' actions
-    (with-eval-after-load 'dired
-      (evil-define-key 'normal dired-mode-map "J"
-        (cond ((configuration-layer/layer-used-p 'helm) 'spacemacs/helm-find-files)
-              ((configuration-layer/layer-used-p 'ivy) 'spacemacs/counsel-find-file))))))
+    (evil-define-key 'normal dired-mode-map "J"
+      (cond ((configuration-layer/layer-used-p 'helm) 'spacemacs/helm-find-files)
+            ((configuration-layer/layer-used-p 'ivy) 'spacemacs/counsel-find-file)))))
 
 (defun spacemacs-evil/init-evil-escape ()
   (use-package evil-escape
@@ -390,24 +390,24 @@
 
 (defun spacemacs-evil/init-vi-tilde-fringe ()
   (spacemacs|do-after-display-system-init
-   (use-package vi-tilde-fringe
-     :init
-     (global-vi-tilde-fringe-mode)
-     (spacemacs|add-toggle vi-tilde-fringe
-       :mode global-vi-tilde-fringe-mode
-       :documentation
-       "Globally display a ~ on empty lines in the fringe."
-       :evil-leader "T~")
-     ;; don't enable it on some special buffers
-     (with-current-buffer spacemacs-buffer-name
-       (spacemacs/disable-vi-tilde-fringe))
-     (add-hook 'which-key-init-buffer-hook 'spacemacs/disable-vi-tilde-fringe)
-     ;; after a major mode is loaded, check if the buffer is read only
-     ;; if so, disable vi-tilde-fringe-mode
-     (add-hook 'after-change-major-mode-hook
-               'spacemacs/disable-vi-tilde-fringe-read-only)
-     ;; TODO move this hook if/when we have a layer for eww
-     (spacemacs/add-to-hooks 'spacemacs/disable-vi-tilde-fringe
-                             '(eww-mode-hook))
-     :config
-     (spacemacs|hide-lighter vi-tilde-fringe-mode))))
+    (use-package vi-tilde-fringe
+      :init
+      (global-vi-tilde-fringe-mode)
+      (spacemacs|add-toggle vi-tilde-fringe
+        :mode global-vi-tilde-fringe-mode
+        :documentation
+        "Globally display a ~ on empty lines in the fringe."
+        :evil-leader "T~")
+      ;; don't enable it on some special buffers
+      (with-current-buffer spacemacs-buffer-name
+        (spacemacs/disable-vi-tilde-fringe))
+      (add-hook 'which-key-init-buffer-hook 'spacemacs/disable-vi-tilde-fringe)
+      ;; after a major mode is loaded, check if the buffer is read only
+      ;; if so, disable vi-tilde-fringe-mode
+      (add-hook 'after-change-major-mode-hook
+                'spacemacs/disable-vi-tilde-fringe-read-only)
+      ;; TODO move this hook if/when we have a layer for eww
+      (spacemacs/add-to-hooks 'spacemacs/disable-vi-tilde-fringe
+                              '(eww-mode-hook))
+      :config
+      (spacemacs|hide-lighter vi-tilde-fringe-mode))))

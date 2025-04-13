@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs UI Visual Layer packages File
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -28,6 +28,7 @@
         desktop
         (display-fill-column-indicator :location built-in)
         hl-todo
+        nerd-icons
         popup
         popwin
         posframe
@@ -71,6 +72,10 @@
     ;; global hook activates hl-todo-mode for prog-mode, text-mode
     ;; mode can be explicitly defined using hl-todo-activate-in-modes variable
     (global-hl-todo-mode 1)))
+
+(defun spacemacs-visual/init-nerd-icons ()
+  (use-package nerd-icons
+    :defer t))
 
 (defun spacemacs-visual/init-popup ())
 
@@ -132,5 +137,5 @@
     (spacemacs/set-leader-keys "zf" 'spacemacs/zoom-frm-transient-state/body)
 
     ;; Font size, either with ctrl + mouse wheel
-    (global-set-key (kbd "<C-wheel-up>") 'spacemacs/zoom-frm-in)
-    (global-set-key (kbd "<C-wheel-down>") 'spacemacs/zoom-frm-out)))
+    (global-set-key (kbd "C-<wheel-up>") 'spacemacs/zoom-frm-in)
+    (global-set-key (kbd "C-<wheel-down>") 'spacemacs/zoom-frm-out)))
