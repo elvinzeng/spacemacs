@@ -1,4 +1,4 @@
-;;; packages.el --- Auto-completion Layer packages File for Spacemacs
+;;; packages.el --- Auto-completion Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -249,10 +249,7 @@
           ;; unique.
           try-complete-lisp-symbol-partially
           ;; Try to complete word as an Emacs Lisp symbol.
-          try-complete-lisp-symbol))
-  (when (configuration-layer/package-used-p 'yasnippet)
-    ;; Try to expand yasnippet snippets based on prefix
-    (add-to-list 'hippie-expand-try-functions-list 'yas-hippie-try-expand)))
+          try-complete-lisp-symbol)))
 
 (defun auto-completion/init-ivy-yasnippet ()
   (use-package ivy-yasnippet
@@ -305,7 +302,8 @@
       ;; ~/.emacs.d/layers/auto-completion/snippets
       (add-to-list 'yas-snippet-dirs spacemacs-layer-snippets-dir)
       ;; ~/.emacs.d/private/snippets
-      (add-to-list 'yas-snippet-dirs emacs-directory-snippets-dir)
+      (when (file-exists-p emacs-directory-snippets-dir)
+        (add-to-list 'yas-snippet-dirs emacs-directory-snippets-dir))
       ;; ~/.spacemacs.d/snippets
       (when dotspacemacs-directory-snippets-dir
         (add-to-list 'yas-snippet-dirs dotspacemacs-directory-snippets-dir))
@@ -326,6 +324,9 @@
                                                         markdown-mode-hook
                                                         org-mode-hook))
 
-    :config (spacemacs|diminish yas-minor-mode " ⓨ" " y")))
+    :config
+    (spacemacs|diminish yas-minor-mode " ⓨ" " y")
+    ;; Try to expand yasnippet snippets based on prefix
+    (add-to-list 'hippie-expand-try-functions-list 'yas-hippie-try-expand)))
 
 (defun auto-completion/init-yasnippet-snippets ())

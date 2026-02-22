@@ -1,4 +1,4 @@
-;;; config.el --- Python Layer Configuration File for Spacemacs
+;;; config.el --- Python Layer Configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -89,8 +89,20 @@ Possible values are `on-visit', `on-project-switch' or `nil'.")
   "If non-nil, automatically sort imports on save.")
 (put 'python-sort-imports-on-save 'safe-local-variable 'booleanp)
 
+(defvar python-virtualenv-management 'pyvenv
+  "The management backend for virtualenv, Possible value is `pet' or `pyvenv'")
+
 (defvar python-enable-importmagic nil
   "If non-nil, enable the importmagic feature.")
+
+(defvar python-enable-tools '(pip pipenv poetry)
+  "List of Python package management tools to enable in Spacemacs.
+
+Possible values:
+- `pip`: Enable pip package management functionality
+- `pipenv`: Enable pipenv virtual environment and package management
+- `poetry`: Enable Poetry package and dependency management
+- `uv`: Enable uv package and dependency management")
 
 (defvar spacemacs--python-pyenv-modes nil
   "List of major modes where to add pyenv support.")

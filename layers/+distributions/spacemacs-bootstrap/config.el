@@ -1,4 +1,4 @@
-;;; config.el --- Spacemacs Bootstrap Layer configuration File
+;;; config.el --- Spacemacs Bootstrap Layer configuration File  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -59,29 +59,21 @@ to a major mode, a list of such symbols, or the symbol t,
 acting as default. The values are either integers, symbols
 or lists of these.")
 
-(defvar vim-style-remap-Y-to-y$
-  (spacemacs|dotspacemacs-backward-compatibility
-   dotspacemacs-remap-Y-to-y$ nil)
+(defvar vim-style-remap-Y-to-y$ nil
   "If non nil `Y' is remapped to `y$' in Evil states.")
 
-(defvar vim-style-retain-visual-state-on-shift
-  (spacemacs|dotspacemacs-backward-compatibility
-   dotspacemacs-retain-visual-state-on-shift t)
+(defvar vim-style-retain-visual-state-on-shift t
   "If non-nil, the shift mappings `<' and `>' retain visual state
 if used there.")
 
-(defvar vim-style-visual-line-move-text
-  (spacemacs|dotspacemacs-backward-compatibility
-   dotspacemacs-visual-line-move-text nil)
+(defvar vim-style-visual-line-move-text nil
   "If non-nil, J and K move lines up and down when in visual mode.")
 
 (defvar vim-style-enable-undo-region nil
   "If non-nil, `u' is remapped to `undo' in visual state.
 Otherwise, in visual state `u' downcases visually selected text.")
 
-(defvar vim-style-ex-substitute-global
-  (spacemacs|dotspacemacs-backward-compatibility
-   dotspacemacs-ex-substitute-global nil)
+(defvar vim-style-ex-substitute-global nil
   "If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command.")
 
 ;; State cursors
@@ -91,10 +83,10 @@ Otherwise, in visual state `u' downcases visually selected text.")
                                  ("hybrid" "SkyBlue2" (bar . 2))
                                  ("replace" "chocolate" (hbar . 2))
                                  ("evilified" "LightGoldenrod3" box)
-                                 ("visual" "gray" (hbar . 2))
+                                 ("visual" "SteelBlue3" (hbar . 2))
                                  ("motion" "plum3" box)
                                  ("lisp" "HotPink1" box)
                                  ("iedit" "firebrick1" box)
                                  ("iedit-insert" "firebrick1" (bar . 2)))
   "Colors assigned to evil states with cursor definitions.
-To add your own, use `spacemacs/add-evil-curosr'.")
+To add your own, use `spacemacs/add-evil-cursor'.")

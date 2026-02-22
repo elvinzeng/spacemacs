@@ -1,4 +1,4 @@
-;;; keybindings.el --- Version control keybindings
+;;; keybindings.el --- Version control keybindings  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -40,8 +40,8 @@
   ("c" magit-commit :exit t)
   ("f" magit-fetch :exit t)
   ("l" magit-log :exit t)
-  ("u" magit-unstage-file)
-  ("w" magit-stage-file)
+  ("u" magit-unstage-files)
+  ("w" magit-stage-files)
   ("n" spacemacs/vcs-next-hunk)
   ("N" spacemacs/vcs-previous-hunk)
   ("p" spacemacs/vcs-previous-hunk)

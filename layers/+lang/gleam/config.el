@@ -1,4 +1,4 @@
-;;; config.el --- Gleam layer config file for Spacemacs
+;;; config.el --- Gleam layer config file for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -21,7 +21,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(spacemacs|define-jump-handlers gleam-mode)
+(spacemacs|define-jump-handlers gleam-ts-mode)
 
 (defvar gleam-format-on-save nil
   "If non-nil, automatically run gleam-format before save. Default is nil.")

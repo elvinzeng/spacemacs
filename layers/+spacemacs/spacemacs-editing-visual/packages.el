@@ -1,4 +1,4 @@
-;;; packages.el --- Spacemacs Editing Visual Layer packages File
+;;; packages.el --- Spacemacs Editing Visual Layer packages File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -40,6 +40,7 @@
 
 (defun spacemacs-editing-visual/init-column-enforce-mode ()
   (use-package column-enforce-mode
+    :defer t
     :init
     (spacemacs|add-toggle highlight-long-lines
       :status column-enforce-mode

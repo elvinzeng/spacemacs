@@ -1,4 +1,4 @@
-;;; config.el --- Helm Configuration File for Spacemacs
+;;; config.el --- Helm Configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -30,16 +30,12 @@
 
 ;; TODO: remove dotspacemacs variables backward compatbility in version
 ;;       0.400 or later
-(defvar helm-no-header (spacemacs|dotspacemacs-backward-compatibility
-                        dotspacemacs-helm-no-header nil)
+(defvar helm-no-header nil
   "if non nil, the helm header is hidden when there is only one source.")
 
-(defvar helm-position (spacemacs|dotspacemacs-backward-compatibility
-                       dotspacemacs-helm-position bottom)
+(defvar helm-position 'bottom
   "Position in which to show the `helm' mini-buffer.")
 
-(defvar helm-use-posframe nil
-  "Use helm-posframe to display completions in a separate frame")
 
 (defvar spacemacs-helm-rg-max-column-number 512
   "Controls the maximum number of columns to display with ripgrep (otherwise

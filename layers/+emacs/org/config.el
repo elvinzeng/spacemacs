@@ -1,4 +1,4 @@
-;;; config.el --- Org configuration File for Spacemacs
+;;; config.el --- Org configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -32,6 +32,9 @@
 (defvar org-enable-github-support nil
   "If non-nil GitHub related packages are configured.")
 
+(defvar org-enable-mermaid-support nil
+  "If non-nil, enable support for Mermaid source blocks via ob-mermaid.")
+
 (defvar org-enable-reveal-js-support nil
   "If non-nil, enable export to reveal.js.")
 
@@ -42,7 +45,7 @@ the project root). If it an absolute path, one global file is
 used.")
 
 (defvar org-enable-notifications nil
-  "If non-nil org-wild-notifier is configured.")
+  "If non-nil org-alert is configured.")
 
 (defvar org-start-notification-daemon-on-startup nil
   "If non-nil start the notification daemon on startup.")

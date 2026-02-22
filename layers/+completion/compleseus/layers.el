@@ -1,4 +1,4 @@
-;;; layers.el --- compleseus layers File for Spacemacs
+;;; layers.el --- compleseus layers File for Spacemacs  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;

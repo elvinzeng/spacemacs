@@ -1,4 +1,4 @@
-;;; packages.el --- Spacemacs Defaults Layer packages File
+;;; packages.el --- Spacemacs Defaults Layer packages File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -42,7 +42,7 @@
     (image-mode :location built-in)
     (imenu :location built-in)
     (package-menu :location built-in)
-    (page-break-lines :location local)
+    page-break-lines
     quickrun
     (recentf :location built-in)
     (savehist :location built-in)
@@ -353,9 +353,11 @@
     :mode package-menu-mode))
 
 (defun spacemacs-defaults/init-page-break-lines ()
-  (require 'page-break-lines)
-  (global-page-break-lines-mode t)
-  (spacemacs|hide-lighter page-break-lines-mode))
+  (use-package page-break-lines
+    :init (global-page-break-lines-mode t)
+    :config
+    (spacemacs|hide-lighter page-break-lines-mode)
+    (add-to-list 'page-break-lines-modes 'spacemacs-buffer-mode)))
 
 (defun spacemacs-defaults/init-quickrun ()
   (use-package quickrun
@@ -388,7 +390,15 @@
     (add-to-list 'recentf-exclude (recentf-expand-file-name package-user-dir))
     (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
     (when custom-file
-      (add-to-list 'recentf-exclude (recentf-expand-file-name custom-file)))))
+      (add-to-list 'recentf-exclude (recentf-expand-file-name custom-file)))
+    (define-advice recentf-include-p (:around (ofun &rest args) not-modified)
+      "Check the `spacemacs-recentf-exclude-not-modified' to exclude the
+un-modified buffer for recentf."
+      (if (let ((recentf-exclude spacemacs-recentf-exclude-not-modified))
+            (apply ofun args))
+          (apply ofun args)
+        (when (buffer-modified-p)
+          (apply ofun args))))))
 
 (defun spacemacs-defaults/init-savehist ()
   (use-package savehist

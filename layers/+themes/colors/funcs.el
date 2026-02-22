@@ -1,4 +1,4 @@
-;;; funcs.el --- Colors Layer functions File
+;;; funcs.el --- Colors Layer functions File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -32,7 +32,7 @@
 (defun colors//rainbow-identifiers-ignore-keywords ()
   "Do not colorize stuff with ‘font-lock-keyword-face’."
   (setq-local rainbow-identifiers-faces-to-override
-              (delq 'font-lock-keyword-face
+              (remq 'font-lock-keyword-face
                     rainbow-identifiers-faces-to-override)))
 
 (defun colors//tweak-theme-colors ()

@@ -1,4 +1,4 @@
-;;; packages.el --- Ivy Layer packages File
+;;; packages.el --- Ivy Layer packages File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -45,7 +45,7 @@
         persp-mode
         projectile
         recentf
-        smex
+        amx
         swiper
         wgrep
         ))
@@ -135,13 +135,7 @@
       "srf" 'spacemacs/search-rg
       "srF" 'spacemacs/search-rg-region-or-symbol
       "srp" 'spacemacs/search-project-rg
-      "srP" 'spacemacs/search-project-rg-region-or-symbol
-      "std" 'spacemacs/search-dir-pt
-      "stD" 'spacemacs/search-dir-pt-region-or-symbol
-      "stf" 'spacemacs/search-pt
-      "stF" 'spacemacs/search-pt-region-or-symbol
-      "stp" 'spacemacs/search-project-pt
-      "stP" 'spacemacs/search-project-pt-region-or-symbol)
+      "srP" 'spacemacs/search-project-rg-region-or-symbol)
     :config
     ;; Temporarily handle older versions of ivy
     ;; https://github.com/abo-abo/swiper/pull/1863/files
@@ -240,7 +234,7 @@
     ;; Moved C-k to C-M-k
     (define-key ivy-switch-buffer-map (kbd "C-M-k") 'ivy-switch-buffer-kill)
     (define-key ivy-reverse-i-search-map
-      (kbd "C-M-k") 'ivy-reverse-i-search-kill)
+                (kbd "C-M-k") 'ivy-reverse-i-search-kill)
     :config
     ;; custom actions for recentf
     (ivy-set-actions
@@ -400,10 +394,14 @@
   ;; merge recentf and bookmarks into buffer switching. If we set this
   (setq ivy-use-virtual-buffers t))
 
-(defun ivy/init-smex ()
-  (use-package smex
+(defun ivy/init-amx ()
+  (use-package amx
     :defer t
-    :init (setq-default smex-history-length 32
+    :init (setq-default amx-history-length 32
+                        amx-save-file (concat spacemacs-cache-directory
+                                              ".amx-items")
+                        ;; Set `smex-save-file' so that `amx' can migrate any
+                        ;; existing history.  See `amx-load-save-file'.
                         smex-save-file (concat spacemacs-cache-directory
                                                ".smex-items"))))
 
@@ -415,7 +413,11 @@
       "sS" 'swiper-thing-at-point
       "sb" 'swiper-all
       "sB" 'swiper-all-thing-at-point)
-    (global-set-key "\C-s" 'swiper)))
+    (global-set-key (kbd "C-s") 'swiper)
+    ;; isearch has special functionality to search a manual's full text, in
+    ;; Info-mode.
+    (with-eval-after-load 'info
+      (define-key Info-mode-map (kbd "C-s") 'isearch-forward))))
 
 (defun ivy/post-init-wgrep ()
   (spacemacs/set-leader-keys-for-major-mode 'ivy-occur-grep-mode

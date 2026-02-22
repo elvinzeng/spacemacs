@@ -23,7 +23,7 @@
 TEST_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 LOAD_FILES = init.el
-UNIT_TEST_FILES =
-FUNC_TEST_FILES =
+UNIT_TEST_FILES = $(wildcard *-utest.el)
+FUNC_TEST_FILES = $(wildcard *-ftest.el)
 
 include ../../../../spacemacs.mk

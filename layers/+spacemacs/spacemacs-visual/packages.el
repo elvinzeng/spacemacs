@@ -1,4 +1,4 @@
-;;; packages.el --- Spacemacs UI Visual Layer packages File
+;;; packages.el --- Spacemacs UI Visual Layer packages File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -28,7 +28,7 @@
         desktop
         (display-fill-column-indicator :location built-in)
         hl-todo
-        nerd-icons
+        (nerd-icons :toggle (eq dotspacemacs-default-icons-font 'nerd-icons))
         popup
         popwin
         posframe

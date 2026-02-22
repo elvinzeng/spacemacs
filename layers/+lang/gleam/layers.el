@@ -1,4 +1,4 @@
-;;; layers.el --- Gleam layer layers file for Spacemacs.
+;;; layers.el --- Gleam layer layers file for Spacemacs.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -22,5 +22,5 @@
 
 
 (configuration-layer/declare-layer-dependencies
-  (append '(tree-sitter)
+ (append '(tree-sitter)
          (if (and (boundp 'gleam-enable-lsp) gleam-enable-lsp) '(lsp) '())))

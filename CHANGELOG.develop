@@ -330,6 +330,8 @@ In org-agenda-mode
   - Changed ~SPC m s r~ to ~SPC m e r~ for =lisp-eval-region=
 - Hy support has been extracted from the =python= layer into the new =hy= layer.
 - Made =nose= fail compilation when tests fail (thanks to wizmer)
+***** Restructuredtext
+- Migrate from auto-complete to company for auto completion.
 ***** Ruby
 - Key bindings:
   - Changed ~SPC m h d~ to ~SPC m h h~ for =robe-doc= (thanks to Paweł Siudak)
@@ -468,6 +470,7 @@ both Racer and RLS not being maintained anymore.
 **** Misc
 - tree-sitter
 - copy-as-format (thanks to Ruslan Kamashev)
+- denote (thanks to Choan Gálvez)
 - dtrt-indent (thanks to Kevin Doherty)
 - ietf (thanks to Christian Hopps and Robby O'Connor)
 - multiple-cursors (thanks to Codruț Constantin Gușoi and Thomas de Beauchêne)
@@ -493,6 +496,7 @@ both Racer and RLS not being maintained anymore.
 - cmake (thanks to Alexander Dalshov, Sylvain Benner and Jonas Jelten)
 - dap (thanks to Ivan Yonchovski)
 - debug (thanks to Hodge Shen, Troy Hinckley, and Sylvain Benner)
+- dirvish integration in ranger (thanks to Jaehyun Yeom)
 - dotnet (thanks to Jordan Kaye)
 - eaf (thanks to Daniel Nicolai)
 - import-js (thanks to Thanh Vuong and Seong Yong-ju)
@@ -522,6 +526,7 @@ both Racer and RLS not being maintained anymore.
 - twitch
 - openai (thanks to Hendrik Rommeswinkel)
 *** Renamed layers
+- =smex= renamed to =amx= (thanks to Lin Sun)
 - =extra-langs= renamed to =major-modes= (thanks to Eivind Fonn)
 - =pdf-tools= renamed to =pdf=
 - =mercury-layer= renamed to =mercury=
@@ -2987,7 +2992,7 @@ files (thanks to Daniel Nicolai)
   - Added package =org-roam= (thanks to Mariusz Klochowicz)
   - Added package =org-contacts= (thanks to Daniel Nicolai)
   - Added package =org-appear= (thanks to winsphinX)
-  - Added package =org-wild-notifier= (thanks to Daniel Nicolai)
+  - Added package =org-alert= (thanks to cmonkey)
   - Added package =org-roam-ui= (thanks to winsphinX)
 - Key bindings:
   - ~SPC m s y~ for =org-copy-subtree= (thanks to Keith Pinson)

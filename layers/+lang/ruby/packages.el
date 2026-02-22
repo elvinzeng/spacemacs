@@ -1,4 +1,4 @@
-;;; packages.el --- Ruby Layer packages File for Spacemacs
+;;; packages.el --- Ruby Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -24,7 +24,9 @@
 (defconst ruby-packages
   '(
     add-node-modules-path
-    bundler
+    (bundler :location (recipe
+                        :fetcher github
+                        :repo "emacsattic/bundler"))
     (chruby :toggle (eq ruby-version-manager 'chruby))
     company
     dap-mode

@@ -1,4 +1,4 @@
-;;; funcs.el --- Spacemacs Mode-line Layer functions File
+;;; funcs.el --- Spacemacs Mode-line Layer functions File  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -48,6 +48,26 @@ Return nil if no scale is defined."
       (plist-get (cdr dotspacemacs-mode-line-theme) :separator-scale))))
 
 
+;; vanilla mode line
+
+(defun spacemacs//colorize-evil-mode-line-tag (orig &optional state &rest args)
+  "Colorize the mode line tag for an evil state using the spacemacs-*-face faces.
+
+This function is suitable for being added as :around advice to
+`evil-generate-mode-line-tag'."
+  ;; This advice is needed to run as late as possible, because unfortunately
+  ;; there's no good way to reliably add faces to the tag strings.  For example,
+  ;; `spacemacs/define-evil-state-face' may in general be called before
+  ;; `evil-define-state' (such as for hybrid state) so we cannot yet mutate
+  ;; the tag strings at that time.
+  (let ((tag (apply orig state args)))
+    (if-let* (((stringp tag))
+              (face (spacemacs/state-face state))
+              ((facep face)))
+        (propertize tag 'face face)
+      tag)))
+
+
 ;; spaceline
 
 (defun spacemacs//enable-spaceline-p ()
@@ -78,10 +98,6 @@ Return nil if no scale is defined."
     (set-face-attribute 'powerline-inactive2 nil
                         :inherit 'font-lock-comment-face)))
 
-(defun spacemacs//evil-state-face ()
-  (let ((state (if (eq 'operator evil-state) evil-previous-state evil-state)))
-    (intern (format "spacemacs-%S-face" state))))
-
 (defun spacemacs//restore-buffers-powerline ()
   "Restore the powerline in the buffers.
 Excluding which-key."
@@ -100,7 +116,7 @@ Excluding which-key."
                  #'spacemacs//restore-buffers-powerline)))
 
 (defun spacemacs//prepare-diminish ()
-  (when spaceline-minor-modes-p
+  (when (bound-and-true-p spaceline-minor-modes-p)
     (let ((unicodep (dotspacemacs|symbol-value
                      dotspacemacs-mode-line-unicode-symbols)))
       (setq spaceline-minor-modes-separator

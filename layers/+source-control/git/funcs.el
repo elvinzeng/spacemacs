@@ -1,4 +1,4 @@
-;;; funcs.el --- Colors Layer functions File
+;;; funcs.el --- Colors Layer functions File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -23,6 +23,11 @@
 
 
 ;; magit
+
+(defun spacemacs/magit-status ()
+  "Show the `magit-status' of the Spacemacs directory."
+  (interactive)
+  (magit-status spacemacs-start-directory))
 
 (defun spacemacs/magit-toggle-whitespace ()
   "Toggle whitespace in `magit-diff-mode'."

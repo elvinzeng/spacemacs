@@ -1,4 +1,4 @@
-;;; packages.el --- Spacemacs Mode-line Visual Layer packages File
+;;; packages.el --- Spacemacs Mode-line Visual Layer packages File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -24,6 +24,7 @@
 (setq spacemacs-modeline-packages
       '(
         (doom-modeline :toggle (eq (spacemacs/get-mode-line-theme-name) 'doom))
+        evil
         fancy-battery
         (spaceline :toggle (spacemacs//enable-spaceline-p))
         (spaceline-all-the-icons :toggle (eq (spacemacs/get-mode-line-theme-name) 'all-the-icons))
@@ -36,6 +37,9 @@
   (use-package doom-modeline
     :defer t
     :init (doom-modeline-mode)))
+
+(defun spacemacs-modeline/post-init-evil ()
+  (advice-add 'evil-generate-mode-line-tag :around #'spacemacs//colorize-evil-mode-line-tag))
 
 (defun spacemacs-modeline/init-fancy-battery ()
   (use-package fancy-battery
@@ -93,7 +97,7 @@
     :config
     (spacemacs/customize-powerline-faces)
     (setq spaceline-org-clock-p nil
-          spaceline-highlight-face-func 'spacemacs//evil-state-face)
+          spaceline-highlight-face-func 'spacemacs/current-state-face)
     ;; unicode
     (let ((unicodep (dotspacemacs|symbol-value
                      dotspacemacs-mode-line-unicode-symbols)))
@@ -142,7 +146,7 @@
 
 (defun spacemacs-modeline/pre-init-spaceline-all-the-icons ()
   (when (eq 'all-the-icons (spacemacs/get-mode-line-theme-name))
-    (spacemacs|use-package-add-hook spaceline-config
+    (spacemacs|use-package-add-hook spaceline
       :pre-config
       (progn
         (require 'spaceline-all-the-icons)

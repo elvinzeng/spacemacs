@@ -1,4 +1,4 @@
-;;; config.el --- elfeed Layer configuration File for Spacemacs
+;;; config.el --- elfeed Layer configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -23,7 +23,5 @@
 
 ;;; Variables
 
-(defvar elfeed-enable-web-interface nil
-  "If non nil start a web server to consult the database in a web browser.")
 (defvar elfeed-enable-goodies t
   "If non nil enable elfeed-goodies (split-pane...).")

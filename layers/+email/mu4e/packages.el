@@ -1,4 +1,4 @@
-;;; packages.el --- mu4e Layer packages File for Spacemacs
+;;; packages.el --- mu4e Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -52,14 +52,13 @@
   ;; Some distributions do not construct the initial Emacs load paths properly
   ;; so that packages are included in `package-directory-list' and thereby
   ;; activated at startup.  To avoid breakage, now that Spacemacs defers loading
-  ;; mu4e, load `mu4e-autoloads' explicitly and issue a warning.
+  ;; mu4e, load `mu4e-autoloads' explicitly.
   ;;
   ;; See https://github.com/syl20bnr/spacemacs/issues/16931
-  (unless (featurep 'mu4e-autoloads)
-    (spacemacs-buffer/warning "`mu4e-autoloads' was not provided at startup.  Please ensure `mu4e' is installed and activated correctly.
-
-See https://github.com/syl20bnr/spacemacs/issues/16931#issuecomment-2767608202.")
-    (require 'mu4e-autoloads))
+  (condition-case _
+      (require 'mu4e-autoloads)
+    (error
+     (spacemacs-buffer/error "Could not activate `mu4e'.  It is a site package and must be installed with your Emacs distribution")))
   (use-package mu4e
     :defer t
     :init

@@ -1,4 +1,4 @@
-;;; packages.el --- Org Layer packages File for Spacemacs
+;;; packages.el --- Org Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -33,9 +33,10 @@
     htmlize
     ;; ob, org, org-agenda and org-contacts are installed by `org-contrib'
     (ob :location built-in)
-    (org :location elpa :min-version "9.7.8")
+    (ob-mermaid :toggle org-enable-mermaid-support)
+    (org :location elpa)
     (org-agenda :location built-in)
-    (org-wild-notifier :toggle org-enable-notifications)
+    (org-alert  :toggle org-enable-notifications)
     (org-contacts :toggle org-enable-org-contacts-support)
     org-contrib
     (org-vcard :toggle org-enable-org-contacts-support)
@@ -121,6 +122,13 @@
                      'org-babel-execute-src-block@load-lang))
     ;; Fix redisplay of inline images after a code block evaluation.
     (add-hook 'org-babel-after-execute-hook 'spacemacs/ob-fix-inline-images)))
+
+(defun org/init-ob-mermaid ()
+  (use-package ob-mermaid
+    :defer t
+    :init
+    (spacemacs|use-package-add-hook org
+      :post-config (add-to-list 'org-babel-load-languages '(mermaid . t)))))
 
 (defun org/init-org ()
   (use-package org
@@ -598,6 +606,19 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (use-package org-contacts))
     (evilified-state-evilify-map org-agenda-mode-map
       :mode org-agenda-mode
+      :pre-bindings
+      ;; Remove some key bindings that cannot be evilified.  These commands are
+      ;; bound to other keys, below.
+      ;;
+      ;; `org-agenda-filter-remove-all' is not bound (`org-agenda-set-tags' is
+      ;; bound to ":", which is mapped to "|")
+      ;;
+      ;; `org-agenda-filter-by-tag' is not bound, but "\\" is bound to
+      ;; `org-agenda-filter' instead, which is a good enough substitute.
+      (kbd "C-n") nil                   ;`org-agenda-next-line'
+      "G" nil                           ;`org-agenda-toggle-time-grid'
+      "|" nil                           ;`org-agenda-filter-remove-all'
+      "\\" nil                          ;`org-agenda-filter-by-tag'
       :bindings
       "j" 'org-agenda-next-line
       "k" 'org-agenda-previous-line
@@ -616,12 +637,13 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (kbd "M-SPC") 'spacemacs/org-agenda-transient-state/body
       (kbd "s-M-SPC") 'spacemacs/org-agenda-transient-state/body)))
 
-(defun org/init-org-wild-notifier ()
-  (use-package org-wild-notifier
+(defun org/init-org-alert ()
+  (use-package org-alert
     :defer t
     :init
     (when org-start-notification-daemon-on-startup
-      (org-wild-notifier-mode))))
+      (spacemacs/defer-until-after-user-config #'org-alert-enable))
+    :commands (org-alert-check org-alert-enable org-alert-disable)))
 
 (defun org/init-org-brain ()
   (use-package org-brain

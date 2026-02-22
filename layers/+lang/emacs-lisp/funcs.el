@@ -1,4 +1,4 @@
-;;; funcs.el --- Emacs Lisp functions File
+;;; funcs.el --- Emacs Lisp functions File  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -163,9 +163,12 @@ Intended for use in mode hooks."
 ;; ERT commands
 
 (defun spacemacs//find-ert-test-buffer (ert-test)
-  "Return the buffer where ERT-TEST is defined."
-  (save-excursion
-    (car (find-definition-noselect (ert-test-name ert-test) 'ert-deftest))))
+  "Return the buffer where ERT-TEST is defined.
+
+Return nil rather than erroring, if the buffer containing the test's
+definition is unknown."
+  (ignore-errors
+    (car (find-definition-noselect (ert-test-name ert-test) 'ert--test))))
 
 (defun spacemacs/ert-run-tests-buffer ()
   "Run all the tests in the current buffer."

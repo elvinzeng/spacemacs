@@ -26,6 +26,13 @@
 (defmacro spacemacs|dotspacemacs-backward-compatibility (variable default)
   "Return `if' sexp for backward compatibility with old dotspacemacs
 values."
+  (declare (obsolete nil "The `spacemacs|dotspacemacs-backward-compatibility' macro will be removed after 2025.
+Please reinstall the package which relies on this macro (such as `hybrid-mode')"))
+  ;; Display a warning in addition to the obsolete declaration.  This macro is
+  ;; used in autoload forms in `hybrid-mode' which are interpreted (not
+  ;; byte-compiled).
+  (warn "The `spacemacs|dotspacemacs-backward-compatibility' macro will be removed after 2025.
+Please reinstall the package which relies on this macro (such as `hybrid-mode')")
   `(if (boundp ',variable) ,variable ',default))
 
 (defun spacemacs/system-is-mac ()
@@ -96,10 +103,15 @@ and its values are removed."
 
 ;; Originally based on https://stackoverflow.com/a/2322164
 (defun spacemacs/dump-vars-to-file (varlist filename)
-  "simplistic dumping of variables in VARLIST to a file FILENAME"
-  (with-temp-file filename
-    (spacemacs/dump-vars varlist (current-buffer))
-    (make-directory (file-name-directory filename) t)))
+  "Simplistic dumping of variables in VARLIST to a file FILENAME."
+  ;; Write even when the file is locked by another Emacs.  Don't bother to
+  ;; prompt the user.
+  (cl-letf (((symbol-function #'ask-user-about-lock) #'always))
+    (with-temp-file filename
+      (spacemacs/dump-vars varlist (current-buffer))
+      (delay-mode-hooks (emacs-lisp-mode))
+      (elisp-enable-lexical-binding)
+      (make-directory (file-name-directory filename) t))))
 
 ;; From https://stackoverflow.com/a/2322164
 (defun spacemacs/dump-vars (varlist buffer)
@@ -217,7 +229,7 @@ passed-tests and total-tests."
         (var-val (symbol-value var)))
     (when (boundp 'total-tests) (setq total-tests (1+ total-tests)))
     (insert (format "** TEST: [[file:%s::%s][%s]] %s\n"
-                    dotspacemacs-filepath var-name var-name test-desc))
+                    (dotspacemacs/location) var-name var-name test-desc))
     (if (funcall pred var-val)
         (progn
           (when (boundp 'passed-tests) (setq passed-tests (1+ passed-tests)))
@@ -232,10 +244,10 @@ result, incrementing passed-tests and total-tests."
         (varlist-val (symbol-value varlist)))
     (if element-desc
         (insert (format "** TEST: Each %s in [[file:%s::%s][%s]] %s\n"
-                        element-desc dotspacemacs-filepath varlist-name
+                        element-desc (dotspacemacs/location) varlist-name
                         varlist-name test-desc))
       (insert (format "** TEST: Each element of [[file:%s::%s][%s]] %s\n"
-                      dotspacemacs-filepath varlist-name varlist-name
+                      (dotspacemacs/location) varlist-name varlist-name
                       test-desc)))
     (dolist (var varlist-val)
       (when (boundp 'total-tests) (setq total-tests (1+ total-tests)))
@@ -321,39 +333,34 @@ buffer."
 
 (define-obsolete-function-alias 'spacemacs/derived-mode-p 'provided-mode-derived-p "2024-06")
 
+(defun spacemacs//alternate-buffer-skip (_window buffer _bury-or-kill)
+  "For use as `switch-to-prev-buffer-skip' in `spacemacs/alternate-buffer'."
+  (or (and (bound-and-true-p spacemacs-useful-buffers-restrict-spc-tab)
+           (spacemacs/useless-buffer-p buffer))
+      (and (bound-and-true-p spacemacs-layouts-restrict-spc-tab)
+           (not (member buffer (persp-buffer-list))))))
+
 (defun spacemacs/alternate-buffer (&optional window)
   "Switch back and forth between current and last buffer in WINDOW.
 
-WINDOW defaults to the selected window.
+If `spacemacs-useful-buffers-restrict-spc-tab' is non-nil, then this
+only switches to useful buffers, see `spacemacs-useful-buffers-regexp'.
+Additionally, if `spacemacs-layouts-restrict-spc-tab' is non-nil, then
+this only switches to the current layout's buffers.
 
-If `spacemacs-layouts-restrict-spc-tab' is non-nil, then this
-only switches between the current layout's buffers."
+The optional WINDOW parameter for non-interactive calls is deprecated.
+Instead, use `with-selected-window'."
+  (declare (advertised-calling-convention () "2025-10"))
   (interactive)
-  (cl-destructuring-bind (buf start pos)
-      (let ((my-buffer (window-buffer window))
-            (usefulp (if (bound-and-true-p spacemacs-useful-buffers-restrict-spc-tab)
-                         (symbol-function 'spacemacs/useful-buffer-p)
-                       #'always))
-            (predicate #'always)
-            (default (list (other-buffer) nil nil)))
-
-        (when (bound-and-true-p spacemacs-layouts-restrict-spc-tab)
-          (let ((buffer-list (persp-buffer-list)))
-            ;; find buffer of the same persp in window, and don't try
-            ;; `other-buffer'
-            (setq predicate (lambda (buffer) (member buffer buffer-list))
-                  default (list nil nil nil))))
-
-        (seq-find (lambda (it)
-                    (let ((buffer (car it)))
-                      (and (not (eq buffer my-buffer))
-                           (funcall usefulp buffer)
-                           (funcall predicate buffer))))
-                  (window-prev-buffers window)
-                  default))
-    (if (not buf)
-        (message "Last buffer not found.")
-      (set-window-buffer-start-and-point window buf start pos))))
+  (when window
+    (lwarn '(spacemacs core-funcs)
+           :warning
+           "The WINDOW argument to `spacemacs/alternate-buffer' is deprecated."))
+  (let ((switch-to-prev-buffer-skip #'spacemacs//alternate-buffer-skip))
+    (with-selected-window (or window (selected-window))
+      (set-window-next-buffers nil nil)
+      (previous-buffer)
+      (set-window-next-buffers nil nil))))
 
 (defun spacemacs/alternate-window ()
   "Switch back and forth between current and last window in the
