@@ -6,7 +6,9 @@
 /*.zip
 .DS_Store
 .ac-php-conf.json
+.aider.*
 .cache
+.claude*
 .dap-breakpoints
 .directory
 .emacs.desktop
@@ -31,6 +33,7 @@
 /recentf~
 /session.*
 /srecode-map.el
+/tree-sitter
 \#*
 ac-comphist.dat
 auto-save-list/

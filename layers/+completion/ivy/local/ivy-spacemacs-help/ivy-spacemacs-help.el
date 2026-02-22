@@ -1,4 +1,4 @@
-;;; ivy-spacemacs-help.el --- Spacemacs layer exploration with `ivy'.
+;;; ivy-spacemacs-help.el --- Spacemacs layer exploration with `ivy'.  -*- lexical-binding: nil; -*-
 
 ;; Author: Justin Burkett <justin@burkett.cc>
 ;; Keywords: ivy, spacemacs
@@ -68,6 +68,8 @@
               (cond
                ((string-equal r "BEGINNERS_TUTORIAL.org")
                 `("Beginners tutorial" . ,r))
+               ((string-equal r "CI_PLUMBING.org")
+                `("CI setup on GitHub" . ,r))
                ((string-equal r "CONTRIBUTING.org")
                 `("How to contribute to Spacemacs" . ,r))
                ((string-equal r "CONVENTIONS.org")
@@ -83,7 +85,7 @@
                ((string-equal r "VIMUSERS.org")
                 `("Vim users migration guide" . ,r))
                (t
-                `(r . ,r))))
+                `(,r . ,r))))
             result)))
 
 (defun ivy-spacemacs-help//documentation-action-open-file (candidate)
@@ -99,7 +101,7 @@
            (condition-case-unless-debug nil
                (with-current-buffer (find-file-noselect file)
                  (gh-md-render-buffer)
-                 (spacemacs/kill-this-buffer))
+                 (kill-current-buffer))
              ;; if anything fails, fall back to simply open file
              (find-file file)))
           ((equal (file-name-extension file) "org")
@@ -151,14 +153,14 @@ If EDIT is false, open org files in view mode."
   "Adds layer to dotspacemacs file and reloads configuration"
   (if (configuration-layer/layer-used-p (intern candidate))
       (message "Layer already added.")
-    (let ((dotspacemacs   (find-file-noselect (dotspacemacs/location))))
+    (let ((dotspacemacs (find-file-noselect (dotspacemacs/location))))
       (with-current-buffer dotspacemacs
         (beginning-of-buffer)
         (let ((insert-point (re-search-forward
                              "dotspacemacs-configuration-layers *\n?.*\\((\\)")))
           (insert (format "\n%s\n" candidate))
           (indent-region insert-point (+ insert-point (length candidate)))
-          (save-current-buffer)))
+          (save-buffer)))
       (dotspacemacs/sync-configuration-layers))))
 
 (defun ivy-spacemacs-help//layer-action-open-dired (candidate)
@@ -220,21 +222,21 @@ If EDIT is false, open org files in view mode."
         (owners (cl-remove-duplicates
                  (mapcar (lambda (pkg)
                            (let ((obj (configuration-layer/get-package pkg)))
-                             (car (oref obj :owners))))
+                             (car (oref obj owners))))
                          (configuration-layer/get-packages-list)))))
     (dolist (pkg-name (configuration-layer/get-packages-list))
       (let ((pkg (configuration-layer/get-package pkg-name)))
         (push (list (format (concat "%-" left-column-width "S %s %s")
-                            (car (oref pkg :owners ))
-                            (propertize (symbol-name (oref pkg :name))
+                            (car (oref pkg owners ))
+                            (propertize (symbol-name (oref pkg name))
                                         'face 'font-lock-type-face)
                             (propertize
-                             (if (package-installed-p (oref pkg :name))
+                             (if (package-installed-p (oref pkg name))
                                  "[installed]" "")
                              'face 'font-lock-comment-face))
                     (symbol-name
-                     (car (oref pkg :owners )))
-                    (symbol-name (oref pkg :name)))
+                     (car (oref pkg owners )))
+                    (symbol-name (oref pkg name)))
               result)))
     (dolist (layer (delq nil
                          (cl-remove-if
@@ -295,14 +297,14 @@ If EDIT is false, open org files in view mode."
   "Adds layer to dotspacemacs file and reloads configuration"
   (if (configuration-layer/layer-used-p (intern (cadr args)))
       (message "Layer already added.")
-    (let ((dotspacemacs   (find-file-noselect (dotspacemacs/location))))
+    (let ((dotspacemacs (find-file-noselect (dotspacemacs/location))))
       (with-current-buffer dotspacemacs
         (beginning-of-buffer)
         (let ((insert-point (re-search-forward
                              "dotspacemacs-configuration-layers *\n?.*\\((\\)")))
           (insert (format "\n%s\n" (cadr args)))
           (indent-region insert-point (+ insert-point (length (cadr args))))
-          (save-current-buffer)))
+          (save-buffer)))
       (dotspacemacs/sync-configuration-layers))))
 
 ;;;###autoload
@@ -379,7 +381,7 @@ If EDIT is false, open org files in view mode."
 
 (defun ivy-spacemacs-help//go-to-dotfile-variable (candidate)
   "Go to candidate in the dotfile."
-  (find-file dotspacemacs-filepath)
+  (find-file (dotspacemacs/location))
   (goto-char (point-min))
   ;; try to exclude comments
   (re-search-forward (format "^[a-z\s\\(\\-]*%s" candidate))

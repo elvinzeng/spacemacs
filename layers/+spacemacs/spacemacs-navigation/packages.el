@@ -1,6 +1,6 @@
-;;; packages.el --- Spacemacs Navigation Layer packages File
+;;; packages.el --- Spacemacs Navigation Layer packages File  -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -31,6 +31,7 @@
         (view :location built-in)
         golden-ratio
         (grep :location built-in)
+        (info :location built-in)
         (info+ :location (recipe :fetcher github
                                  :repo "emacsmirror/info-plus"))
         open-junk-file
@@ -38,12 +39,17 @@
         restart-emacs
         (smooth-scrolling :location built-in)
         symbol-overlay
-        winum))
+        (transient-cycles
+         :toggle (and dotspacemacs-enable-cycling
+                      (version<= "29.1" emacs-version)))
+        winum
+        disable-mouse))
 
 (defun spacemacs-navigation/init-ace-link ()
   (use-package ace-link
     :commands spacemacs/ace-buffer-links
     :init
+    (evil-add-command-properties 'ace-link :jump t)
     (define-key spacemacs-buffer-mode-map "o" 'spacemacs/ace-buffer-links)
     (with-eval-after-load 'info
       (define-key Info-mode-map "o" 'ace-link-info))
@@ -101,6 +107,11 @@
       ("z" recenter-top-bottom)
       ("q" nil :exit t))
 
+    (mapc #'evil-declare-motion
+          '(spacemacs/goto-last-searched-ahs-symbol
+            spacemacs/quick-ahs-forward
+            spacemacs/quick-ahs-backward))
+
     ;; since we are creating our own maps,
     ;; prevent the default keymap from getting created
     (setq auto-highlight-symbol-mode-map (make-sparse-keymap))
@@ -119,6 +130,8 @@
     (spacemacs/set-leader-keys
       "sh" 'spacemacs/symbol-highlight
       "sH" 'spacemacs/goto-last-searched-ahs-symbol)
+
+    (evil-declare-ignore-repeat 'spacemacs/symbol-highlight)
 
     ;; Advice ahs jump functions to remember the last highlighted symbol
     (dolist (sym '(ahs-forward
@@ -315,11 +328,13 @@
     :config
     (define-key grep-mode-map "h" nil)))
 
+(defun spacemacs-navigation/init-info ()
+  (spacemacs/set-leader-keys "hj" 'info-display-manual))
+
 (defun spacemacs-navigation/init-info+ ()
   (use-package info+
     :defer t
     :init
-    (spacemacs/set-leader-keys "hj" 'info-display-manual)
     (setq Info-fontify-angle-bracketed-flag nil)
     (with-eval-after-load "info" (require 'info+))))
 
@@ -355,7 +370,7 @@
 
 (defun spacemacs-navigation/init-restart-emacs ()
   (use-package restart-emacs
-    :defer (spacemacs/defer)
+    :defer t
     :init
     (with-eval-after-load 'files
       ;; unbind `restart-emacs' and declare it from package for ticket #15505
@@ -421,6 +436,66 @@
       ("z" recenter-top-bottom)
       ("q" nil :exit t))))
 
+(defun spacemacs-navigation/init-transient-cycles ()
+  (use-package transient-cycles
+    :demand t
+    :config
+    (when (or (eq t dotspacemacs-enable-cycling)
+              (member 'alternate-buffer dotspacemacs-enable-cycling))
+      (transient-cycles-define-commands
+       (window prev-buffers)
+       (([remap spacemacs/alternate-buffer] ()
+         (interactive)
+         (push-window-buffer-onto-prev)
+         (setq window (selected-window) ; account for calls inside with-selected-window
+               prev-buffers (window-prev-buffers))
+         (set-window-next-buffers nil nil)
+         (let ((switch-to-prev-buffer-skip #'spacemacs//alternate-buffer-skip))
+           (previous-buffer))))
+       (lambda (_ignore)
+         (lambda (arg)
+           (with-selected-window window
+             (let ((switch-to-prev-buffer-skip #'spacemacs//alternate-buffer-skip))
+               (if (cl-plusp arg)
+                   (previous-buffer)
+                 (next-buffer))))))
+       :on-exit (progn (set-window-next-buffers window nil)
+                       (set-window-prev-buffers window prev-buffers)
+                       (with-current-buffer (window-buffer window)
+                         (when (bound-and-true-p tab-line-mode)
+                           (tab-line-force-update nil))))
+       :cycle-backwards-key (or spacemacs-alternate-buffer-cycle-backwards-key
+                                spacemacs-default-cycle-backwards-key)
+       :cycle-forwards-key (or spacemacs-alternate-buffer-cycle-forwards-key
+                               spacemacs-default-cycle-forwards-key)))
+    (when (or (eq t dotspacemacs-enable-cycling)
+              (member 'alternate-window dotspacemacs-enable-cycling))
+      (transient-cycles-define-commands
+       (sorted-windows index)
+       (([remap spacemacs/alternate-window] ()
+         (interactive)
+         (setq sorted-windows
+               (sort (window-list)
+                     (lambda (w1 w2)
+                       (> (window-use-time w1)
+                          (window-use-time w2))))
+               index 1)
+         (when (length= sorted-windows 1)
+           (user-error "Last window not found."))
+         (select-window (nth index sorted-windows) 'mark-for-redisplay)))
+       (lambda (_ignore)
+         (lambda (arg)
+           (setq index (mod (if (cl-plusp arg)
+                                (1+ index)
+                              (1- index))
+                          (length sorted-windows)))
+           (select-window (nth index sorted-windows) 'mark-for-redisplay)))
+       :on-exit (select-window (selected-window)) ; set the window-use-time
+       :cycle-forwards-key (or spacemacs-alternate-window-cycle-forwards-key
+                               spacemacs-default-cycle-forwards-key)
+       :cycle-backwards-key (or spacemacs-alternate-window-cycle-backwards-key
+                                spacemacs-default-cycle-backwards-key)))))
+
 (defun spacemacs-navigation/init-winum ()
   (use-package winum
     :config
@@ -451,3 +526,12 @@
     (define-key winum-keymap (kbd "M-8") 'winum-select-window-8)
     (define-key winum-keymap (kbd "M-9") 'winum-select-window-9)
     (winum-mode)))
+
+(defun spacemacs-navigation/init-disable-mouse ()
+  (use-package disable-mouse
+    :defer t
+    :init
+    (spacemacs|add-toggle disable-mouse-input-globally
+      :mode disable-mouse-global-mode :evil-leader "tM")
+    :config
+    (spacemacs|diminish disable-mouse-global-mode " Ⓜ" " M")))

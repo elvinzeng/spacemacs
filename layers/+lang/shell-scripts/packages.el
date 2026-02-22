@@ -1,6 +1,6 @@
-;;; packages.el --- Shell Scripts Layer packages File for Spacemacs
+;;; packages.el --- Shell Scripts Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -29,7 +29,6 @@
     flycheck
     flycheck-bashate
     ggtags
-    counsel-gtags
     insert-shebang
     org
     (sh-script :location built-in)
@@ -118,8 +117,6 @@
 (defun shell-scripts/post-init-ggtags ()
   (add-hook 'sh-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
 
-(defun shell-scripts/post-init-counsel-gtags nil)
-
 (defun shell-scripts/pre-init-org ()
   (spacemacs|use-package-add-hook org
     :post-config (add-to-list 'org-babel-load-languages '(shell . t))))
@@ -134,4 +131,8 @@
       "i!" 'spacemacs/insert-shebang)
     (spacemacs/set-leader-keys "i!" 'spacemacs/insert-shebang)
     ;; we don't want to insert shebang lines automatically
-    (remove-hook 'find-file-hook 'insert-shebang)))
+    (remove-hook 'find-file-hook 'insert-shebang)
+    :config
+    ;; don't write state directly into homedir
+    (setq insert-shebang-track-ignored-filename
+          (concat spacemacs-cache-directory ".insert-shebang.log"))))

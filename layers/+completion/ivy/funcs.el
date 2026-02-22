@@ -1,6 +1,6 @@
 ;;; funcs.el --- Ivy Layer functions File for Spacemacs -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -147,7 +147,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 (defun spacemacs//counsel-edit ()
   "Edit the current search results in a buffer using wgrep."
   (interactive)
-  (run-with-idle-timer 0 nil 'spacemacs/ivy-wgrep-change-to-wgrep-mode)
+  (run-with-idle-timer 0 nil 'spacemacs/grep-change-to-wgrep-mode)
   (ivy-occur))
 
 (defun spacemacs//gne-init-counsel ()
@@ -246,7 +246,6 @@ that directory."
  for (tools tool-name) in '((dotspacemacs-search-tools "auto")
                             ((list "rg") "rg")
                             ((list "ag") "ag")
-                            ((list "pt") "pt")
                             ((list "ack") "ack")
                             ((list "grep") "grep"))
  do
@@ -432,11 +431,6 @@ commands."
                       (let ((repl (cdr (assoc candidate spacemacs-repl-list))))
                         (require (car repl))
                         (call-interactively (cdr repl))))))
-
-(defun spacemacs/ivy-wgrep-change-to-wgrep-mode ()
-  (interactive)
-  (ivy-wgrep-change-to-wgrep-mode)
-  (evil-normal-state))
 
 ;;; Evil
 

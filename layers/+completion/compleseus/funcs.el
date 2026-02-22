@@ -1,6 +1,6 @@
 ;;; funcs.el --- compleseus Layer functions File for Spacemacs -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Thanh Vuong <thanhvg@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -21,21 +21,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(defun spacemacs//compleseus-selectrum-hjkl-navigation (style)
-  "Set navigation on 'hjkl' for the given editing STYLE."
-  (cond
-   ((or (eq 'vim style)
-        (and (eq 'hybrid style)
-             hybrid-style-enable-hjkl-bindings))
-
-    (dolist (map (list selectrum-minibuffer-map))
-      (define-key map (kbd "C-j") 'selectrum-next-candidate)
-      (define-key map (kbd "C-k") 'selectrum-previous-candidate)))
-   (t
-    (define-key selectrum-minibuffer-map (kbd "C-j") 'selectrum-next-candidate)
-    (define-key selectrum-minibuffer-map (kbd "C-k") 'selectrum-previous-candidate))))
-
-
 (defun compleseus//persp-contain-buffer-p (buf)
   "Return non-nil if BUF is part of the current perspective.
 
@@ -49,14 +34,9 @@ non-nil."
 (defun spacemacs/compleseus-switch-to-buffer ()
   "`consult-buffer' with buffers provided by persp."
   (interactive)
-  (consult-buffer
-   `(consult--source-hidden-buffer
-     consult--source-persp-buffers
-     consult--source-modified-persp-buffers
-     consult--source-recent-file
-     consult--source-bookmark
-     consult--source-project-buffer-hidden
-     consult--source-project-recent-file-hidden)))
+  (consult-buffer (if (configuration-layer/package-used-p 'persp-mode)
+                      compleseus-switch-to-buffer-sources
+                    consult-buffer-sources)))
 
 (defun spacemacs/initial-search-input (&optional force-input)
   "Get initial input from region for consult search functions. If region is not
@@ -68,7 +48,7 @@ active and `force-input' is not nil, `thing-at-point' will be returned."
   )
 
 (defun spacemacs/compleseus-search (force-initial-input initial-directory)
-  (let* ((initial-input (rxt-quote-pcre
+  (let* ((initial-input (regexp-quote
                          (spacemacs/initial-search-input force-initial-input)))
          (default-directory
           (or initial-directory (read-directory-name "Start from directory: "))))
@@ -84,17 +64,31 @@ active and `force-input' is not nil, `thing-at-point' will be returned."
   (consult-line
    (spacemacs/initial-search-input t)))
 
-(defun spacemacs/consult-line-multi (&optional query)
-  (interactive "P")
-  (consult-line-multi
-   query
-   (spacemacs/initial-search-input)))
+(defun spacemacs/consult-line-multi (&optional toggle-restrict)
+  "Search project buffers using `consult-line-multi'.
+If the prefix argument TOGGLE-RESTRICT is non-nil, search all buffers.
 
-(defun spacemacs/consult-line-multi-symbol (&optional query)
+If the region is active, it is used as the initial input.
+
+The effect of the prefix argument can be inverted by setting
+`compleseus-buffer-search-restrict-project' to nil."
   (interactive "P")
-  (consult-line-multi
-   query
-   (spacemacs/initial-search-input t)))
+  (unless compleseus-buffer-search-restrict-project
+    (setq toggle-restrict (not toggle-restrict)))
+  (consult-line-multi toggle-restrict (spacemacs/initial-search-input)))
+
+(defun spacemacs/consult-line-multi-symbol (&optional toggle-restrict)
+  "Search project buffers using `consult-line-multi'.
+If the prefix argument TOGGLE-RESTRICT is non-nil, search all buffers.
+
+The active region or symbol at point is used as the initial input.
+
+The effect of the prefix argument can be inverted by setting
+`compleseus-buffer-search-restrict-project' to nil."
+  (interactive "P")
+  (unless compleseus-buffer-search-restrict-project
+    (setq toggle-restrict (not toggle-restrict)))
+  (consult-line-multi toggle-restrict (spacemacs/initial-search-input t)))
 
 (defun spacemacs/embark-consult-line-multi (buffer-names)
   "Embark action to search in any subset of buffers using `consult-line-multi'.
@@ -160,6 +154,13 @@ This solves the problem: Binding a key to: `find-file' calls: `ido-find-file'"
    (completing-read "Layouts:" (persp-names))))
 
 ;; vertico
+(defun spacemacs/embark-select ()
+  "Select the current candidate in the vertico buffer
+to act on with `embark-act-all', and move to the next candidate."
+  (interactive)
+  (embark-select)
+  (vertico-next))
+
 (defun spacemacs/embark-preview ()
   "Previews candidate in vertico buffer, unless it's a consult command"
   (interactive)
@@ -284,47 +285,48 @@ Note: this function relies on embark internals and might break upon embark updat
     ((eq major-mode 'org-mode) 'consult-org-heading)
     (t 'consult-imenu))))
 
-(defun spacemacs/compleseus-grep-change-to-wgrep-mode ()
+(defun spacemacs/consult-narrow-cycle-backward ()
+  "Cycle backward through the narrowing keys."
   (interactive)
-  (require 'wgrep)
-  (wgrep-change-to-wgrep-mode)
-  (evil-normal-state))
+  (when-let* ((narrow-keys (plist-get consult--narrow-config :keys)))
+    (consult-narrow
+     (if consult--narrow
+         (let ((idx (seq-position narrow-keys
+                                  (assq consult--narrow narrow-keys))))
+           (unless (eq idx 0)
+             (car (nth (1- idx) narrow-keys))))
+       (caar (last narrow-keys))))))
+
+(defun spacemacs/consult-narrow-cycle-forward ()
+  "Cycle forward through the narrowing keys."
+  (interactive)
+  (when-let* ((narrow-keys (plist-get consult--narrow-config :keys)))
+    (consult-narrow
+     (if consult--narrow
+         (let ((idx (seq-position narrow-keys
+                                  (assq consult--narrow narrow-keys))))
+           (unless (eq idx (1- (length narrow-keys)))
+             (car (nth (1+ idx) narrow-keys))))
+       (caar narrow-keys)))))
 
 (defun spacemacs/consult-edit ()
   "Export the consult buffer and make the buffer editable righ away."
   (interactive)
   (require 'embark)
-  (let ((embark-after-export-hook
-         '(spacemacs/compleseus-grep-change-to-wgrep-mode)))
+  (let ((embark-after-export-hook '(spacemacs/grep-change-to-wgrep-mode)))
     (embark-export)))
 
-(defun spacemacs/wgrep-finish-edit ()
-  "Set back the default evil state when finishing editing."
-  (interactive)
-  (wgrep-finish-edit)
-  (spacemacs//grep-set-evil-state))
+(defvar compleseus--previous-preview-keys nil
+  "variable to store the former value of preview keys or nil if the preview
+ has not been toggled on")
 
-(defun spacemacs/wgrep-abort-changes ()
-  "Set back the default evil state when aborting editing."
+(defun spacemacs/consult-toggle-preview ()
+  "Toggle auto-preview mode for compleseus buffers"
   (interactive)
-  (wgrep-abort-changes)
-  (spacemacs//grep-set-evil-state))
-
-(defun spacemacs//grep-set-evil-state ()
-  "Set the evil state for the read-only grep buffer given the current editing style."
-  (if (eq dotspacemacs-editing-style 'emacs)
-      (evil-emacs-state)
-    (evil-motion-state)))
-
-(defun spacemacs/wgrep-abort-changes-and-quit ()
-  "Abort changes and quit."
-  (interactive)
-  (spacemacs/wgrep-abort-changes)
-  (quit-window))
-
-(defun spacemacs/wgrep-save-changes-and-quit ()
-  "Save changes and quit."
-  (interactive)
-  (spacemacs/wgrep-finish-edit)
-  (wgrep-save-all-buffers)
-  (quit-window))
+  (if (eq compleseus--previous-preview-keys nil)
+      (setq compleseus--previous-preview-keys consult-preview-key
+            consult-preview-key '(:debounce 0.5 any))
+    (setq consult-preview-key compleseus--previous-preview-keys
+          compleseus--previous-preview-keys nil)
+    )
+  )

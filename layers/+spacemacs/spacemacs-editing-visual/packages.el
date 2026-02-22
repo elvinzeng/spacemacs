@@ -1,6 +1,6 @@
-;;; packages.el --- Spacemacs Editing Visual Layer packages File
+;;; packages.el --- Spacemacs Editing Visual Layer packages File  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -40,6 +40,7 @@
 
 (defun spacemacs-editing-visual/init-column-enforce-mode ()
   (use-package column-enforce-mode
+    :defer t
     :init
     (spacemacs|add-toggle highlight-long-lines
       :status column-enforce-mode
@@ -151,9 +152,12 @@
 (defun spacemacs-editing-visual/init-term-cursor ()
   (use-package term-cursor
     :defer t
+    :custom (term-cursor-triggers '(blink-cursor-mode-hook))
     :init
-    (unless (display-graphic-p)
-     (global-term-cursor-mode))))
+    (unless (or (daemonp) (display-graphic-p))
+      (global-term-cursor-mode))
+    (when (or (daemonp) dotspacemacs-enable-server)
+      (add-hook 'server-after-make-frame-hook 'spacemacs//maybe-enable-term-cursor))))
 
 (defun spacemacs-editing-visual/init-volatile-highlights ()
   (use-package volatile-highlights
@@ -163,12 +167,6 @@
       :mode volatile-highlights-mode
       :documentation "Display visual feedback for some operations."
       :evil-leader "thv")
-
-    ;; volatile-highlights is redundant with built-in highlighting in occur.  In
-    ;; Emacs 29, it starts to cause errors.  See
-    ;; https://github.com/k-talo/volatile-highlights.el/issues/26
-    (setq vhl/use-occur-extension-p (< emacs-major-version 28))
-
     (volatile-highlights-mode t)
     :config
     ;; additional extensions

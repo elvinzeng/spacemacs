@@ -1,6 +1,6 @@
-;;; packages.el --- helpful layer packages file for Spacemacs.
+;;; packages.el --- helpful layer packages file for Spacemacs.  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Johnson Denen <johnson@johnsons-macbook-pro.local>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -32,13 +32,14 @@
     :defer t
     :init
     (spacemacs/declare-prefix-for-mode 'helpful-mode "mg" "goto")
-    (with-eval-after-load 'help-fns
-      (defalias 'helpful/original-describe-function (symbol-function 'describe-function))
-      (defalias 'helpful/original-describe-variable (symbol-function 'describe-variable))
-      (defalias 'helpful/original-describe-key (symbol-function 'describe-key))
-      (defalias 'describe-function 'helpful-callable)
-      (defalias 'describe-variable 'helpful-variable)
-      (defalias 'describe-key 'helpful-key))
+    (unless (fboundp 'helpful/original-describe-function)
+      (with-eval-after-load 'help-fns
+        (defalias 'helpful/original-describe-function (symbol-function 'describe-function))
+        (defalias 'helpful/original-describe-variable (symbol-function 'describe-variable))
+        (defalias 'helpful/original-describe-key (symbol-function 'describe-key))
+        (defalias 'describe-function 'helpful-callable)
+        (defalias 'describe-variable 'helpful-variable)
+        (defalias 'describe-key 'helpful-key)))
     :config
     (evil-set-initial-state 'helpful-mode 'normal)
     (spacemacs/set-leader-keys-for-major-mode 'helpful-mode
@@ -49,8 +50,7 @@
     (advice-add 'helpful--navigate :after (lambda (_) (setq-local tab-width 8)))))
 
 (defun helpful/post-init-link-hint ()
-  (with-eval-after-load 'helpful
-    (evil-define-key 'normal helpful-mode-map (kbd "o") 'link-hint-open-link)))
+  (evil-define-key 'normal helpful-mode-map (kbd "o") 'link-hint-open-link))
 
 (defun helpful/pre-init-popwin ()
   (spacemacs|use-package-add-hook popwin

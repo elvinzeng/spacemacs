@@ -1,6 +1,6 @@
-;;; packages.el --- Git Layer packages File for Spacemacs
+;;; packages.el --- Git Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -23,27 +23,20 @@
 
 (defconst git-packages
   '(
-    ;; Disabled for now until
-    ;; https://github.com/wandersoncferreira/code-review/issues/245
-    ;; is fixed
-    ;; code-review
-    ;; emojify
-
+    (code-review :location (recipe :fetcher github :repo "doomelpa/code-review"))
+    emojify
     evil-collection
     evil-surround
-    fill-column-indicator
     ;; forge requires a C compiler on Windows so we disable
     ;; it by default on Windows.
     (forge :toggle (not (spacemacs/system-is-mswindows)))
     ;; include the old git{attributes,config,ignore}-mode
     git-modes
     gitignore-templates
-    git-commit
     git-link
     git-messenger
     git-timemachine
     golden-ratio
-    (helm-git-grep :requires helm)
     magit
     (magit-delta :toggle git-enable-magit-delta-plugin)
     (magit-gitflow :toggle git-enable-magit-gitflow-plugin)
@@ -53,8 +46,7 @@
     org
     (orgit :requires org)
     (orgit-forge :requires (org forge))
-    smeargle
-    transient))
+    smeargle))
 
 
 (defun git/pre-init-golden-ratio ()
@@ -63,7 +55,7 @@
     (add-to-list 'golden-ratio-exclude-buffer-names " *transient*")))
 
 ;; evil-surround bindings interfere with line-wise staging
-(defun git/post-init-evil-surround ()
+(defun git/pre-init-evil-surround ()
   (spacemacs|use-package-add-hook magit
     :post-config
     (add-hook 'magit-mode-hook #'turn-off-evil-surround-mode)))
@@ -75,23 +67,9 @@
     (unless (spacemacs/system-is-mswindows)
       (add-to-list 'spacemacs-evil-collection-allowed-list 'forge))))
 
-(defun git/post-init-fill-column-indicator ()
-  (add-hook 'git-commit-mode-hook 'fci-mode))
-
-(defun git/init-helm-git-grep ()
-  (use-package helm-git-grep
-    :defer t
-    :init (spacemacs/set-leader-keys
-            "g/" 'helm-git-grep
-            "g*" 'helm-git-grep-at-point)))
-
-(defun git/init-git-commit ()
-  (use-package git-commit
+(defun git/init-code-review ()
+  (use-package code-review
     :defer t))
-
-;; (defun git/init-code-review ()
-;;   (use-package code-review
-;;     :defer t))
 
 (defun git/init-git-link ()
   (use-package git-link
@@ -157,12 +135,12 @@
 
 (defun git/init-magit ()
   (use-package magit
-    :defer (spacemacs/defer)
+    :defer t
     :custom (magit-bury-buffer-function #'magit-restore-window-configuration)
     :init
-    (push "magit: .*" spacemacs-useless-buffers-regexp)
-    (push "magit-.*: .*"  spacemacs-useless-buffers-regexp)
-    (spacemacs|require-when-dumping 'magit)
+    (when git-magit-buffers-useless
+      (cl-pushnew "magit: .*" spacemacs-useless-buffers-regexp :test 'equal)
+      (cl-pushnew "magit-.*: .*"  spacemacs-useless-buffers-regexp :test 'equal))
     (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     "))
     ;; On Windows, we must use Git GUI to enter username and password
     ;; See: https://github.com/magit/magit/wiki/FAQ#windows-cannot-push-via-https
@@ -171,6 +149,7 @@
     ;; key bindings
     (spacemacs/declare-prefix "gf" "file")
     (spacemacs/set-leader-keys
+      "feg" '("Magit status in Spacemacs dir" . spacemacs/magit-status)
       "gb"  'spacemacs/git-blame-transient-state/body
       "gc"  'magit-clone
       "gfF" 'magit-find-file
@@ -181,8 +160,8 @@
       "gL"  'magit-list-repositories
       "gm"  'magit-dispatch
       "gs"  'magit-status
-      "gS"  'magit-stage-file
-      "gU"  'magit-unstage-file)
+      "gS"  'magit-stage-files
+      "gU"  'magit-unstage-files)
     (spacemacs|define-transient-state git-blame
       :title "Git Blame Transient State"
       :hint-is-doc t
@@ -212,6 +191,11 @@
       ("Y" magit-blame-copy-hash)
       ("B" magit-blame :exit t)
       ("Q" nil :exit t))
+    (with-eval-after-load 'git-commit
+      (add-hook 'git-commit-mode-hook 'display-fill-column-indicator-mode))
+    (with-eval-after-load 'persp-mode
+      (add-hook 'persp-filter-save-buffers-functions
+                'spacemacs//magit-buffer-p))
     :config
     ;; seems to be necessary at the time of release
     (require 'git-rebase)
@@ -239,7 +223,7 @@
             (concat (kbd mm-key) "k")    'magit-log-select-quit))))
     ;; whitespace
     (define-key magit-status-mode-map (kbd "C-S-w")
-      'spacemacs/magit-toggle-whitespace)
+                'spacemacs/magit-toggle-whitespace)
     ;; Add missing which-key prefixes using the new keymap api
     (when (spacemacs//support-evilified-buffer-p)
       (which-key-add-keymap-based-replacements magit-status-mode-map
@@ -263,11 +247,11 @@
     (evil-define-key 'normal magit-section-mode-map (kbd "M-8") 'spacemacs/winum-select-window-8)
     (evil-define-key 'normal magit-section-mode-map (kbd "M-9") 'spacemacs/winum-select-window-9)))
 
-;; (defun git/post-init-emojify ()
-;;   (spacemacs|use-package-add-hook code-review
-;;     :post-config
-;;     (use-package emojify
-;;       :hook (code-review-mode-hook . emojify-mode))))
+(defun git/post-init-emojify ()
+  (spacemacs|use-package-add-hook code-review
+    :post-config
+    (use-package emojify
+      :hook (code-review-mode-hook . emojify-mode))))
 
 (defun git/init-magit-delta ()
   (use-package magit-delta
@@ -277,7 +261,7 @@
   (use-package magit-gitflow
     :hook (magit-mode . magit-gitflow-mode)
     :init (setq magit-gitflow-popup-key "%")
-    :config 
+    :config
     (spacemacs|diminish magit-gitflow-mode "Flow")
     (define-key magit-mode-map "%" 'magit-gitflow-popup)))
 
@@ -288,7 +272,7 @@
 (defun git/init-magit-svn ()
   (use-package magit-svn
     :hook (magit-mode . magit-svn-mode)
-    :config 
+    :config
     (spacemacs|diminish magit-svn-mode "SVN")
     (define-key magit-mode-map "~" 'magit-svn)))
 
@@ -338,19 +322,6 @@
       "gHh" 'smeargle-commits
       "gHt" 'smeargle)))
 
-(defun git/pre-init-transient ()
-  (setq-default transient-history-file (expand-file-name "transient/history.el"
-                                                 spacemacs-cache-directory))
-  (setq-default transient-levels-file (expand-file-name "transient/levels.el"
-                                                spacemacs-cache-directory))
-  ;; Values are the users saved preferences so they should persist.
-  (setq-default transient-values-file (expand-file-name "transient/values.el"
-                                                        dotspacemacs-directory)))
-
-(defun git/init-transient ()
-  (use-package transient
-    :defer t))
-
 (defun git/init-forge ()
   (use-package forge
     :after magit
@@ -359,20 +330,22 @@
                                                 spacemacs-cache-directory)
           forge-add-default-bindings (eq dotspacemacs-editing-style 'emacs))
     (spacemacs/set-leader-keys-for-major-mode 'forge-topic-mode
-      "a" 'forge-edit-topic-assignees
+      "a" 'forge-topic-set-assignees
       "c" 'forge-create-post
       "C" 'forge-checkout-pullreq
       "b" 'forge-browse-topic
       "D" 'forge-delete-comment
       "d" 'forge-post-toggle-draft
       "e" 'forge-edit-post
-      "m" 'forge-edit-topic-marks
+      "m" 'forge-topic-set-marks
       "M" 'forge-create-mark
       "n" 'forge-edit-topic-note
-      "r" 'forge-edit-topic-review-requests
-      "s" 'forge-edit-topic-state
-      "t" 'forge-edit-topic-title
+      "r" 'forge-topic-set-review-requests
+      "s" 'forge-topic-state-menu
+      "t" 'forge-topic-set-title
       "u" 'forge-copy-url-at-point-as-kill)
+    (dolist (mode '(forge-issue-mode forge-pullreq-mode))
+      (spacemacs/inherit-leader-keys-from-parent-mode mode 'forge-topic-mode))
     (spacemacs/set-leader-keys-for-major-mode 'forge-post-mode
       dotspacemacs-major-mode-leader-key 'forge-post-submit
       "c" 'forge-post-submit

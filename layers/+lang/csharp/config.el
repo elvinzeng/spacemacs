@@ -1,6 +1,6 @@
-;;; config.el --- C# Layer configuration File for Spacemacs
+;;; config.el --- C# Layer configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -25,7 +25,7 @@
 
 (spacemacs|define-jump-handlers csharp-mode)
 
-(defvar csharp-backend 'omnisharp
+(defvar csharp-backend 'lsp
   "The backend to use for IDE features.
-Possible values are `omnisharp' and `lsp'.
-If `nil' then no backend is enabled.")
+Possible values are `lsp' and nil.
+If nil then no backend is enabled.")

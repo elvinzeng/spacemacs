@@ -1,6 +1,6 @@
-;;; packages.el --- tree-sitter layer packages file for Spacemacs.
+;;; packages.el --- tree-sitter layer packages file for Spacemacs.  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Elliott Shugerman <eeshugerman@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -44,13 +44,11 @@
 
 (defun tree-sitter/init-tree-sitter-indent ()
   (use-package tree-sitter-indent
-    :if tree-sitter-indent-enable
     :init
     (add-hook 'rust-mode-hook #'tree-sitter-indent-mode)))
 
 (defun tree-sitter/init-ts-fold ()
   (use-package ts-fold
-    :if tree-sitter-fold-enable
     :init
     (when tree-sitter-fold-enable
       (if tree-sitter-fold-indicators-enable

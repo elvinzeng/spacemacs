@@ -1,6 +1,6 @@
-;;; funcs.el --- EXWM Layer packages File for Spacemacs
+;;; funcs.el --- EXWM Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -111,13 +111,13 @@ The started process is also added to `exwm--autostart-process-list'."
                             ;; (dbus-p (gethash "DBusActivatable" xdg)) ; TODO: support
               (directory (or (gethash "Path" xdg) "~/"))
               (_include? (and (null (gethash "Hidden" xdg))
-                              (if-let ((only-show (gethash "OnlyShowIn" xdg)))
+                              (if-let* ((only-show (gethash "OnlyShowIn" xdg)))
                                   (member "EXWM" (split-string only-show ";" t))
                                 t)
-                              (if-let ((not-show (gethash "NotShowIn" xdg)))
+                              (if-let* ((not-show (gethash "NotShowIn" xdg)))
                                   (not (member "EXWM" (split-string not-show ";" t)))
                                 t)
-                              (if-let ((try-exec (gethash "TryExec" xdg)))
+                              (if-let* ((try-exec (gethash "TryExec" xdg)))
                                   (executable-find try-exec)
                                 t))))
     (exwm//autostart-process basename cmd directory)))
@@ -149,7 +149,7 @@ The started process is also added to `exwm--autostart-process-list'."
      "xrandr" nil exwm-randr-command))
   ;; The first workspaces will match the order in RandR
   (setq exwm-randr-workspace-monitor-plist exwm-randr-command)
-  (exwm-randr-enable))
+  (exwm-randr-mode 1))
 
 
 ;;;; Systray
@@ -157,4 +157,4 @@ The started process is also added to `exwm--autostart-process-list'."
   "Setup `exwm-systray'."
   (when exwm-enable-systray
     (require 'exwm-systemtray)
-    (exwm-systemtray-enable)))
+    (exwm-systemtray-mode 1)))

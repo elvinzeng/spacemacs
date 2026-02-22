@@ -1,6 +1,6 @@
-;;; packages.el --- Eglot Layer packages file for Spacemacs
+;;; packages.el --- Eglot Layer packages file for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Codruț Constantin Gușoi <mail+spacemacs@codrut.pro>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -22,8 +22,15 @@
 
 
 (defconst eglot-packages
-  '(eglot))
+  '(eglot
+    (flycheck-eglot :requires flycheck)))
 
 (defun eglot/init-eglot ()
   (use-package eglot
     :defer t))
+
+(defun eglot/init-flycheck-eglot ()
+  (use-package flycheck-eglot
+    :after eglot
+    :config
+    (global-flycheck-eglot-mode)))

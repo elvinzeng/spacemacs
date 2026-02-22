@@ -1,6 +1,6 @@
-;;; config.el --- Auto-completion configuration File for Spacemacs
+;;; config.el --- Auto-completion configuration File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -31,7 +31,7 @@ This variable is used to configure mode-specific company backends in spacemacs.
 Backends in this list will always be active in these modes, as well as any
 backends added by individual spacemacs layers.")
 
-(defvar-local auto-completion-front-end 'company
+(defvar auto-completion-front-end 'company
   "Which auto-completion front end to use.")
 
 (defvar auto-completion-return-key-behavior 'complete

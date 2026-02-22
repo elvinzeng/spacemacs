@@ -1,6 +1,6 @@
-;;; funcs.el --- Python Layer functions File for Spacemacs
+;;; funcs.el --- Python Layer functions File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -127,49 +127,49 @@
   (highlight-lines-matching-regexp "\\(pdb\\|ipdb\\|pudb\\|wdb\\).set_trace()")
   (highlight-lines-matching-regexp "trepan.api.debug()"))
 
-(defun spacemacs/pyenv-executable-find (command)
+(defun spacemacs/pyenv-executable-find (commands)
   "Find executable taking pyenv shims into account.
-If the executable is a system executable and not in the same path
-as the pyenv version then also return nil. This works around https://github.com/pyenv/pyenv-which-ext
-"
-  (if (and (not (and (boundp 'pyvenv-virtual-env) pyvenv-virtual-env)) (executable-find "pyenv"))
-      (progn
-        (let ((pyenv-string (shell-command-to-string (concat "pyenv which " command)))
-              (pyenv-version-names (split-string (string-trim (shell-command-to-string "pyenv version-name")) ":"))
-              (executable nil)
-              (i 0))
-          (if (not (string-match "not found" pyenv-string))
-              (while (and (not executable)
-                          (< i (length pyenv-version-names)))
-                (if (string-match (elt pyenv-version-names i) (string-trim pyenv-string))
-                    (setq executable (string-trim pyenv-string)))
-                (if (string-match (elt pyenv-version-names i) "system")
-                    (setq executable (string-trim (executable-find command))))
-                (setq i (1+ i))))
-          executable))
-    (executable-find command)))
+
+Return the first executable in COMMANDS whose path was found.  If
+the pyenv was configured with \"system\" then the system
+executable will be included, otherwise the system executable
+will be ignored.
+
+COMMANDS may also be a single string, for backwards
+compatibility."
+  (unless (listp commands)
+    (setq commands (list commands)))
+  (if (or (bound-and-true-p pyvenv-virtual-env) ; in virtualenv
+          (not (executable-find "pyenv")))      ; or no pyenv
+      (cl-some (lambda (dir)
+                 (let ((exec-path (list dir)))
+                   (cl-find-if 'executable-find commands)))
+               exec-path)
+
+    (let ((pyenv-vers (split-string (string-trim (shell-command-to-string "pyenv version-name")) ":")))
+      (cl-some
+       (lambda (cmd)
+         (when-let* ((pyenv-cmd (string-trim (shell-command-to-string (concat "pyenv which " cmd))))
+                     ((not (string-match "not found" pyenv-cmd))))
+           (cl-some
+            (lambda (ver)
+              (cond ((string-match ver pyenv-cmd) pyenv-cmd)
+                    ((string-match ver "system") (and (executable-find cmd) cmd))))
+            pyenv-vers)))
+       commands))))
 
 (defun spacemacs//python-setup-shell (&optional root-dir)
   "Setup the python shell if no customer prefered value or the value be cleaned.
 ROOT-DIR should be the directory path for the environment, `nil' for clean up."
-  (when (or (null (boundp 'python-shell-interpreter))
-            (null python-shell-interpreter)
+  (when (or (not (bound-and-true-p python-shell-interpreter))
             (equal python-shell-interpreter spacemacs--python-shell-interpreter-origin))
     (if-let* ((default-directory root-dir))
-        (if-let* ((ipython (cl-find-if 'spacemacs/pyenv-executable-find
-                                       '("ipython3" "ipython")))
-                  (version (replace-regexp-in-string
-                            "\\(\\.dev\\)?[\r\n|\n]$" ""
-                            (shell-command-to-string (format "\"%s\" --version" ipython)))))
-            (setq-local python-shell-interpreter ipython
-                        python-shell-interpreter-args
-                        (concat "-i" (unless (version< version "5") " --simple-prompt")))
-          ;; else try python3 or python
-          (setq-local python-shell-interpreter
-                      (or (cl-find-if 'spacemacs/pyenv-executable-find
-                                      '("python3" "python2" "python"))
-                          "python3")
-                      python-shell-interpreter-args "-i"))
+        (let* ((pyshell (or (spacemacs/pyenv-executable-find
+                             '("ipython3" "ipython" "python3" "python2" "python"))
+                            "python3"))
+               (ipythonp (string-search "ipython" (file-name-nondirectory pyshell))))
+          (setq-local python-shell-interpreter pyshell
+                      python-shell-interpreter-args (if ipythonp "-i --simple-prompt" "-i")))
       ;; args is nil, clean up the variables
       (setq-local python-shell-interpreter nil
                   python-shell-interpreter-args nil))))
@@ -178,13 +178,11 @@ ROOT-DIR should be the directory path for the environment, `nil' for clean up."
   "Setup the checkers.
 ROOT-DIR should be the path for the environemnt, `nil' for clean up"
   (when (fboundp 'flycheck-set-checker-executable)
-    (if-let* ((root-dir)
-              (default-directory root-dir))
-        (dolist (x '("pylint" "flake8"))
-          (when-let ((exe (spacemacs/pyenv-executable-find x)))
-            (flycheck-set-checker-executable (concat "python-" x) exe)))
-      ;; else root-dir is nil
-      (dolist (x '("pylint" "flake8"))
+    (dolist (x '("pylint" "flake8"))
+      (if-let* ((default-directory root-dir))
+          (when-let* ((exe (spacemacs/pyenv-executable-find (list x))))
+            (flycheck-set-checker-executable (concat "python-" x) exe))
+        ;; else root-dir is nil
         (set (flycheck-checker-executable-variable (concat "python-" x)) nil)))))
 
 (defun spacemacs/python-setup-everything (&optional root-dir)
@@ -194,26 +192,30 @@ ROOT-DIR should be the path for the environemnt, `nil' for clean up"
 (defun spacemacs/python-toggle-breakpoint ()
   "Add a break point, highlight it."
   (interactive)
-  (let ((trace (cond ((spacemacs/pyenv-executable-find "trepan3k") "import trepan.api; trepan.api.debug()")
-                     ((spacemacs/pyenv-executable-find "wdb") "import wdb; wdb.set_trace()")
-                     ((spacemacs/pyenv-executable-find "ipdb") "import ipdb; ipdb.set_trace()")
-                     ((spacemacs/pyenv-executable-find "pudb") "import pudb; pudb.set_trace()")
-                     ((spacemacs/pyenv-executable-find "ipdb3") "import ipdb; ipdb.set_trace()")
-                     ((spacemacs/pyenv-executable-find "pudb3") "import pudb; pudb.set_trace()")
-                     ((spacemacs/pyenv-executable-find "python3.7") "breakpoint()")
-                     ((spacemacs/pyenv-executable-find "python3.8") "breakpoint()")
-                     ((spacemacs/pyenv-executable-find "python3.9") "breakpoint()")
-                     ((spacemacs/pyenv-executable-find "python3.10") "breakpoint()")
-                     ((spacemacs/pyenv-executable-find "python3.11") "breakpoint()")
-                     (t "import pdb; pdb.set_trace()")))
-        (line (thing-at-point 'line)))
-    (if (and line (string-match trace line))
-        (kill-whole-line)
-      (progn
-        (back-to-indentation)
-        (insert trace)
-        (insert "\n")
-        (python-indent-line)))))
+  (let* ((exe (spacemacs/pyenv-executable-find '("trepan3k" "wdb" "ipdb3" "pudb3" "ipdb" "pudb" "python3")))
+         (trace (pcase (and exe (file-name-nondirectory exe))
+                  ("trepan3k"          "import trepan.api; trepan.api.debug()")
+                  ("wdb"               "import wdb; wdb.set_trace()")
+                  ((or "ipdb" "ipdb3") "import ipdb; ipdb.set_trace()")
+                  ((or "pudb" "pudb3") "import pudb; pudb.set_trace()")
+                  ("python3"           "breakpoint()") ; not consider the python3.6 or lower
+                  (_ "import pdb; pdb.set_trace()"))))
+    (unless (cl-some
+             (lambda (bounds)
+               (when-let* ((beg (car-safe bounds))
+                           (end (cdr-safe bounds))
+                           ((string-search trace (buffer-substring beg end))))
+                 (kill-region beg end)
+                 (back-to-indentation)
+                 ;; return t to discontinue
+                 t))
+             (list (bounds-of-thing-at-point 'line)               ; current line
+                   (save-excursion (and (zerop (forward-line -1)) ; previous line
+                                        (bounds-of-thing-at-point 'line)))))
+      ;; insert the instruction
+      (back-to-indentation)
+      (insert trace ?\n)
+      (python-indent-line))))
 
 ;; from https://www.snip2code.com/Snippet/127022/Emacs-auto-remove-unused-import-statemen
 (defun spacemacs/python-remove-unused-imports ()
@@ -271,20 +273,75 @@ location of \".venv\" file, then relative to pyvenv-workon-home()."
                       (setq-local pyvenv-activate virtualenv-abs-path))
                      (t (pyvenv-workon virtualenv-path-in-file)
                         (setq-local pyvenv-workon virtualenv-path-in-file))))))))
+
 
 ;; Tests
 
-(defun spacemacs//python-imenu-create-index-use-semantic-maybe ()
-  "Use semantic if the layer is enabled."
-  (setq imenu-create-index-function 'spacemacs/python-imenu-create-index))
+;; python-pytest adapters
 
-;; fix for issue #2569 (https://github.com/syl20bnr/spacemacs/issues/2569) and
-;; Emacs 24.5 and older. use `semantic-create-imenu-index' only when
-;; `semantic-mode' is enabled, otherwise use `python-imenu-create-index'
-(defun spacemacs/python-imenu-create-index ()
-  (if (bound-and-true-p semantic-mode)
-      (semantic-create-imenu-index)
-    (python-imenu-create-index)))
+(defun spacemacs/around-python-pytest--get-buffer (fn &rest args)
+  "Adjust the caller's next-error-last-buffer"
+  (let ((buffer (apply fn args)))
+    (unless (eq buffer (current-buffer))
+      (setq-local next-error-last-buffer buffer))
+
+    buffer))
+
+(defun spacemacs//python-pytest-one (&rest pytest-args)
+  "Runs the correct python-pytest- function to run test the thing at point."
+
+  ;; python-pytest uses either python-pytest-run-def-at-point-treesit or
+  ;; python-pytest-run-def-or-class-at-point-dwim via transient :if / :if-not rules.
+  ;;
+  ;; Sadly, the treesit version does not accept parameters, so we have to
+  ;; replicate its behavior here, ugh
+  (require 'python-pytest)
+  (if (python-pytest--use-treesit-p)
+      (python-pytest--run
+        :args pytest-args
+        :file (buffer-file-name)
+        :node-id (python-pytest--node-id-def-at-point-treesit)
+        :edit current-prefix-arg)
+    (python-pytest-run-def-or-class-at-point-dwim (buffer-file-name)
+                                                  (python-pytest--node-id-def-or-class-at-point)
+                                                  pytest-args)))
+
+(defun spacemacs/python-pytest-one ()
+  "Runs pytest on the thing at point"
+  (spacemacs//python-pytest-one))
+
+(defun spacemacs/python-pytest-one-pdb ()
+  "Runs pytest on the thing at point with PDB enabled"
+  (spacemacs//python-pytest-one "--pdb"))
+
+(defun spacemacs/python-pytest-test-module ()
+  "Tests the current module"
+  (python-pytest-file (buffer-file-name) nil))
+
+(defun spacemacs/python-pytest-all-pdb ()
+  "Runs current project's tests with PDB enabled"
+  (python-pytest '("--pdb")))
+
+(defun spacemacs/python-pytest-module-pdb ()
+  "Runs the tests in the current module with PDB enabled"
+  (python-pytest-file (buffer-file-name) '("--pdb")))
+
+(defun spacemacs/python-pytest-last-failed-pdb ()
+  "Re-executes the failing tests with PDB enabled"
+  (python-pytest-last-failed '("--pdb")))
+
+;; Forward declare to silence byte-compiler and allow early local binding.
+(defvar python-pytest-project-root-override nil
+  "Directory to use as project root for python-pytest, or nil.")
+
+(defun spacemacs//python-pytest-set-root-from-setup-cfg ()
+  "If a setup.cfg is found above `default-directory', set pytest root to that dir.
+Unset the override when not found."
+  (let* ((dir (locate-dominating-file default-directory "setup.cfg"))
+         (root (and dir (file-name-as-directory (expand-file-name dir)))))
+    (setq-local python-pytest-project-root-override root)))
+
+;; Test Dispatchers
 
 (defun spacemacs//python-get-main-testrunner ()
   "Get the main test runner."
@@ -314,91 +371,136 @@ to be called for each testrunner. "
 (defun spacemacs/python-test-last (arg)
   "Re-run the last test command"
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-again)
-                                                      (nose . nosetests-again))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . python-pytest-repeat)
+     (nose   . nosetests-again))))
 
 (defun spacemacs/python-test-last-failed (arg)
   "Re-run the tests that last failed."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-last-failed))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . python-pytest-last-failed))))
 
 (defun spacemacs/python-test-pdb-last-failed (arg)
   "Re-run the tests that last failed in debug mode."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-pdb-last-failed))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . spacemacs/python-pytest-last-failed-pdb))))
 
 (defun spacemacs/python-test-all (arg)
   "Run all tests."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-all)
-                                                      (nose . nosetests-all))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . python-pytest)
+     (nose   . nosetests-all))))
 
 (defun spacemacs/python-test-pdb-all (arg)
   "Run all tests in debug mode."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-pdb-all)
-                                                      (nose . nosetests-pdb-all))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . spacemacs/python-pytest-all-pdb)
+     (nose   . nosetests-pdb-all))))
 
 (defun spacemacs/python-test-module (arg)
   "Run all tests in the current module."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-module)
-                                                      (nose . nosetests-module))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . spacemacs/python-pytest-test-module)
+     (nose   . nosetests-module))))
 
 (defun spacemacs/python-test-pdb-module (arg)
   "Run all tests in the current module in debug mode."
   (interactive "P")
   (spacemacs//python-call-correct-test-function
    arg
-   '((pytest . pytest-pdb-module)
-     (nose . nosetests-pdb-module))))
+   '((pytest . spacemacs/python-pytest-module-pdb)
+     (nose   . nosetests-pdb-module))))
 
 (defun spacemacs/python-test-suite (arg)
   "Run all tests in the current suite."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((nose . nosetests-suite))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((nose . nosetests-suite))))
+;; Note: pytest has no separate 'suite' concept here; we keep it nose-only.
 
 (defun spacemacs/python-test-pdb-suite (arg)
   "Run all tests in the current suite in debug mode."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((nose . nosetests-pdb-suite))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((nose . nosetests-pdb-suite))))
 
 (defun spacemacs/python-test-one (arg)
   "Run current test."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-one)
-                                                      (nose . nosetests-one))))
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . spacemacs/python-pytest-one)
+     (nose   . nosetests-one))))
 
 (defun spacemacs/python-test-pdb-one (arg)
   "Run current test in debug mode."
   (interactive "P")
-  (spacemacs//python-call-correct-test-function arg '((pytest . pytest-pdb-one)
-                                                      (nose . nosetests-pdb-one))))
+
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . spacemacs/python-pytest-one-pdb)
+     (nose   . nosetests-pdb-one))))
+
+(defun spacemacs/python-test-dispatch (arg)
+  "Runner-agnostic dispatch (pytest-only). ARG selects secondary runner (not supported here)."
+  (interactive "P")
+  (spacemacs//python-call-correct-test-function
+   arg
+   '((pytest . python-pytest-dispatch))))
+
+(defun spacemacs//python-runner-enabled-p (runner)
+  "Return non-nil if RUNNER is enabled in `python-test-runner`."
+  (memq runner (flatten-list (list python-test-runner))))
 
 (defun spacemacs//bind-python-testing-keys ()
-  "Bind the keys for testing in Python."
+  "Bind the keys for testing in Python, conditionally per runner."
   (spacemacs/declare-prefix-for-mode 'python-mode "mt" "test")
+
+  ;; Generic keys: these wrappers support both runners (or gracefully select secondary with C-u)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode
-    "tA" 'spacemacs/python-test-pdb-all
     "ta" 'spacemacs/python-test-all
-    "tB" 'spacemacs/python-test-pdb-module
-    "tb" 'spacemacs/python-test-module
+    "tA" 'spacemacs/python-test-pdb-all
+    "tm" 'spacemacs/python-test-module
+    "tM" 'spacemacs/python-test-pdb-module
+    "tt" 'spacemacs/python-test-one
+    "tT" 'spacemacs/python-test-pdb-one
     "tl" 'spacemacs/python-test-last
     "tf" 'spacemacs/python-test-last-failed
-    "tF" 'spacemacs/python-test-pdb-last-failed
-    "tT" 'spacemacs/python-test-pdb-one
-    "tt" 'spacemacs/python-test-one
-    "tM" 'spacemacs/python-test-pdb-module
-    "tm" 'spacemacs/python-test-module
-    "tS" 'spacemacs/python-test-pdb-suite
-    "ts" 'spacemacs/python-test-suite))
+    "tF" 'spacemacs/python-test-pdb-last-failed)
 
+  ;; Pytest-only convenience (dispatch/transient)
+  (when (spacemacs//python-runner-enabled-p 'pytest)
+    (spacemacs/set-leader-keys-for-major-mode 'python-mode
+      "tD" 'spacemacs/python-test-dispatch))
+
+  ;; Nose-only: suite commands
+  (when (spacemacs//python-runner-enabled-p 'nose)
+    (spacemacs/set-leader-keys-for-major-mode 'python-mode
+      "ts" 'spacemacs/python-test-suite
+      "tS" 'spacemacs/python-test-pdb-suite)))
+
+
+;; Utils
 (defun spacemacs//python-sort-imports ()
   ;; py-isort-before-save checks the major mode as well, however we can prevent
   ;; it from loading the package unnecessarily by doing our own check
   (when (and python-sort-imports-on-save
              (derived-mode-p 'python-mode))
     (py-isort-before-save)))
+
 
 
 ;; Formatters
@@ -418,8 +520,31 @@ Bind formatter to '==' for LSP and '='for all other backends."
   (pcase python-formatter
     ('yapf (yapfify-buffer))
     ('black (blacken-buffer))
+    ('ruff (ruff-format-buffer))
     ('lsp (lsp-format-buffer))
     (code (message "Unknown formatter: %S" code))))
+
+(defun spacemacs//python-lsp-set-up-format-on-save ()
+  (when (and python-format-on-save
+             (eq python-formatter 'lsp))
+    (add-hook
+     'python-mode-hook
+     'spacemacs//python-lsp-set-up-format-on-save-local)))
+
+(defun spacemacs//python-lsp-set-up-format-on-save-local ()
+  (add-hook 'before-save-hook 'spacemacs//python-lsp-format-on-save nil t))
+
+(defun spacemacs//python-lsp-format-on-save ()
+  (condition-case err
+      (when (and python-format-on-save
+                 (eq python-formatter 'lsp))
+        (lsp-format-buffer))
+    (lsp-capability-not-supported
+     (display-warning
+      '(spacemacs python)
+      "Configuration error: `python-formatter' is `lsp', no active workspace supports textDocument/formatting"
+      :error))))
+
 
 
 ;; REPL
@@ -501,6 +626,13 @@ Bind formatter to '==' for LSP and '='for all other backends."
         (end (point-at-eol)))
     (python-shell-send-region start end)))
 
+(defun spacemacs/python-shell-send-line-switch ()
+  "Send the current line to shell and switch to it insert mode."
+  (interactive)
+  (call-interactively #'spacemacs/python-shell-send-line)
+  (python-shell-switch-to-shell)
+  (evil-insert-state))
+
 (defun spacemacs/python-shell-send-statement ()
   "Send the statement under cursor to shell."
   (interactive)
@@ -530,8 +662,8 @@ If region is not active then send line."
 (defun spacemacs/python-start-or-switch-repl ()
   "Start and/or switch to the REPL."
   (interactive)
-  (if-let ((shell-process (or (python-shell-get-process)
-                              (call-interactively #'run-python))))
+  (if-let* ((shell-process (or (python-shell-get-process)
+                               (call-interactively #'run-python))))
       (progn
         (pop-to-buffer (process-buffer shell-process))
         (evil-insert-state))
@@ -558,7 +690,7 @@ If region is not active then send line."
   ;; universal argument put compile buffer in comint mode
   (let ((universal-argument t)
         (compile-command (format "%s %s"
-                                 (spacemacs/pyenv-executable-find python-shell-interpreter)
+                                 (spacemacs/pyenv-executable-find (list python-shell-interpreter))
                                  (shell-quote-argument (file-name-nondirectory buffer-file-name)))))
     (if arg
         (call-interactively 'compile)

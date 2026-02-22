@@ -1,6 +1,6 @@
-;;; packages.el --- shell packages File for Spacemacs
+;;; packages.el --- shell packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -25,6 +25,7 @@
   '(
     (comint :location built-in)
     company
+    consult
     eat
     esh-help
     (eshell :location built-in)
@@ -44,8 +45,14 @@
     terminal-here
     vi-tilde-fringe
     window-purpose
-    (multi-vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))
-    (vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))))
+    (multi-vterm
+     :toggle (and shell-enable-vterm-support
+                  module-file-suffix
+                  (not (spacemacs/system-is-mswindows))))
+    (vterm
+     :toggle (and shell-enable-vterm-support
+                  module-file-suffix
+                  (not (spacemacs/system-is-mswindows))))))
 
 
 (defun shell/init-comint ()
@@ -158,6 +165,16 @@
   (spacemacs/set-leader-keys-for-major-mode 'shell-mode
     "H" 'counsel-shell-history))
 
+(defun shell/pre-init-consult ()
+  (spacemacs|use-package-add-hook consult
+    :post-init
+    (progn
+      ;; eshell
+      (add-hook 'eshell-mode-hook 'spacemacs/init-consult-eshell)
+      ;;shell
+      (spacemacs/set-leader-keys-for-major-mode 'shell-mode
+        "H" 'spacemacs/consult-shell-history))))
+
 (defun shell/pre-init-magit ()
   (spacemacs|use-package-add-hook magit
     :post-init
@@ -225,6 +242,11 @@
           shell-pop-window-size     shell-default-height
           shell-pop-term-shell      shell-default-term-shell
           shell-pop-full-span       shell-default-full-span)
+
+    ;; Make sure that eshell history is written before the window is closed
+    ;; see https://github.com/kyagi/shell-pop-el/issues/66
+    (advice-add 'shell-pop--kill-and-delete-window :around #'spacemacs/shell-pop-with-eshell-history-write)
+
     (make-shell-pop-command "eshell" eshell)
     (make-shell-pop-command "term" term shell-pop-term-shell)
     (make-shell-pop-command "ansi-term" ansi-term shell-pop-term-shell)
@@ -256,10 +278,6 @@
 (defun shell/init-term ()
   (spacemacs/register-repl 'term 'term)
   (spacemacs/register-repl 'term 'ansi-term)
-  (defun term-send-tab ()
-    "Send tab in term mode."
-    (interactive)
-    (term-send-raw-string "\t"))
 
   (when (eq dotspacemacs-editing-style 'vim)
     (evil-define-key 'insert term-raw-map
@@ -333,11 +351,12 @@
     :defer t
     :commands (eat eat-other-window eat-project eat-project-other-window)
     :init
-    (make-shell-pop-command "eat" eat)
+    (make-shell-pop-command "eat" spacemacs//eat-for-shell-pop)
     (spacemacs/set-leader-keys "atsa" 'spacemacs/shell-pop-eat)
     (spacemacs/register-repl 'eat 'eat)
     :config
-    (setq eat-shell shell-default-term-shell)))
+    (setq eat-shell shell-default-term-shell)
+    (add-hook 'eat-mode-hook 'spacemacs/disable-hl-line-mode)))
 
 (defun shell/init-vterm ()
   (use-package vterm

@@ -1,7 +1,7 @@
-;;; config.el --- ranger Layer config File for Spacemacs
+;;; config.el --- ranger Layer config File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
 ;; Copyright (c) 2012-2021 Sylvain Benner
-;; Copyright (c) 2020-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2020-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -30,3 +30,15 @@ The possible values are:
 'deer (default)
 'ranger
 nil (restores the default behavior of `-')")
+
+(defvar ranger-override-dired 'deer
+  "Option to override dired when entering directories.
+
+The possible values are:
+'ranger
+'deer (default)
+'dirvish
+nil (restores the default behavior of `dired')")
+
+(defvar dirvish-enable-dired-omit t
+  "If non-nil, enable `dired-omit-mode' by default in dirvish buffers.")

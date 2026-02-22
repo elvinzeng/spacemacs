@@ -1,6 +1,6 @@
-;;; config.el --- Spacemacs Defaults Layer configuration File
+;;; config.el --- Spacemacs Defaults Layer configuration File  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -38,10 +38,30 @@
 
 ;; Regexp for useful and useless buffers for smarter buffer switching
 (defvar spacemacs-useless-buffers-regexp '()
-  "Regexp used to determine if a buffer is not useful.")
+  "Regexp used to determine if a buffer is not useful.
+
+Such useless buffers are skipped by `previous-buffer',
+`next-buffer', and, optionally, by `spacemacs/alternate-buffer'
+(see `spacemacs-useful-buffers-restrict-spc-tab').")
 (defvar spacemacs-useful-buffers-regexp '()
   "Regexp used to define buffers that are useful despite matching
 `spacemacs-useless-buffers-regexp'.")
+
+(spacemacs|defc spacemacs-recentf-exclude-not-modified '()
+  "List of regexps and predicates for filenames excluded from the recent
+list which does NOT modified, similar to `recentf-exclude'.
+
+For example the `org-agenda-list' will open *.org files for collecting
+entries, then the *.org files will be listed on the recentf. To avoid
+that, add the files into this variable will exclude them when they does
+NOT modified."
+  '(repeat (choice regexp function)))
+
+(spacemacs|defc spacemacs-useful-buffers-restrict-spc-tab t
+  "When non-nil, \\[spacemacs/alternate-buffer] does not switch to
+useless buffers as defined by `spacemacs-useless-buffers-regexp'
+and `spacemacs-useful-buffers-regexp'."
+  'boolean)
 
 ;; no beep pleeeeeease ! (and no visual blinking too please)
 (setq ring-bell-function 'ignore
@@ -59,6 +79,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Highlight and allow to open http link at point in programming buffers
 ;; goto-address-prog-mode only highlights links in strings and comments
 (add-hook 'prog-mode-hook 'goto-address-prog-mode)
+;; In text-mode, highlight with goto-address-mode
+(add-hook 'text-mode-hook 'goto-address-mode)
 ;; Highlight and follow bug references in comments and strings
 (add-hook 'prog-mode-hook 'bug-reference-prog-mode)
 
@@ -137,6 +159,16 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Prompt to open file literally if large file.
 (add-hook 'find-file-hook 'spacemacs/check-large-file)
 
+(spacemacs|defc spacemacs-save-as-visit-action 'ask
+  "The default VISIT argument for interactive usage of
+`spacemacs/save-as' (bound to \\[spacemacs/save-as]), which see.
+Possible values are:
+`ask' to ask every time (the default),
+`:current' to open the file in the current window,
+`:other' to open the file in another window,
+or `nil' to only save and not visit the file."
+  '(choice (const ask) (const :current) (const :other) (const nil)))
+
 ;; ---------------------------------------------------------------------------
 ;; UI
 ;; ---------------------------------------------------------------------------
@@ -146,6 +178,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Show column number in mode line
 (setq column-number-mode t)
 
+;; conflicts with "show-smartparens-mode". see the spacemacs-editing layer
+(show-paren-mode -1)
 ;; highlight current line
 (global-hl-line-mode t)
 ;; no blink
@@ -178,9 +212,25 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
     ;; `buffer-predicate' entry doesn't exist, create it
     (push '(buffer-predicate . spacemacs/useful-buffer-p) default-frame-alist)))
 
+;; It could be considered to persist more (or even all) of the window parameters
+;; here, see also https://debbugs.gnu.org/cgi/bugreport.cgi?bug=23858.
+(setq window-persistent-parameters
+      (cl-union window-persistent-parameters
+                '((spacemacs-max-state . t)
+                  (spacemacs-max-state-writable . writable)
+                  (quit-restore . t))
+                :test 'equal))
+
 ;; ---------------------------------------------------------------------------
 ;; Session
 ;; ---------------------------------------------------------------------------
+
+(spacemacs|defc spacemacs-savehist-autosave-idle-interval 60
+  "Idle interval between autosaves of minibuffer histories and other
+variables (see `savehist-mode' and `savehist-additional-variables')."
+  'integer)
+
+(defvar spacemacs--savehist-idle-timer nil)
 
 ;; scratch buffer empty
 (setq initial-scratch-message dotspacemacs-initial-scratch-message)
@@ -215,6 +265,7 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 
 ;; cache files
 (setq tramp-persistency-file-name (concat spacemacs-cache-directory "tramp"))
+(setq request-storage-directory (concat spacemacs-cache-directory "request/"))
 
 ;; seems pointless to warn. There's always undo.
 (put 'narrow-to-region 'disabled nil)
@@ -239,9 +290,6 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Add buffer reference to internal list of killed buffers on `kill-buffer',
 ;; used for restoring recently killed buffers.
 (add-hook 'kill-buffer-hook #'spacemacs//add-buffer-to-killed-list)
-
-;; Don't load outdated compiled files.
-(setq load-prefer-newer t)
 
 ;; Suppress the *Warnings* buffer when native compilation shows warnings.
 (setq native-comp-async-report-warnings-errors 'silent)

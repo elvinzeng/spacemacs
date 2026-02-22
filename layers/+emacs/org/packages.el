@@ -1,6 +1,6 @@
-;;; packages.el --- Org Layer packages File for Spacemacs
+;;; packages.el --- Org Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -33,19 +33,16 @@
     htmlize
     ;; ob, org, org-agenda and org-contacts are installed by `org-contrib'
     (ob :location built-in)
-    (org :location elpa :min-version "9.7.8")
+    (ob-mermaid :toggle org-enable-mermaid-support)
+    (org :location elpa)
     (org-agenda :location built-in)
-    (org-wild-notifier :toggle org-enable-notifications)
+    (org-alert  :toggle org-enable-notifications)
     (org-contacts :toggle org-enable-org-contacts-support)
     org-contrib
     (org-vcard :toggle org-enable-org-contacts-support)
     (org-brain :toggle org-enable-org-brain-support)
     (org-expiry :location built-in)
-    ;; temporarily point org-journal to dalanicolai fork until dalanicolai's
-    ;; PR's https://github.com/bastibe/org-journal/pulls get merged
-    (org-journal
-     :location (recipe :fetcher github :repo "dalanicolai/org-journal")
-     :toggle org-enable-org-journal-support)
+    (org-journal :toggle org-enable-org-journal-support)
     org-download
     (org-jira :toggle org-enable-jira-support)
     org-mime
@@ -54,6 +51,7 @@
     org-present
     org-cliplink
     org-rich-yank
+    (org-project-capture :requires projectile)
     (org-projectile :requires projectile)
     (ox-epub :toggle org-enable-epub-support)
     (ox-twbs :toggle org-enable-bootstrap-support)
@@ -125,12 +123,18 @@
     ;; Fix redisplay of inline images after a code block evaluation.
     (add-hook 'org-babel-after-execute-hook 'spacemacs/ob-fix-inline-images)))
 
+(defun org/init-ob-mermaid ()
+  (use-package ob-mermaid
+    :defer t
+    :init
+    (spacemacs|use-package-add-hook org
+      :post-config (add-to-list 'org-babel-load-languages '(mermaid . t)))))
+
 (defun org/init-org ()
   (use-package org
-    :defer (spacemacs/defer)
+    :defer t
     :commands (orgtbl-mode)
     :init
-    (spacemacs|require-when-dumping 'org)
     (setq org-clock-persist-file (concat spacemacs-cache-directory
                                          "org-clock-save.el")
           org-id-locations-file (concat spacemacs-cache-directory
@@ -181,9 +185,7 @@
           "c" 'org-capture-finalize
           "k" 'org-capture-kill
           "r" 'org-capture-refile)
-        ;; Evil bindins seem not to be applied until at least one
-        ;; Evil state is executed
-        (evil-normal-state))
+        (evil-normalize-keymaps))
       ;; Must be done everytime we run org-capture otherwise it will
       ;; be ignored until insert mode is entered.
       (add-hook 'org-capture-mode-hook 'spacemacs//org-capture-start))
@@ -405,7 +407,7 @@ Will work on both org-mode and any mode that accepts plain html."
       "aof" "feeds"
       "aoC" (org-clocks-prefix))
     ;; org-agenda
-    (unless (when-let ((pkg (configuration-layer/get-package 'helm-org-rifle)))
+    (unless (when-let* ((pkg (configuration-layer/get-package 'helm-org-rifle)))
               ;; TODO: `configuration-layer/package-used-p' doesn't check
               ;; :toggle status.  When it is fixed, we can use it again.
               (cfgl-package-used-p pkg))
@@ -457,30 +459,14 @@ Will work on both org-mode and any mode that accepts plain html."
 
     ;; Evilify the calendar tool on C-c .
     (unless (eq 'emacs dotspacemacs-editing-style)
-      (define-key org-read-date-minibuffer-local-map (kbd "M-h")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-backward-day 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-l")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-forward-day 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-k")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-backward-week 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-j")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-forward-week 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-H")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-backward-month 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-L")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-forward-month 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-K")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-backward-year 1))))
-      (define-key org-read-date-minibuffer-local-map (kbd "M-J")
-                  (lambda () (interactive)
-                    (org-eval-in-calendar '(calendar-forward-year 1)))))
+      (define-key org-read-date-minibuffer-local-map (kbd "M-h") #'org-calendar-backward-day)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-l") #'org-calendar-forward-day)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-k") #'org-calendar-backward-week)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-j") #'org-calendar-forward-week)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-H") #'org-calendar-backward-month)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-L") #'org-calendar-forward-month)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-K") #'org-calendar-backward-year)
+      (define-key org-read-date-minibuffer-local-map (kbd "M-J") #'org-calendar-forward-year))
 
     (spacemacs|define-transient-state org-babel
       :title "Org Babel Transient state"
@@ -528,7 +514,8 @@ Will work on both org-mode and any mode that accepts plain html."
       "ip" 'org-agenda-set-property
       "iP" 'org-agenda-priority
       "it" 'org-agenda-set-tags
-      "sr" 'org-agenda-refile)
+      "sr" 'org-agenda-refile
+      "TT" 'org-agenda-todo)
     (spacemacs|define-transient-state org-agenda
       :title "Org-agenda transient state"
       :on-enter (setq which-key-inhibit t)
@@ -619,6 +606,19 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (use-package org-contacts))
     (evilified-state-evilify-map org-agenda-mode-map
       :mode org-agenda-mode
+      :pre-bindings
+      ;; Remove some key bindings that cannot be evilified.  These commands are
+      ;; bound to other keys, below.
+      ;;
+      ;; `org-agenda-filter-remove-all' is not bound (`org-agenda-set-tags' is
+      ;; bound to ":", which is mapped to "|")
+      ;;
+      ;; `org-agenda-filter-by-tag' is not bound, but "\\" is bound to
+      ;; `org-agenda-filter' instead, which is a good enough substitute.
+      (kbd "C-n") nil                   ;`org-agenda-next-line'
+      "G" nil                           ;`org-agenda-toggle-time-grid'
+      "|" nil                           ;`org-agenda-filter-remove-all'
+      "\\" nil                          ;`org-agenda-filter-by-tag'
       :bindings
       "j" 'org-agenda-next-line
       "k" 'org-agenda-previous-line
@@ -637,12 +637,13 @@ Headline^^            Visit entry^^               Filter^^                    Da
       (kbd "M-SPC") 'spacemacs/org-agenda-transient-state/body
       (kbd "s-M-SPC") 'spacemacs/org-agenda-transient-state/body)))
 
-(defun org/init-org-wild-notifier ()
-  (use-package org-wild-notifier
+(defun org/init-org-alert ()
+  (use-package org-alert
     :defer t
     :init
     (when org-start-notification-daemon-on-startup
-      (org-wild-notifier-mode))))
+      (spacemacs/defer-until-after-user-config #'org-alert-enable))
+    :commands (org-alert-check org-alert-enable org-alert-disable)))
 
 (defun org/init-org-brain ()
   (use-package org-brain
@@ -822,23 +823,30 @@ Headline^^            Visit entry^^               Filter^^                    Da
       ;; ir = "insert rich"
       "ir" 'org-rich-yank)))
 
-(defun org/init-org-projectile ()
-  (use-package org-projectile
-    :commands (org-projectile-location-for-project)
+(defun org/init-org-project-capture ()
+  (use-package org-project-capture
+    :commands (org-project-capture-location-for-project)
     :init
     (spacemacs/set-leader-keys
-      "aop" 'org-projectile/capture
-      "po" 'org-projectile/goto-todos)
-    (with-eval-after-load 'org-capture
-      (require 'org-projectile))
+      "aop" 'spacemacs/org-project-capture-capture
+      "po" 'spacemacs/org-project-capture-goto-todos)
     :config
-    (if (file-name-absolute-p org-projectile-file)
+    (if (and (stringp org-project-capture-projects-file) (file-name-absolute-p org-project-capture-projects-file))
         (progn
-          (setq org-projectile-projects-file org-projectile-file)
-          (push (org-projectile-project-todo-entry :empty-lines 1)
-                org-capture-templates))
-      (org-projectile-per-project)
-      (setq org-projectile-per-project-filepath org-projectile-file))))
+          (setq org-project-capture-projects-file org-project-capture-projects-file)
+          (push (org-project-capture-project-todo-entry :empty-lines 1)
+                org-capture-templates)
+          (org-project-capture-single-file))
+      (progn
+        (setq org-project-capture-per-project-filepath org-project-capture-projects-file)
+        (org-project-capture-per-project)))))
+
+(defun org/init-org-projectile ()
+  (use-package org-projectile
+    :after org-project-capture ; backend for projectile after org-project-capture
+    :config
+    (setq org-project-capture-default-backend
+          (make-instance 'org-project-capture-projectile-backend))))
 
 (defun org/pre-init-ox-epub ()
   (spacemacs|use-package-add-hook org :post-config (require 'ox-epub)))
@@ -949,6 +957,11 @@ Headline^^            Visit entry^^               Filter^^                    Da
     ;; org-roam. See https://github.com/syl20bnr/spacemacs/issues/15724
     ;; :hook (after-init . org-roam-setup)
     :init
+
+    ;; Fix org roam issue https://github.com/org-roam/org-roam/pull/2334 until
+    ;; upstream is merged.
+    (advice-add 'org-roam-fontify-like-in-org-mode :around #'spacemacs/with-save-excursion)
+
     (spacemacs/declare-prefix
       "aor"  "org-roam"
       "aord" "org-roam-dailies"
@@ -1051,12 +1064,20 @@ Headline^^            Visit entry^^               Filter^^                    Da
           org-appear-autoemphasis t
           org-appear-autosubmarkers t)
     :config
-    (when (and (eq org-appear-trigger 'manual)
-               (memq dotspacemacs-editing-style '(vim hybrid)))
-      (add-hook 'org-mode-hook
-                (lambda ()
-                  (add-hook 'evil-insert-state-entry-hook #'org-appear-manual-start nil t)
-                  (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop nil t))))))
+    (when (eq org-appear-trigger 'manual)
+      (when (eq dotspacemacs-editing-style 'vim)
+        (add-hook 'org-appear-mode-hook
+                  (lambda ()
+                    (add-hook 'evil-insert-state-entry-hook #'org-appear-manual-start nil t)
+                    (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop nil t)
+                    )))
+
+      (when (eq dotspacemacs-editing-style 'hybrid)
+        (add-hook 'org-appear-mode-hook
+                  (lambda ()
+                    (add-hook 'evil-hybrid-state-entry-hook #'org-appear-manual-start nil t)
+                    (add-hook 'evil-hybrid-state-exit-hook #'org-appear-manual-stop nil t)
+                    ))))))
 
 (defun org/init-org-transclusion ()
   (use-package org-transclusion

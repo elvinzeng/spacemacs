@@ -1,6 +1,6 @@
-;;; funcs.el --- Spacemacs Bootstrap Layer functions File
+;;; funcs.el --- Spacemacs Bootstrap Layer functions File  -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -67,23 +67,64 @@ For evil states that also need an entry to `spacemacs-evil-cursors' use
   ;; for example treemacs: it needs no cursor since it solely uses hl-line-mode
   ;; and having an evil cursor defined anyway leads to the cursor sometimes
   ;; visibly flashing in treemacs buffers
-  (eval `(defface ,(spacemacs/state-color-face (intern state))
-           `((t (:background ,color :inherit 'mode-line)))
-           (format "%s state face." state)
-           :group 'spacemacs))
-  ;; 'unspecified may not be used in defface, so set it via set-face-attribute.
+  (custom-declare-face
+    (spacemacs/state-color-face (intern state))
+    `((t (:background ,color :inherit mode-line)))
+    (format "%s state face." state)
+    :group 'spacemacs)
+  ;; 'unspecified may not be used in custom-declare-face, so set it via
+  ;; set-face-attribute.
   (set-face-attribute (spacemacs/state-color-face (intern state)) nil
-       :foreground (face-attribute 'mode-line :background)))
+                      :foreground (face-attribute 'mode-line :background)))
+
+
+
+;;; Helper functions copied from modus-themes.el, which is distributed with
+;;; Emacs.
+
+;; This is the WCAG formula: https://www.w3.org/TR/WCAG20-TECHS/G18.html
+(defun spacemacs//wcag-contribution (channel weight)
+  "Return the CHANNEL contribution to overall luminance given WEIGHT."
+  (* weight
+     (if (<= channel 0.03928)
+         (/ channel 12.92)
+       (expt (/ (+ channel 0.055) 1.055) 2.4))))
+
+(defun spacemacs//wcag-formula (hex)
+  "Get WCAG value of color value HEX.
+The value is defined in hexadecimal RGB notation, such #123456."
+  (let ((channels (color-name-to-rgb hex))
+        (weights '(0.2126 0.7152 0.0722))
+        contribution)
+    (while channels
+      (push (spacemacs//wcag-contribution (pop channels) (pop weights)) contribution))
+    (apply #'+ contribution)))
+
+(defun spacemacs//color-contrast (c1 c2)
+  "Measure WCAG contrast ratio between C1 and C2.
+C1 and C2 are color values written in hexadecimal RGB."
+  (let ((ct (/ (+ (spacemacs//wcag-formula c1) 0.05)
+               (+ (spacemacs//wcag-formula c2) 0.05))))
+    (max ct (/ ct))))
+
+
+
+(defun spacemacs//pick-contrasting-fg-color-from-mode-line (bg-color)
+  (let* ((ml-fg (face-attribute 'mode-line :foreground))
+         (ml-bg (face-attribute 'mode-line :background))
+         (candidates (mapcar (lambda (fg) (cons (spacemacs//color-contrast bg-color fg) fg))
+                             (list ml-fg ml-bg "#ffffff" "#000000"))))
+    ;; Pick the first candidate with a reasonably acceptable contrast ratio; if
+    ;; none, just pick the best one.
+    (cdr (or (cl-find-if (lambda (fg) (>= (car fg) 3.0)) candidates)
+             (last (cl-sort candidates #'car-less-than-car))))))
 
 (defun spacemacs/set-state-faces ()
-  (let ((ml-bg (face-attribute 'mode-line :background)))
-    (cl-loop for (state color cursor) in spacemacs-evil-cursors
-             do
-             (set-face-attribute (spacemacs/state-color-face (intern state)) nil
-                                 :foreground ml-bg))))
-
-(defun evil-insert-state-cursor-hide ()
-  (setq evil-insert-state-cursor '((hbar . 0))))
+  (cl-loop for (state color cursor) in spacemacs-evil-cursors
+           for foreground = (spacemacs//pick-contrasting-fg-color-from-mode-line color)
+           do
+           (set-face-attribute (spacemacs/state-color-face (intern state)) nil
+                               :foreground foreground)))
 
 (defun spacemacs/set-evil-search-module (style)
   "Set the evil search module depending on STYLE."
@@ -173,17 +214,23 @@ START-REGEXP and END-REGEXP are the boundaries of the text object."
   (defmacro evil-map (state key seq)
     "Map for a given STATE a KEY to a sequence SEQ of keys.
 
-Can handle recursive definition only if KEY is the first key of SEQ.
+Can handle recursive definition only if KEY is the first key of
+SEQ, and if KEY's binding in STATE is defined as a symbol in
+`evil-normal-state-map'.
 Example: (evil-map visual \"<\" \"<gv\")"
-    (let ((map (intern (format "evil-%S-state-map" state))))
+    (let ((map (intern (format "evil-%S-state-map" state)))
+          (key-cmd (lookup-key evil-normal-state-map key)))
       `(define-key ,map ,key
-         (lambda ()
-           (interactive)
-           ,(if (string-equal key (substring seq 0 1))
-                `(progn
-                   (call-interactively ',(lookup-key evil-normal-state-map key))
-                   (execute-kbd-macro ,(substring seq 1)))
-              (execute-kbd-macro ,seq)))))))
+                   (lambda ()
+                     (interactive)
+                     ,(if (string-equal key (substring seq 0 1))
+                          `(let ((orig-this-command this-command))
+                             (setq this-command ',key-cmd)
+                             (call-interactively ',key-cmd)
+                             (run-hooks 'post-command-hook)
+                             (setq this-command orig-this-command)
+                             (execute-kbd-macro ,(substring seq 1)))
+                        (execute-kbd-macro ,seq)))))))
 
 (defun spacemacs/diminish-hook (_)
   "Display diminished lighter in vanilla Emacs mode-line."
@@ -242,16 +289,7 @@ column."
 
 
 
-(defun spacemacs/toggle-evil-mouse-drag-for-artist-mode (orig-fun &rest args)
-   "Toggle evil binding `evil-mode-drag-region' for `artist-mode'.
-
- When a buffer is placed into `artist-mode', <down-mouse-1> is supposed to
- bound to run the command `artist-down-mouse-1', while it is already bound
- to `evil-motion-state-map'. Thus it should be unbound so that mouse commands
- `down-mouse-1' operate correctly."
-   (let ((was-active artist-mode))
-     (apply orig-fun args)
-     (unless (eq was-active artist-mode)
-       (if artist-mode
-           (define-key evil-motion-state-map [down-mouse-1] nil)
-         (define-key evil-motion-state-map [down-mouse-1] 'evil-mouse-drag-region)))))
+(defun spacemacs/not-in-pdf-view-mode (orig-fun &rest args)
+  "Disable bound function when in `pdf-view-mode'."
+  (unless (eq major-mode 'pdf-view-mode)
+    (apply orig-fun args)))

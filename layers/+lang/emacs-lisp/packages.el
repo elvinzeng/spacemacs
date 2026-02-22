@@ -1,6 +1,6 @@
-;;; packages.el --- Emacs Lisp Layer packages File for Spacemacs
+;;; packages.el --- Emacs Lisp Layer packages File for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -36,10 +36,9 @@
     evil-cleverparens
     eval-sexp-fu
     flycheck
-    flycheck-elsa
-    flycheck-package
+    (flycheck-elsa :requires flycheck)
+    (flycheck-package :requires flycheck)
     ggtags
-    counsel-gtags
     (ielm :location built-in)
     (inspector :location (recipe
                           :fetcher github
@@ -125,6 +124,8 @@
            evil-intercept-maps))
     (evilified-state-evilify-map edebug-mode-map
       :eval-after-load edebug
+      :pre-bindings               ; Remove key bindings that cannot be evilified
+      "G" nil                     ; edebug-Go-nonstop-mode
       :bindings
       "a" 'edebug-stop
       "c" 'edebug-go-mode
@@ -144,9 +145,8 @@
 
 (defun emacs-lisp/init-auto-compile ()
   (use-package auto-compile
-    :defer (spacemacs/defer)
+    :defer t
     :init
-    (spacemacs|require-when-dumping 'auto-compile)
     (setq auto-compile-display-buffer nil
           ;; lets spaceline manage the mode-line
           auto-compile-use-mode-line nil
@@ -159,7 +159,11 @@
 
 (defun emacs-lisp/init-elisp-def ()
   (use-package elisp-def
-    :defer t))
+    :defer t
+    :init
+    (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
+      (let ((jumpl (intern (format "spacemacs-jump-handlers-%S" mode))))
+        (add-to-list jumpl 'elisp-def)))))
 
 (defun emacs-lisp/init-elisp-demos ()
   (use-package elisp-demos
@@ -174,16 +178,11 @@
 (defun emacs-lisp/init-elisp-slime-nav ()
   ;; Elisp go-to-definition with M-. and back again with M-,
   (use-package elisp-slime-nav
-    :defer (spacemacs/defer)
+    :defer t
     :init
-    (spacemacs|require-when-dumping 'elisp-slime-nav)
     (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
     (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
-      (spacemacs/declare-prefix-for-mode mode "mg" "find-symbol")
-      (spacemacs/set-leader-keys-for-major-mode mode
-        "gb" 'xref-pop-marker-stack)
       (spacemacs/declare-prefix-for-mode mode "mh" "help")
-
       ;; Load better help mode if helpful is installed
       (if (configuration-layer/layer-used-p 'helpful)
           (spacemacs/set-leader-keys-for-major-mode mode
@@ -191,12 +190,10 @@
         (spacemacs/set-leader-keys-for-major-mode mode
           "hh" 'elisp-slime-nav-describe-elisp-thing-at-point))
       (let ((jumpl (intern (format "spacemacs-jump-handlers-%S" mode))))
-        (add-to-list jumpl 'elisp-def)
         (add-to-list jumpl 'elisp-slime-nav-find-elisp-thing-at-point)))
     :config (spacemacs|hide-lighter elisp-slime-nav-mode)))
 
 (defun emacs-lisp/init-emacs-lisp ()
-
   ;; Format buffers automatically if required
   (spacemacs//make-elisp-buffers-format-on-save-maybe)
 
@@ -206,6 +203,7 @@
     (spacemacs/declare-prefix-for-mode mode "me" "eval")
     (spacemacs/declare-prefix-for-mode mode "mt" "tests")
     (spacemacs/declare-prefix-for-mode mode "m=" "format")
+    (spacemacs/declare-prefix-for-mode mode "mg" "find-symbol")
     (spacemacs/set-leader-keys-for-major-mode mode
       "cc" 'emacs-lisp-byte-compile
       "e$" 'lisp-state-eval-sexp-end-of-line
@@ -215,6 +213,7 @@
       "er" 'eval-region
       "ef" 'eval-defun
       "el" 'lisp-state-eval-sexp-end-of-line
+      "gb" 'xref-go-back
       "gG" 'spacemacs/nav-find-elisp-thing-at-point-other-window
       ","  'lisp-state-toggle-lisp-state
       "==" 'spacemacs/indent-region-or-buffer
@@ -224,8 +223,6 @@
 (defun emacs-lisp/init-macrostep ()
   (use-package macrostep
     :defer t
-    :mode (("\\*.el\\'" . emacs-lisp-mode)
-           ("Cask\\'" . emacs-lisp-mode))
     :init
     (evil-define-key 'normal macrostep-keymap "q" 'macrostep-collapse-all)
     (spacemacs|define-transient-state macrostep
@@ -243,9 +240,8 @@
 
 (defun emacs-lisp/init-nameless ()
   (use-package nameless
-    :defer (spacemacs/defer)
+    :defer t
     :init
-    (spacemacs|require-when-dumping 'nameless)
     (setq
      ;; always show the separator since it can have a semantic purpose
      ;; like in Spacemacs where - is variable and / is a function.
@@ -271,10 +267,9 @@
       :evil-leader-for-mode (emacs-lisp-mode . "Tn"))
     ;; activate nameless only when in a GUI
     ;; in a terminal nameless triggers all sorts of graphical glitches.
-    (spacemacs|unless-dumping-and-eval-after-loaded-dump nameless
-      (spacemacs|do-after-display-system-init
-       (when emacs-lisp-hide-namespace-prefix
-         (spacemacs/toggle-nameless-on-register-hook-emacs-lisp-mode))))))
+    (spacemacs|do-after-display-system-init
+      (when emacs-lisp-hide-namespace-prefix
+        (spacemacs/toggle-nameless-on-register-hook-emacs-lisp-mode)))))
 
 (defun emacs-lisp/init-overseer ()
   (use-package overseer
@@ -313,13 +308,17 @@
 
 (defun emacs-lisp/init-flycheck-package ()
   (use-package flycheck-package
-    :hook (emacs-lisp-mode . flycheck-package-setup)))
+    :defer t
+    :init
+    (spacemacs|add-transient-hook emacs-lisp-mode-hook
+      emacs-lisp//flycheck-package-setup)))
 
 (defun emacs-lisp/init-flycheck-elsa ()
   (use-package flycheck-elsa
-    :hook (emacs-lisp-mode . flycheck-elsa-setup)))
-
-(defun emacs-lisp/post-init-counsel-gtags nil)
+    :defer t
+    :init
+    (spacemacs|add-transient-hook emacs-lisp-mode-hook
+      emacs-lisp//flycheck-elsa-setup)))
 
 (defun emacs-lisp/post-init-ggtags ()
   (add-hook 'emacs-lisp-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))

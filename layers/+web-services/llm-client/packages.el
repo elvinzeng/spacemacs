@@ -1,6 +1,6 @@
-;;; packages.el --- Large Language Model Client for Spacemacs
+;;; packages.el --- Large Language Model Client for Spacemacs  -*- lexical-binding: nil; -*-
 ;;
-;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
 ;; Author: Codruț Constantin Gușoi <mail+spacemacs@codrut.pro>
 ;; Author: Alexander Matyasko <alexander.matyasko@gmail.com>
@@ -34,73 +34,9 @@
     :defer t
     :ensure t
     :init
+    (spacemacs/declare-prefix "$" "AI")
     (spacemacs/declare-prefix "$e" "Ellama")
-    ;; Code
-    (spacemacs/declare-prefix "$ec" "Code")
-    (spacemacs/set-leader-keys
-      "$ecc" 'ellama-code-complete    ; Complete code in current buffer
-      "$eca" 'ellama-code-add         ; Add code according to description
-      "$ece" 'ellama-code-edit        ; Edit code according to change
-      "$eci" 'ellama-code-improve     ; Improve code
-      "$ecr" 'ellama-code-review)     ; Review code
-    ;; Summarize
-    (spacemacs/declare-prefix "$es" "Summarize")
-    (spacemacs/set-leader-keys
-      "$ess" 'ellama-summarize           ; Summarize selected region or buffer
-      "$esw" 'ellama-summarize-webpage   ; Summarize webpage
-      "$esc" 'ellama-summarize-killring) ; Summarize text from kill ring
-    ;; Edit
-    (spacemacs/declare-prefix "$ee" "Edit")
-    (spacemacs/set-leader-keys
-      "$eec" 'ellama-complete            ; Complete text in current buffer
-      "$eef" 'ellama-make-format         ; Render text as specified format
-      "$eeg" 'ellama-improve-grammar     ; Improve grammar
-      "$eel" 'ellama-make-list           ; Create markdown list
-      "$ees" 'ellama-improve-conciseness ; Shorten text (make concise)
-      "$eet" 'ellama-make-table          ; Create markdown table
-      "$eew" 'ellama-improve-wording)    ; Improve wording
-    ;; Ask
-    (spacemacs/declare-prefix "$ea" "Ask")
-    (spacemacs/set-leader-keys
-      "$eaa" 'ellama-ask-about        ; Ask about selected region or buffer
-      "$eac" 'ellama-chat             ; Chat with ellama
-      "$eai" 'ellama-instant          ; Prompt ellama for instant reply
-      "$eal" 'ellama-ask-line         ; Send current line to ellama
-      "$eas" 'ellama-ask-selection)   ; Send selected region to ellama
-    ;; Problem solving
-    (spacemacs/declare-prefix "$ep" "Problem Solving")
-    (spacemacs/set-leader-keys
-      "$epr" 'ellama-solve-reasoning-problem        ; Solve reasoning PROBLEM with abstraction of thought
-      "$epd" 'ellama-solve-domain-specific-problem) ; Solve domain-specific PROBLEM
-    ;; Translate
-    (spacemacs/declare-prefix "$et" "Translate")
-    (spacemacs/set-leader-keys
-      "$ett" 'ellama-translate                 ; Translate selected region or word at point
-      "$etb" 'ellama-translate-buffer          ; Translate current buffer
-      "$ete" 'ellama-chat-translation-enable   ; Enable chat translation
-      "$etd" 'ellama-chat-translation-disable) ; Disable chat translation
-    ;; Define
-    (spacemacs/declare-prefix "$ed" "Define")
-    (spacemacs/set-leader-keys
-      "$edw" 'ellama-define-word)     ; Define current word
-    ;; Context
-    (spacemacs/declare-prefix "$ex" "Context")
-    (spacemacs/set-leader-keys
-      "$exb" 'ellama-context-add-buffer     ; Add buffer to context
-      "$exf" 'ellama-context-add-file       ; Add file to context
-      "$exs" 'ellama-context-add-selection  ; Add selection to context
-      "$exi" 'ellama-context-add-info-node) ; Add info node to context
-    ;; Session Management
-    (spacemacs/declare-prefix "$eS" "Session")
-    (spacemacs/set-leader-keys
-      "$eSl" 'ellama-load-session     ; Load ellama session
-      "$eSr" 'ellama-session-rename   ; Rename ellama session
-      "$eSd" 'ellama-session-remove   ; Remove ellama session
-      "$eSa" 'ellama-session-switch)  ; Switch ellama session
-    ;; Provider
-    (spacemacs/declare-prefix "$eP" "Provider")
-    (spacemacs/set-leader-keys
-      "$ePs" 'ellama-provider-select))) ; Select ellama provider
+    (spacemacs/set-leader-keys "$e" 'ellama-transient-main-menu)))
 
 (defun llm-client/init-gptel ()
   "Initialize the `gptel` package and set up keybindings."
@@ -109,9 +45,8 @@
     :ensure t
     :init
     ;; evilify gptel-context-buffer-mode-map
-    (require 'gptel-context)
-    (evil-set-initial-state 'gptel-context-buffer-mode 'evilified)
     (evilified-state-evilify-map gptel-context-buffer-mode-map
+      :eval-after-load gptel-context
       :mode gptel-context-buffer-mode
       :bindings
       "C-c C-c" #'gptel-context-confirm
@@ -130,7 +65,8 @@
       "$gc" 'gptel-add                      ; Add context
       "$gf" 'gptel-add-file                 ; Add a file
       "$go" 'gptel-org-set-topic            ; Set topic in Org-mode
-      "$gp" 'gptel-org-set-properties)))    ; Set properties in Org-mode
+      "$gp" 'gptel-org-set-properties       ; Set properties in Org-mode
+      "$gr" 'gptel-rewrite)))               ; Rewrite or refactor test region
 
 (defun llm-client/post-init-org ()
   "Set up Org-mode keybindings for GPTel."
@@ -150,7 +86,8 @@
     (let ((purpose-mode-was-enabled (bound-and-true-p purpose-mode)))
       (when purpose-mode-was-enabled
         (purpose-mode -1))
-      (apply orig-func args)
-      (when purpose-mode-was-enabled
-        (purpose-mode 1))))
+      (unwind-protect
+          (apply orig-func args)
+        (when purpose-mode-was-enabled
+          (purpose-mode 1)))))
   (advice-add 'gptel :around #'llm-client/disable-purpose-mode-around-for-gptel))
