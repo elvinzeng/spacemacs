@@ -92,7 +92,8 @@ This function should only modify configuration layer settings."
              python-lsp-server 'pyright
              python-test-runner '(pytest)
              ;; python-fill-column 99
-             ;; python-poetry-activate t
+             python-poetry-activate t
+             python-virtualenv-management 'pet
              )
      emoji
      (chinese :variables
@@ -817,31 +818,31 @@ before packages are loaded."
   ;;(require 'poetry)
   ;;(poetry-tracking-mode 1)
 
-  (defun my-flycheck-python-setup ()
-    "Set up Flycheck for Python mode."
-    (setq-local flycheck-disabled-checkers '(python-pycompile python-pylint python-mypy lsp))
-    (setq-local flycheck-checker 'python-pyright)
+  ;; (defun my-flycheck-python-setup ()
+  ;;   "Set up Flycheck for Python mode."
+  ;;   (setq-local flycheck-disabled-checkers '(python-pycompile python-pylint python-mypy lsp))
+  ;;   (setq-local flycheck-checker 'python-pyright)
 
-    ;; Add flake8 as a next checker after pyright
-    (flycheck-add-next-checker 'python-pyright 'python-flake8 'append)
+  ;;   ;; Add flake8 as a next checker after pyright
+  ;;   (flycheck-add-next-checker 'python-pyright 'python-flake8 'append)
 
-    ;; Select pyright as the main checker for this buffer
-    (flycheck-select-checker 'python-pyright)
+  ;;   ;; Select pyright as the main checker for this buffer
+  ;;   (flycheck-select-checker 'python-pyright)
 
-    ;; Ensure Flycheck is enabled
-    (flycheck-mode 1)
+  ;;   ;; Ensure Flycheck is enabled
+  ;;   (flycheck-mode 1)
 
-    ;; Capture the buffer reference
-    (let ((target-buffer (current-buffer)) ;; Save the current buffer
-          (intervals '(5 10 20 30)))       ;; List of intervals
-      (dolist (interval intervals)
-        (run-with-timer interval nil
-                        (lambda ()
-                          ;; Use the captured buffer explicitly
-                          (when (buffer-live-p target-buffer) ;; Check if buffer is still alive
-                            (with-current-buffer target-buffer ;; Switch to the correct buffer
-                              (when (derived-mode-p 'python-mode) ;; Ensure it's still Python mode
-                                (flycheck-select-checker 'python-pyright)))))))))
+  ;;   ;; Capture the buffer reference
+  ;;   (let ((target-buffer (current-buffer)) ;; Save the current buffer
+  ;;         (intervals '(5 10 20 30)))       ;; List of intervals
+  ;;     (dolist (interval intervals)
+  ;;       (run-with-timer interval nil
+  ;;                       (lambda ()
+  ;;                         ;; Use the captured buffer explicitly
+  ;;                         (when (buffer-live-p target-buffer) ;; Check if buffer is still alive
+  ;;                           (with-current-buffer target-buffer ;; Switch to the correct buffer
+  ;;                             (when (derived-mode-p 'python-mode) ;; Ensure it's still Python mode
+  ;;                               (flycheck-select-checker 'python-pyright)))))))))
 
   ;; Add the setup function to python-mode-hook
   ;;(add-hook 'python-mode-hook #'my-flycheck-python-setup)
