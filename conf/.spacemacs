@@ -166,6 +166,8 @@ This function should only modify configuration layer settings."
      debug
      templates
      dap
+     (github-copilot :variables
+                     github-copilot-enable-commit-messages 'golem)
      )
 
 
@@ -777,14 +779,14 @@ before packages are loaded."
               (when (eq major-mode 'go-mode)
                 (progn
                   (set-fill-column 120)
-                  (spacemacs/toggle-fill-column-indicator-on)
+                  (display-fill-column-indicator-mode 1)
                   (message "keep it simple and stupid")))))
   (add-hook 'after-change-major-mode-hook
             (lambda ()
               (when (eq major-mode 'python-mode)
                 (progn
                   (set-fill-column 88)
-                  (spacemacs/toggle-fill-column-indicator-on)
+                  (display-fill-column-indicator-mode 1)
                   (message "keep it simple and stupid")))))
   (add-hook 'after-change-major-mode-hook (lambda ()
                                             (when (eq major-mode 'org-mode)
@@ -812,8 +814,8 @@ before packages are loaded."
                                      )))
         ))
 
-  (require 'poetry)
-  (poetry-tracking-mode 1)
+  ;;(require 'poetry)
+  ;;(poetry-tracking-mode 1)
 
   (defun my-flycheck-python-setup ()
     "Set up Flycheck for Python mode."
@@ -842,7 +844,7 @@ before packages are loaded."
                                 (flycheck-select-checker 'python-pyright)))))))))
 
   ;; Add the setup function to python-mode-hook
-  (add-hook 'python-mode-hook #'my-flycheck-python-setup)
+  ;;(add-hook 'python-mode-hook #'my-flycheck-python-setup)
 
 
   ;;    (setq org-html-validation-link nil)
