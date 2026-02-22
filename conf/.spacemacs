@@ -1031,6 +1031,17 @@ This function is called at the very end of Spacemacs initialization."
                  yatemplate))
    '(safe-local-variable-values
      '((eval let*
+             ((root
+               (or (locate-dominating-file default-directory "pyproject.toml")
+                   default-directory))
+              (poetry (or (executable-find "poetry") "poetry"))
+              (venv-path
+               (ignore-errors (car (process-lines poetry "env" "info" "--path"))))
+              (flake8-bin
+               (and venv-path (expand-file-name "bin/flake8" venv-path))))
+             (when (and flake8-bin (file-executable-p flake8-bin))
+               (setq flycheck-python-flake8-executable flake8-bin)))
+       (eval let*
              ((venv-path
                (string-trim (shell-command-to-string "poetry env info --path")))
               (flake8-bin (concat venv-path "/bin/flake8")))
