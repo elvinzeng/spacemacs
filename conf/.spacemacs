@@ -390,6 +390,7 @@ It should only modify the values of Spacemacs settings."
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;;dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
    ;; all-the-icons-install-fonts
+   ;; M-x nerd-icons-install-fonts
    dotspacemacs-mode-line-theme '(doom :separator wave :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
@@ -408,7 +409,7 @@ It should only modify the values of Spacemacs settings."
                                :width normal)
 
    ;; Default icons font, it can be `all-the-icons' or `nerd-icons'.
-   dotspacemacs-default-icons-font 'all-the-icons
+   dotspacemacs-default-icons-font 'nerd-icons
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -872,6 +873,8 @@ before packages are loaded."
   (add-hook 'prog-mode-hook 'copilot-mode)
 
   (setq-default copilot-indent-offset-warning-disable t)
+
+  (setq default-input-method nil)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
