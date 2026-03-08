@@ -117,7 +117,10 @@ This function should only modify configuration layer settings."
                ;; plantuml-java-command
                )
      ;;lua
-     shell-scripts
+     (shell-scripts :variables
+                    shell-scripts-format-on-save t
+                    shell-scripts-backend 'lsp
+                    )
      yaml
      ;;  windows-scripts
      (typescript :variables
