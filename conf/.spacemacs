@@ -128,6 +128,7 @@ This function should only modify configuration layer settings."
                  typescript-backend 'lsp
                  ;; typescript-backend 'tide
                  typescript-fmt-tool 'typescript-formatter
+                 typescript-linter 'eslint
                  ;; 'tide is default value
                  ;; typescript-fmt-tool 'tide
                  ;; By default lsp will explicitly set itself as the linter, if you don't want that, then set the variable typescript-lsp-linter to nil.
@@ -145,24 +146,27 @@ This function should only modify configuration layer settings."
          )
      ;;django
      (javascript :variables
-                 javascript-import-tool 'import-js
                  javascript-backend 'lsp
                  ;;javascript-lsp-linter nil
-                 javascript-fmt-tool 'web-beautify
-                 ;;javascript-fmt-tool 'prettier
+                 javascript-fmt-tool 'prettier
                  javascript-fmt-on-save t
                  javascript-repl `nodejs
                  node-add-modules-path t
                  js2-include-node-externs t
                  )
      (node :variables node-add-modules-path t)
+     (json :variables
+           json-fmt-tool 'prettier
+           json-fmt-on-save t
+           json-backend 'lsp
+           )
      react
      (vue :variables
           ;; vue-backend 'lsp
           vue-backend 'dumb
           )
      prettier
-     web-beautify
+     ;;web-beautify
      ;;rust
      (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
      themes-megapack
