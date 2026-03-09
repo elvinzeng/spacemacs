@@ -110,8 +110,8 @@ This function should only modify configuration layer settings."
            )
      ;;java
      (plantuml :variables
-               plantuml-jar-path "~/bin/plantuml.jar"
-               org-plantuml-jar-path "~/bin/plantuml.jar"
+               plantuml-jar-path "~/.local/bin/plantuml.jar"
+               org-plantuml-jar-path "~/.local/bin/plantuml.jar"
                plantuml-default-exec-mode 'jar
                org-confirm-babel-evaluate nil
                ;; plantuml-java-command
