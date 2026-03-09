@@ -176,6 +176,13 @@ This function should only modify configuration layer settings."
      dap
      (github-copilot :variables
                      github-copilot-enable-commit-messages 'golem)
+     (llm-client :variables
+                 llm-client-enable-gptel t
+                 llm-client-enable-ellama t
+                 )
+     (claude-code :variables
+                  claude-code-ide-window-side 'right
+                  claude-code-ide-window-width 100)
      )
 
 
@@ -979,25 +986,25 @@ This function is called at the very end of Spacemacs initialization."
                  alert all-the-icons anaconda-mode anzu async auto-compile
                  auto-complete auto-dictionary auto-highlight-symbol
                  auto-yasnippet avy bind-key bind-map browse-at-remote bui ccls
-                 centered-cursor-mode clang-format clean-aindent-mode
-                 color-theme-sanityinc-tomorrow column-enforce-mode company
-                 company-anaconda company-box company-c-headers company-emoji
-                 company-go company-quickhelp company-rtags company-shell
-                 company-statistics company-tern company-web concurrent counsel
-                 counsel-projectile csv-mode ctable cython-mode dap-mode dash
-                 dash-functional deferred define-word diff-hl diminish disaster
-                 doom-modeline doom-themes dotenv-mode dracula-theme dumb-jump
-                 editorconfig elisp-slime-nav emmet-mode emoji-cheat-sheet-plus
-                 emojify epc epl esh-help eshell-prompt-extras eshell-z
-                 eval-sexp-fu evil evil-anzu evil-args evil-cleverparens
-                 evil-ediff evil-escape evil-exchange evil-goggles
-                 evil-iedit-state evil-indent-plus evil-lion evil-lisp-state
-                 evil-magit evil-matchit evil-mc evil-nerd-commenter evil-numbers
-                 evil-org evil-surround evil-tutor evil-unimpaired
-                 evil-visual-mark-mode evil-visualstar expand-region eyebrowse
-                 eziam-theme f fancy-battery fill-column-indicator
-                 find-by-pinyin-dired fish-mode flx flx-ido flycheck
-                 flycheck-bashate flycheck-gometalinter flycheck-pos-tip
+                 centered-cursor-mode clang-format claude-code-ide
+                 clean-aindent-mode color-theme-sanityinc-tomorrow
+                 column-enforce-mode company company-anaconda company-box
+                 company-c-headers company-emoji company-go company-quickhelp
+                 company-rtags company-shell company-statistics company-tern
+                 company-web concurrent counsel counsel-projectile csv-mode ctable
+                 cython-mode dap-mode dash dash-functional deferred define-word
+                 diff-hl diminish disaster doom-modeline doom-themes dotenv-mode
+                 dracula-theme dumb-jump editorconfig elisp-slime-nav emmet-mode
+                 emoji-cheat-sheet-plus emojify epc epl esh-help
+                 eshell-prompt-extras eshell-z eval-sexp-fu evil evil-anzu
+                 evil-args evil-cleverparens evil-ediff evil-escape evil-exchange
+                 evil-goggles evil-iedit-state evil-indent-plus evil-lion
+                 evil-lisp-state evil-magit evil-matchit evil-mc
+                 evil-nerd-commenter evil-numbers evil-org evil-surround
+                 evil-tutor evil-unimpaired evil-visual-mark-mode evil-visualstar
+                 expand-region eyebrowse eziam-theme f fancy-battery
+                 fill-column-indicator find-by-pinyin-dired fish-mode flx flx-ido
+                 flycheck flycheck-bashate flycheck-gometalinter flycheck-pos-tip
                  flycheck-rtags flyspell-correct flyspell-correct-helm font-lock+
                  frame-local fringe-helper fuzzy gh-md git-commit git-gutter
                  git-gutter+ git-gutter-fringe git-gutter-fringe+ git-link
@@ -1035,10 +1042,10 @@ This function is called at the very end of Spacemacs initialization."
                  treemacs-all-the-icons treemacs-evil treemacs-magit
                  treemacs-projectile ts typescript-mode undo-tree unfill
                  use-package uuidgen vi-tilde-fringe volatile-highlights vterm
-                 web-beautify web-completion-data web-mode which-key
-                 window-purpose winum with-editor writeroom-mode ws-butler xr
-                 xterm-color yaml-mode yapfify yasnippet yasnippet-snippets
-                 yatemplate))
+                 web-beautify web-completion-data web-mode web-server websocket
+                 which-key window-purpose winum with-editor writeroom-mode
+                 ws-butler xr xterm-color yaml-mode yapfify yasnippet
+                 yasnippet-snippets yatemplate))
    '(safe-local-variable-values
      '((eval let*
              ((root
