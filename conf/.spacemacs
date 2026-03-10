@@ -888,7 +888,57 @@ before packages are loaded."
 
   (setq-default copilot-indent-offset-warning-disable t)
 
-  (setq default-input-method nil)
+  ;;(setq default-input-method nil)
+
+  ;; ============================================================
+  ;; macOS input source auto-switch (macism, no extra packages)
+  ;; ============================================================
+  (when (and (eq system-type 'darwin)
+             (executable-find "macism"))
+
+    (defvar ez/im-english "com.apple.keylayout.ABC")
+    (defvar ez/im-cooldown 0.05)
+    (defvar ez/im--last-switch 0)
+
+    (defun ez/im-switch-to-english ()
+      (let ((now (float-time)))
+        (when (> (- now ez/im--last-switch) ez/im-cooldown)
+          (setq ez/im--last-switch now)
+          (start-process "macism" nil "macism" ez/im-english))))
+
+    ;; Evil: switch to English when leaving insert mode
+    (add-hook 'evil-insert-state-exit-hook #'ez/im-switch-to-english)
+    (add-hook 'evil-normal-state-entry-hook #'ez/im-switch-to-english)
+    ;; Switch to English after C-g / ESC
+    (advice-add 'keyboard-quit :after (lambda (&rest _) (ez/im-switch-to-english)))
+    (advice-add 'keyboard-escape-quit :after (lambda (&rest _) (ez/im-switch-to-english)))
+    ;; Minibuffer / isearch
+    (add-hook 'minibuffer-setup-hook #'ez/im-switch-to-english)
+    (add-hook 'isearch-mode-hook #'ez/im-switch-to-english)
+    ;; Switch to English when frame gains focus (except in insert mode)
+    (add-hook 'focus-in-hook
+              (lambda ()
+                (when (not (eq evil-state 'insert))
+                  (ez/im-switch-to-english))))
+    ;; Shell environments
+    (dolist (hook '(shell-mode-hook eshell-mode-hook))
+      (add-hook hook #'ez/im-switch-to-english))
+    (with-eval-after-load 'term
+      (add-hook 'term-mode-hook #'ez/im-switch-to-english))
+    (with-eval-after-load 'vterm
+      (add-hook 'vterm-mode-hook #'ez/im-switch-to-english))
+    ;; Treemacs
+    (with-eval-after-load 'treemacs
+      (add-hook 'treemacs-mode-hook #'ez/im-switch-to-english)
+      (when (boundp 'window-selection-change-functions)
+        (add-hook 'window-selection-change-functions
+                  (lambda (_frame)
+                    (when (eq major-mode 'treemacs-mode)
+                      (ez/im-switch-to-english))))))
+    ;; Magit
+    (with-eval-after-load 'magit
+      (add-hook 'magit-mode-hook #'ez/im-switch-to-english)))
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
