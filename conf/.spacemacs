@@ -32,7 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(vimscript
      (rust :variables
            lsp-rust-analyzer-cargo-auto-reload t
            rustic-format-on-save t)
@@ -174,8 +174,8 @@ This function should only modify configuration layer settings."
      debug
      templates
      dap
-     (github-copilot :variables
-                     github-copilot-enable-commit-messages 'golem)
+     ;; (github-copilot :variables
+     ;;                 github-copilot-enable-commit-messages 'golem)
      (llm-client :variables
                  llm-client-enable-gptel t
                  llm-client-enable-ellama t
@@ -196,10 +196,10 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
                                       eterm-256color
-                                      (copilot :location (recipe
-                                                          :fetcher github
-                                                          :repo "zerolfx/copilot.el"
-                                                          :files ("*.el" "dist")))
+                                      ;; (copilot :location (recipe
+                                      ;;                     :fetcher github
+                                      ;;                     :repo "zerolfx/copilot.el"
+                                      ;;                     :files ("*.el" "dist")))
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -878,15 +878,15 @@ before packages are loaded."
     ;; disable inline previews
     (delq 'company-preview-if-just-one-frontend company-frontends))
 
-  (with-eval-after-load 'copilot
-    (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-    (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-    (define-key copilot-completion-map (kbd "C-TAB") 'copilot-accept-completion-by-word)
-    (define-key copilot-completion-map (kbd "C-<tab>") 'copilot-accept-completion-by-word))
+  ;; (with-eval-after-load 'copilot
+  ;;   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  ;;   (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  ;;   (define-key copilot-completion-map (kbd "C-TAB") 'copilot-accept-completion-by-word)
+  ;;   (define-key copilot-completion-map (kbd "C-<tab>") 'copilot-accept-completion-by-word))
 
-  (add-hook 'prog-mode-hook 'copilot-mode)
+  ;; (add-hook 'prog-mode-hook 'copilot-mode)
 
-  (setq-default copilot-indent-offset-warning-disable t)
+  ;; (setq-default copilot-indent-offset-warning-disable t)
 
   ;;(setq default-input-method nil)
 
@@ -1042,10 +1042,10 @@ This function is called at the very end of Spacemacs initialization."
                  company-c-headers company-emoji company-go company-quickhelp
                  company-rtags company-shell company-statistics company-tern
                  company-web concurrent counsel counsel-projectile csv-mode ctable
-                 cython-mode dap-mode dash dash-functional deferred define-word
-                 diff-hl diminish disaster doom-modeline doom-themes dotenv-mode
-                 dracula-theme dumb-jump editorconfig elisp-slime-nav emmet-mode
-                 emoji-cheat-sheet-plus emojify epc epl esh-help
+                 cython-mode dactyl-mode dap-mode dash dash-functional deferred
+                 define-word diff-hl diminish disaster doom-modeline doom-themes
+                 dotenv-mode dracula-theme dumb-jump editorconfig elisp-slime-nav
+                 emmet-mode emoji-cheat-sheet-plus emojify epc epl esh-help
                  eshell-prompt-extras eshell-z eval-sexp-fu evil evil-anzu
                  evil-args evil-cleverparens evil-ediff evil-escape evil-exchange
                  evil-goggles evil-iedit-state evil-indent-plus evil-lion
@@ -1056,19 +1056,20 @@ This function is called at the very end of Spacemacs initialization."
                  fill-column-indicator find-by-pinyin-dired fish-mode flx flx-ido
                  flycheck flycheck-bashate flycheck-gometalinter flycheck-pos-tip
                  flycheck-rtags flyspell-correct flyspell-correct-helm font-lock+
-                 frame-local fringe-helper fuzzy gh-md git-commit git-gutter
-                 git-gutter+ git-gutter-fringe git-gutter-fringe+ git-link
-                 git-messenger git-timemachine gitattributes-mode gitconfig-mode
-                 github-modern-theme gitignore-mode gntp gnuplot go-eldoc
-                 go-fill-struct go-gen-test go-guru go-impl go-mode go-rename
-                 go-tag godoctor golden-ratio google-c-style google-translate
-                 goto-chg haml-mode helm helm-ag helm-c-yasnippet helm-company
-                 helm-core helm-css-scss helm-descbinds helm-flx helm-gitignore
-                 helm-lsp helm-make helm-mode-manager helm-projectile helm-purpose
-                 helm-pydoc helm-rtags helm-swoop helm-themes helm-xref hierarchy
-                 highlight-indentation highlight-numbers highlight-parentheses
-                 hl-todo ht htmlize hungry-delete hydra idea-darkula-theme iedit
-                 imenu-list impatient-mode importmagic indent-guide insert-shebang
+                 frame-local fringe-helper fuzzy ggtags gh-md git-commit
+                 git-gutter git-gutter+ git-gutter-fringe git-gutter-fringe+
+                 git-link git-messenger git-timemachine gitattributes-mode
+                 gitconfig-mode github-modern-theme gitignore-mode gntp gnuplot
+                 go-eldoc go-fill-struct go-gen-test go-guru go-impl go-mode
+                 go-rename go-tag godoctor golden-ratio google-c-style
+                 google-translate goto-chg haml-mode helm helm-ag helm-c-yasnippet
+                 helm-company helm-core helm-css-scss helm-descbinds helm-flx
+                 helm-gitignore helm-lsp helm-make helm-mode-manager
+                 helm-projectile helm-purpose helm-pydoc helm-rtags helm-swoop
+                 helm-themes helm-xref hierarchy highlight-indentation
+                 highlight-numbers highlight-parentheses hl-todo ht htmlize
+                 hungry-delete hydra idea-darkula-theme iedit imenu-list
+                 impatient-mode importmagic indent-guide insert-shebang
                  intellij-theme ivy jazz-theme js-doc js2-mode js2-refactor
                  json-mode json-navigator json-reformat json-snatcher link-hint
                  live-py-mode livid-mode log4e lorem-ipsum lsp-mode lsp-treemacs
@@ -1091,11 +1092,11 @@ This function is called at the very end of Spacemacs initialization."
                  tango-plus-theme tern tide toc-org transient treemacs
                  treemacs-all-the-icons treemacs-evil treemacs-magit
                  treemacs-projectile ts typescript-mode undo-tree unfill
-                 use-package uuidgen vi-tilde-fringe volatile-highlights vterm
-                 web-beautify web-completion-data web-mode web-server websocket
-                 which-key window-purpose winum with-editor writeroom-mode
-                 ws-butler xr xterm-color yaml-mode yapfify yasnippet
-                 yasnippet-snippets yatemplate))
+                 use-package uuidgen vi-tilde-fringe vimrc-mode
+                 volatile-highlights vterm web-beautify web-completion-data
+                 web-mode web-server websocket which-key window-purpose winum
+                 with-editor writeroom-mode ws-butler xr xterm-color yaml-mode
+                 yapfify yasnippet yasnippet-snippets yatemplate))
    '(safe-local-variable-values
      '((eval let*
              ((root
