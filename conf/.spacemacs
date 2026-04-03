@@ -142,7 +142,8 @@ This function should only modify configuration layer settings."
          go-format-before-save t
          gofmt-command "goimports"
          godoc-at-point-function 'godoc-gogetdoc
-         go-use-golangci-lint t
+         ;; Disabled: golangci-lint conflicts with LSP diagnostics and lacks real-time feedback
+         ;; go-use-golangci-lint t
          )
      ;;django
      (javascript :variables
