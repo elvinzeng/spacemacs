@@ -33,9 +33,6 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(vimscript
-     (rust :variables
-           lsp-rust-analyzer-cargo-auto-reload t
-           rustic-format-on-save t)
      ;;php
      helm
      (auto-completion :variables
@@ -168,7 +165,9 @@ This function should only modify configuration layer settings."
           )
      prettier
      ;;web-beautify
-     ;;rust
+     (rust :variables
+           lsp-rust-analyzer-cargo-auto-reload t
+           rustic-format-on-save t)
      (multiple-cursors :variables multiple-cursors-backend 'evil-mc)
      themes-megapack
      major-modes
