@@ -93,25 +93,21 @@ Cancels autosave on exiting perspectives mode."
   (let ((ivy-ignore-buffers (remove #'spacemacs//layout-not-contains-buffer-p ivy-ignore-buffers)))
     (ivy-switch-buffer)))
 
-(defmacro spacemacs||with-persp-buffer-list (&rest body)
-  "This one is a brute force version of `with-persp-buffer-list'.
-It maitains the order of the original `buffer-list'"
-  `(cl-letf* ((org-buffer-list
-               (symbol-function 'buffer-list))
-              ((symbol-function 'buffer-list)
-               #'(lambda (&optional frame)
-                   (seq-filter
-                    #'persp-contain-buffer-p
-                    (funcall org-buffer-list frame)))))
-     ,@body))
-
 (defun spacemacs-layouts//advice-with-persp-buffer-list (orig-fun &rest args)
-  "Advice to provide persp buffer list."
-  (spacemacs||with-persp-buffer-list () (apply orig-fun args)))
+  "Advise ORIG-FUN to make `buffer-list' only return buffers in the current layout.
+
+This is similar to `with-persp-buffer-list', but maintains the order of the list
+returned by `buffer-list'."
+  (if (fboundp 'persp-contain-buffer-p)
+      (cl-letf* ((orig-buffer-list (symbol-function 'buffer-list))
+                 ((symbol-function 'buffer-list)
+                  (lambda (&optional frame)
+                    (seq-filter #'persp-contain-buffer-p (funcall orig-buffer-list frame)))))
+        (apply orig-fun args))
+    (apply orig-fun args)))
 
 
 ;; Persp transient-state
-
 (defvar spacemacs--persp-display-buffers-func 'ignore
   "Function to display buffers in the perspective.")
 (defun spacemacs/persp-buffers ()
@@ -339,8 +335,8 @@ Available PROPS:
   (spacemacs//update-custom-layouts)
   (spacemacs/custom-layouts-transient-state/body))
 
-(defun spacemacs//custom-layouts-ms-documentation ()
-  "Return the docstring for the custom perspectives transient-state."
+(defun spacemacs//custom-layouts-ts-documentation ()
+  "Return the docstring for the custom perspectives transient state."
   (if spacemacs--custom-layout-alist
       (mapconcat (lambda (custom-persp)
                    (format "[%s] %s"
@@ -360,7 +356,7 @@ format so they are supported by the
              (func-name (spacemacs//custom-layout-func-name name)))
         (push (list binding func-name :exit t) bindings)))
     (eval `(spacemacs|define-transient-state custom-layouts
-             :doc (concat (spacemacs//custom-layouts-ms-documentation))
+             :doc (concat (spacemacs//custom-layouts-ts-documentation))
              :bindings
              ,@bindings))))
 
