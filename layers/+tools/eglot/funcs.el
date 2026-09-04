@@ -1,8 +1,8 @@
-;;; config.el --- nixos Layer Configuration File for Spacemacs  -*- lexical-binding: t; -*-
+;;; funcs.el --- Eglot Layer functions file for Spacemacs  -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2026 Sylvain Benner & Contributors
 ;;
-;; Author: Sylvain Benner <sylvain.benner@gmail.com>
+;; Author: Mingyu Kang <kenkangxgwe@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
@@ -21,10 +21,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-;; variables
-
-(defvar nixos-format-on-save nil
-  "If non-nil, nixfmt before saving.")
-
-(defvar nix-backend nil
-  "The backend used for completion. possible values are `lsp' or `nil'.")
+(defun spacemacs//setup-eglot-jump-handler ()
+  "Set jump handler for Eglot."
+  (add-to-list 'spacemacs-jump-handlers 'xref-find-definitions))

@@ -757,13 +757,12 @@ Headline^^            Visit entry^^               Filter^^                    Da
 
 (defun org/init-org-modern ()
   (use-package org-modern
-    :defer t
-    :init
-    (add-hook 'org-mode-hook 'org-modern-mode)
-    (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
-
+    :after org
+    :config
+    (global-org-modern-mode)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode
-      "Tm" 'org-modern-mode)))
+      "Tm" 'org-modern-mode
+      "TM" 'global-org-modern-mode)))
 
 (defun org/init-org-pomodoro ()
   (use-package org-pomodoro
@@ -815,11 +814,8 @@ Headline^^            Visit entry^^               Filter^^                    Da
 
 (defun org/init-org-rich-yank ()
   (use-package org-rich-yank
-    :ensure t
-    :demand t
     :init
     (spacemacs/set-leader-keys-for-major-mode 'org-mode
-      ;; yank is a misnomer for this function which actually puts/pastes
       ;; ir = "insert rich"
       "ir" 'org-rich-yank)))
 
