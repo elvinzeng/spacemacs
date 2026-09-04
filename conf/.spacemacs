@@ -91,6 +91,7 @@ This function should only modify configuration layer settings."
              ;; python-fill-column 99
              python-poetry-activate t
              python-virtualenv-management 'pet
+             python-enable-tools '(uv)
              )
      emoji
      (chinese :variables
