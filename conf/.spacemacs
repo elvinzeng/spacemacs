@@ -89,7 +89,7 @@ This function should only modify configuration layer settings."
              python-lsp-server 'pyright
              python-test-runner '(pytest)
              ;; python-fill-column 99
-             python-poetry-activate t
+             ;; python-poetry-activate t
              python-virtualenv-management 'pet
              python-enable-tools '(uv)
              )
